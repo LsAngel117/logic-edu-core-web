@@ -1,0 +1,52 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Angular 21 frontend for LogicEdu educational management system.
+  Package manager: bun v1.2.5
+  Test runner: Vitest v4.0.8 (via @angular/build:unit-test)
+  UI library: Angular Material ~21.2.13 (Material 3 theming, SCSS)
+  TypeScript strict mode enabled (strictTemplates: true)
+  Architecture: standalone components, feature-first (core/shared/features)
+  Conventions: No .component/.service/.model file suffixes
+  Plan: docs/logic-edu-core-web-plan.md
+
+rules:
+  proposal:
+    - Include intent, scope, and approach for each change
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns (no file suffix convention)
+    tdd: true
+    test_command: "bun ng test"
+  verify:
+    test_command: "bun ng test"
+    build_command: "bun ng build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  runner: vitest
+  command: bun ng test
+  layers:
+    unit: true
+    integration: false
+    e2e: false
+  coverage: true
+  coverage_command: bun vitest --coverage
+  quality:
+    linter: false
+    type_checker: true
+    type_checker_command: bun ng build
+    formatter: true
+    formatter_command: bun prettier --check
