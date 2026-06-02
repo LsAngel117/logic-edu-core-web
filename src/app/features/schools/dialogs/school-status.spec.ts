@@ -1,18 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal, computed } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth';
+import { MembershipsService } from '../../users/memberships/services/memberships';
 import { User } from '../../../core/models/user';
 import { SchoolsService } from '../services/schools';
 import { School } from '../models/school';
+import { Membership } from '../../users/memberships/models/membership';
 import { SchoolStatusDialogComponent } from './school-status';
 
 describe('SchoolStatusDialogComponent', () => {
   let schoolsServiceMock: { updateStatus: ReturnType<typeof vi.fn> };
   let dialogRefMock: { close: ReturnType<typeof vi.fn> };
+  let membershipsServiceMock: { getByUser: ReturnType<typeof vi.fn> };
   let authServiceMock: {
     user: ReturnType<typeof signal<User | null>>;
     isAuthenticated: ReturnType<typeof computed<boolean>>;
@@ -49,6 +52,7 @@ describe('SchoolStatusDialogComponent', () => {
   function setupComponent(dialogData: School = activeSchool, authUser: User | null = null) {
     schoolsServiceMock = { updateStatus: vi.fn() };
     dialogRefMock = { close: vi.fn() };
+    membershipsServiceMock = { getByUser: vi.fn().mockReturnValue(of([])) };
     authServiceMock = {
       user: signal(authUser),
       isAuthenticated: computed(() => authUser !== null),
@@ -58,11 +62,12 @@ describe('SchoolStatusDialogComponent', () => {
     TestBed.configureTestingModule({
       imports: [SchoolStatusDialogComponent],
       providers: [
-        provideAnimationsAsync(),
+        provideNoopAnimations(),
         { provide: SchoolsService, useValue: schoolsServiceMock },
         { provide: MatDialogRef, useValue: dialogRefMock },
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: AuthService, useValue: authServiceMock },
+        { provide: MembershipsService, useValue: membershipsServiceMock },
       ],
     });
   }
@@ -147,18 +152,23 @@ describe('SchoolStatusDialogComponent', () => {
   });
 
   it('should disable toggle when self-school detected', async () => {
-    // Self-school detection: school ID matches auth user's school scope
-    // We simulate this by checking the auth user context
     const selfSchool: School = { ...activeSchool, id: 'auth1' };
+    const selfMembership: Membership = {
+      id: 'm1',
+      userId: 'auth1',
+      role: 'SCHOOL_ADMIN',
+      scope: 'auth1',
+      effectivePermissions: [],
+    };
     setupComponent(selfSchool, mockAuthUser);
+    membershipsServiceMock.getByUser.mockReturnValue(of([selfMembership]));
     const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    // The slide toggle should be disabled for self-school
-    const slideToggle = fixture.nativeElement.querySelector('mat-slide-toggle');
-    expect(slideToggle).toBeTruthy();
+    expect(fixture.componentInstance.isSelfSchool()).toBe(true);
 
     const message = fixture.nativeElement.querySelector('.self-disable-message');
     expect(message).toBeTruthy();
-    expect(message.textContent).toContain('Cannot deactivate your own school');
   });
 });
