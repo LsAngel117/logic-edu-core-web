@@ -6,6 +6,7 @@ import {
   CreateUserPayload,
   UpdateStatusPayload,
   ChangePasswordPayload,
+  UpdateUserPayload,
 } from '../models/user-profile';
 
 @Injectable({ providedIn: 'root' })
@@ -16,7 +17,7 @@ export class UsersService {
   getAll(search?: string): Observable<UserProfile[]> {
     let params = new HttpParams();
     if (search) {
-      params = params.set('search', search);
+      params = params.set('q', search);
     }
     return this.http.get<UserProfile[]>(this.baseUrl, { params });
   }
@@ -30,6 +31,10 @@ export class UsersService {
   }
 
   updateStatus(id: string, payload: UpdateStatusPayload): Observable<UserProfile> {
+    return this.http.patch<UserProfile>(`${this.baseUrl}/${id}/status`, payload);
+  }
+
+  update(id: string, payload: UpdateUserPayload): Observable<UserProfile> {
     return this.http.patch<UserProfile>(`${this.baseUrl}/${id}`, payload);
   }
 

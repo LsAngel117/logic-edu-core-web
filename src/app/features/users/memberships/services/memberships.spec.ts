@@ -45,7 +45,7 @@ describe('MembershipsService', () => {
       let result: Membership[] | undefined;
       service.getByUser('u1').subscribe((memberships: Membership[]) => (result = memberships));
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships');
+      const req = httpMock.expectOne('/api/v1/memberships?userId=u1');
       expect(req.request.method).toBe('GET');
 
       req.flush(mockMemberships);
@@ -59,7 +59,7 @@ describe('MembershipsService', () => {
       let result: Membership[] | undefined;
       service.getByUser('u1').subscribe((memberships: Membership[]) => (result = memberships));
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships');
+      const req = httpMock.expectOne('/api/v1/memberships?userId=u1');
       req.flush([]);
 
       expect(result).toEqual([]);
@@ -73,7 +73,7 @@ describe('MembershipsService', () => {
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/users/nonexistent/memberships');
+      const req = httpMock.expectOne('/api/v1/memberships?userId=nonexistent');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
@@ -100,9 +100,9 @@ describe('MembershipsService', () => {
       let result: Membership | undefined;
       service.add('u1', payload).subscribe((m: Membership) => (result = m));
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships');
+      const req = httpMock.expectOne('/api/v1/memberships');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(payload);
+      expect(req.request.body).toEqual({ ...payload, userId: 'u1' });
 
       req.flush(created);
 
@@ -117,7 +117,7 @@ describe('MembershipsService', () => {
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships');
+      const req = httpMock.expectOne('/api/v1/memberships');
       req.flush('Conflict', { status: 409, statusText: 'Conflict' });
 
       expect(errorStatus).toBe(409);
@@ -133,7 +133,7 @@ describe('MembershipsService', () => {
         complete: () => (completed = true),
       });
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships/m1');
+      const req = httpMock.expectOne('/api/v1/memberships/m1');
       expect(req.request.method).toBe('DELETE');
 
       req.flush(null);
@@ -149,7 +149,7 @@ describe('MembershipsService', () => {
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/users/u1/memberships/m-gone');
+      const req = httpMock.expectOne('/api/v1/memberships/m-gone');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
