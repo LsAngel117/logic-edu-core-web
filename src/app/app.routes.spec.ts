@@ -83,4 +83,28 @@ describe('app.routes', () => {
 
     expect(location.path()).toBe('/auth/login');
   });
+
+  it('should allow access to /schools when authenticated', async () => {
+    setupRoutes(true);
+
+    await router.navigate(['/schools']);
+
+    expect(location.path()).toBe('/schools');
+  });
+
+  it('should redirect unauthenticated user from /schools to /auth/login', async () => {
+    setupRoutes(false);
+
+    await router.navigate(['/schools']);
+
+    expect(location.path()).toBe('/auth/login');
+  });
+
+  it('should allow access to /schools/school-1/branches when authenticated', async () => {
+    setupRoutes(true);
+
+    await router.navigate(['/schools', 'school-1', 'branches']);
+
+    expect(location.path()).toBe('/schools/school-1/branches');
+  });
 });
