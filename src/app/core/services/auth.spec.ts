@@ -109,7 +109,7 @@ describe('AuthService', () => {
 
       const req = httpMock.expectOne('/auth/login');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ email: 'test@logicedu.com', password: 'password123' });
+      expect(req.request.body).toEqual({ email: 'test@logicedu.com', rawPassword: 'password123' });
 
       req.flush({ token: mockJwt });
 

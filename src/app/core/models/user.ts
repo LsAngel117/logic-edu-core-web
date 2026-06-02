@@ -11,5 +11,5 @@ export interface User {
 /** Credentials submitted to POST /auth/login. */
 export interface LoginRequest {
   email: string;
-  password: string;
+  rawPassword: string;
 }
