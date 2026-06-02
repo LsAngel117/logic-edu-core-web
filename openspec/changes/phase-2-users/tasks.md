@@ -33,28 +33,28 @@ Chain strategy: feature-branch-chain
 
 ## Phase 2: List Page
 
-- [ ] 2.1 Create `users-list.ts` + `.html` + `.scss` — mat-table with server-side sort/search/pagination, status toggle inline with confirm
-- [ ] 2.2 Create `user-create.ts` — create user dialog (ReactiveForms, email/password/roles/name)
-- [ ] 2.3 Create `user-edit.ts` — edit user dialog (pre-filled, PUT /:id)
+- [x] 2.1 Create `users-page.ts` + `.html` + `.scss` — mat-table with search, status chips, loading/empty/error states
+- [x] 2.2 Create `create-user.ts` dialog — ReactiveForms with email/name/password/roles, 409/403 error handling
+- [x] 2.3 Create `user-status.ts` dialog — status toggle, self-disable prevention
 
 ## Phase 3: Detail Page & Memberships
 
-- [ ] 3.1 Create `user-detail.ts` + `.html` + `.scss` — profile card + memberships panel integration
-- [ ] 3.2 Create `memberships/memberships-panel.ts` + `.html` — chip list, add/remove, loading/empty/error states
-- [ ] 3.3 Create `memberships/membership-add.ts` — add membership dialog (role/scope selection)
-- [ ] 3.4 Create `user-password.ts` — change password dialog (new + confirm, mismatch validation)
+- [x] 3.1 Create `user-detail.ts` + `.html` + `.scss` — profile card + memberships panel integration
+- [x] 3.2 Create `memberships/memberships-panel.ts` + `.html` — chip list, add/remove, loading/empty/error states
+- [x] 3.3 Create `memberships/membership-add.ts` — add membership dialog (role/scope selection)
+- [x] 3.4 Create `user-password.ts` — change password dialog (new + confirm, mismatch validation)
 
 ## Phase 4: Routing & Wiring
 
-- [ ] 4.1 Create `routes.ts` — lazy routes for `/users` (list) and `/users/:id` (detail)
-- [ ] 4.2 Modify `app.routes.ts` — add `/users` lazy route with `authGuard`
+- [x] 4.1 Create `routes.ts` — lazy routes for `/users` (list) and `/users/:id` (detail)
+- [x] 4.2 Modify `app.routes.ts` — add `/users` lazy route with `authGuard`
 
 ## Phase 5: Testing
 
 - [x] 5.1 Write `services/users.spec.ts` — CRUD + status + password, mock HttpClient per HTTP verb
 - [x] 5.2 Write `memberships/services/memberships.spec.ts` — list/create/delete, verify userId query param
-- [ ] 5.3 Write `users-list.spec.ts` — table render, sort/search triggers API, status confirm, error banner
-- [ ] 5.4 Write `user-create.spec.ts` — validation, submit calls POST, 409/403 error display, dialog close
-- [ ] 5.5 Write `user-edit.spec.ts` — pre-fill, submit calls PUT, 404 handled
-- [ ] 5.6 Write `user-detail.spec.ts` + `memberships-panel.spec.ts` — load profile, chips render, add/remove, 404
-- [ ] 5.7 Write `user-password.spec.ts` + `membership-add.spec.ts` — mismatch prevention, submit, duplicate 409
+- [x] 5.3 Write `users-page.spec.ts` — table render, search triggers API, status chips, error state, action buttons
+- [x] 5.4 Write `create-user.spec.ts` — validation, submit calls POST, 409/403 error display, cancel closes
+- [x] 5.5 Write `user-status.spec.ts` — current status displayed, toggle works, submit calls service, cancel closes, self-disable
+- [x] 5.6 Write `user-detail.spec.ts` + `memberships-panel.spec.ts` — load profile, chips render, add/remove, 404
+- [x] 5.7 Write `user-password.spec.ts` + `membership-add.spec.ts` — mismatch prevention, submit, duplicate 409
