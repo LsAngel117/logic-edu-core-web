@@ -17,4 +17,9 @@ export const routes: Routes = [
     loadChildren: () => import('./features/users/routes'),
     canActivate: [authGuard],
   },
+  {
+    path: 'schools',
+    loadChildren: () => import('./features/schools/routes'),
+    canActivate: [authGuard],
+  },
 ];
