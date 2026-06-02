@@ -42,8 +42,8 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Login UI
 
-- [ ] 3.1 Rewrite `src/app/features/auth/login.ts` — `ReactiveForms` email + password form, Material fields, validation errors, loading state, calls `AuthService.login()`, navigates on success, redirects if already authenticated
-- [ ] 3.2 Rewrite `src/app/features/auth/login.spec.ts` — 5 scenarios: empty form validation, login success (navigates to dashboard), 401 error displayed, network error displayed, authenticated redirect
+- [x] 3.1 Rewrite `src/app/features/auth/login.ts` — `ReactiveForms` email + password form, Material fields, validation errors, loading state, calls `AuthService.login()`, navigates on success, redirects if already authenticated
+- [x] 3.2 Rewrite `src/app/features/auth/login.spec.ts` — 5 scenarios: empty form validation, login success (navigates to dashboard), 401 error displayed, network error displayed, authenticated redirect
 
 ## Phase 4: Verify
 
