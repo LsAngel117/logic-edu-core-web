@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Remove Membership</h2>
+
+<mat-dialog-content>
+  <p>Remove <strong>{{ data.role }}</strong> membership?</p>
+
+  @if (errorMessage()) {
+  <div class="dialog-error">{{ errorMessage() }}</div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="loading()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="warn"
+    [disabled]="loading()"
+    (click)="onConfirm()"
+  >
+    @if (loading()) {
+    <mat-spinner diameter="20" />
+    } @else {
+    Remove
+    }
+  </button>
+</mat-dialog-actions>

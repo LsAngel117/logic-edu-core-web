@@ -1,0 +1,53 @@
+<div class="memberships-panel">
+  <div class="panel-header">
+    <h3>Memberships</h3>
+    <button
+      mat-raised-button
+      color="primary"
+      class="add-membership-btn"
+      (click)="openAddDialog()"
+    >
+      Add Membership
+    </button>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-state">
+    <mat-spinner diameter="32" />
+  </div>
+  } @else if (error()) {
+  <div class="error-state">
+    <p>Failed to load memberships</p>
+    <button mat-button (click)="loadMemberships(userId())">Retry</button>
+  </div>
+  } @else if (memberships().length === 0) {
+  <div class="empty-state">No memberships assigned</div>
+  } @else {
+  <div class="memberships-list">
+    <div class="membership-header">
+      <span class="col-role">Role</span>
+      <span class="col-scope">Scope</span>
+      <span class="col-permissions">Permissions</span>
+      <span class="col-actions">Actions</span>
+    </div>
+    @for (m of memberships(); track m.id) {
+    <div class="membership-row">
+      <span class="col-role">{{ m.role }}</span>
+      <span class="col-scope">{{ m.scope }}</span>
+      <span class="col-permissions">{{ m.effectivePermissions.join(', ') }}</span>
+      <span class="col-actions">
+        <button
+          mat-icon-button
+          color="warn"
+          class="remove-btn"
+          (click)="openRemoveDialog(m)"
+          aria-label="Remove"
+        >
+          <span class="mat-icon">delete</span>
+        </button>
+      </span>
+    </div>
+    }
+  </div>
+  }
+</div>
