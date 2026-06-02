@@ -51,4 +51,36 @@ describe('app.routes', () => {
 
     expect(location.path()).toBe('/dashboard');
   });
+
+  it('should redirect unauthenticated user from /users to /auth/login', async () => {
+    setupRoutes(false);
+
+    await router.navigate(['/users']);
+
+    expect(location.path()).toBe('/auth/login');
+  });
+
+  it('should allow access to /users when authenticated', async () => {
+    setupRoutes(true);
+
+    await router.navigate(['/users']);
+
+    expect(location.path()).toBe('/users');
+  });
+
+  it('should allow access to /users/123 when authenticated', async () => {
+    setupRoutes(true);
+
+    await router.navigate(['/users', '123']);
+
+    expect(location.path()).toBe('/users/123');
+  });
+
+  it('should redirect unauthenticated user from /users/123 to /auth/login', async () => {
+    setupRoutes(false);
+
+    await router.navigate(['/users', '123']);
+
+    expect(location.path()).toBe('/auth/login');
+  });
 });
