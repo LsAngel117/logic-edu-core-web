@@ -12,7 +12,7 @@ export default [
       },
       {
         path: ':schoolId/branches',
-        loadComponent: () => import('./branches-placeholder').then(m => m.BranchesPlaceholderComponent),
+        loadComponent: () => import('./branches/branches-page').then(m => m.BranchesPage),
       },
     ],
   },
