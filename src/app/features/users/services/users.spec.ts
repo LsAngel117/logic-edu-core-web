@@ -61,7 +61,7 @@ describe('UsersService', () => {
       let result: UserProfile[] | undefined;
       service.getAll('alice').subscribe((users: UserProfile[]) => (result = users));
 
-      const req = httpMock.expectOne('/api/v1/users?search=alice');
+      const req = httpMock.expectOne('/api/v1/users?q=alice');
       expect(req.request.method).toBe('GET');
 
       req.flush([mockUser]);
@@ -176,7 +176,7 @@ describe('UsersService', () => {
       let result: UserProfile | undefined;
       service.updateStatus('u1', payload).subscribe((user: UserProfile) => (result = user));
 
-      const req = httpMock.expectOne('/api/v1/users/u1');
+      const req = httpMock.expectOne('/api/v1/users/u1/status');
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(payload);
 
@@ -193,7 +193,7 @@ describe('UsersService', () => {
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/users/nonexistent');
+      const req = httpMock.expectOne('/api/v1/users/nonexistent/status');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
