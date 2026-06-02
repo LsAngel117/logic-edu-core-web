@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>Edit Status</h2>
+
+<mat-dialog-content>
+  <p>User: <strong>{{ data.displayName }}</strong></p>
+  <p>Current status: <strong>{{ data.status }}</strong></p>
+
+  @if (isSelf()) {
+  <p class="self-disable-message">Cannot change your own status</p>
+  }
+
+  <mat-slide-toggle
+    [checked]="isToggled()"
+    [disabled]="loading() || isSelf()"
+  >
+    {{ data.status === 'active' ? 'Deactivate' : 'Activate' }} user
+  </mat-slide-toggle>
+
+  @if (errorMessage()) {
+  <div class="dialog-error">{{ errorMessage() }}</div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [disabled]="loading()" (click)="onCancel()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="loading()"
+    (click)="onConfirm()"
+  >
+    @if (loading()) {
+    <mat-spinner diameter="20" />
+    } @else {
+    Confirm
+    }
+  </button>
+</mat-dialog-actions>

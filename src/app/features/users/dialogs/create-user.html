@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>Create User</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-user-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+      <mat-error>Email is required</mat-error>
+      } @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+      <mat-error>Invalid email format</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Display Name</mat-label>
+      <input matInput formControlName="displayName" />
+      @if (form.controls.displayName.touched && form.controls.displayName.hasError('required')) {
+      <mat-error>Display name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" />
+      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+      <mat-error>Password is required</mat-error>
+      } @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+      <mat-error>Password must be at least 8 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Roles</mat-label>
+      <mat-select formControlName="roles" multiple>
+        @for (role of roles; track role) {
+        <mat-option [value]="role">{{ role }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (errorMessage()) {
+    <div class="dialog-error">{{ errorMessage() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="loading()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    [disabled]="loading()"
+    (click)="onSubmit()"
+  >
+    @if (loading()) {
+    <mat-spinner diameter="20" />
+    } @else {
+    Create
+    }
+  </button>
+</mat-dialog-actions>
