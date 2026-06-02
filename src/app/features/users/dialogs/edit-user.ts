@@ -45,6 +45,14 @@ import { UserProfile } from '../models/user-profile';
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Roles (comma-separated)</mat-label>
+          <input matInput formControlName="roles" />
+          @if (form.controls.roles.hasError('required')) {
+            <mat-error>At least one role is required</mat-error>
+          }
+        </mat-form-field>
+
         @if (errorMessage()) {
           <p class="error-message">{{ errorMessage() }}</p>
         }
@@ -91,6 +99,7 @@ export class EditUser {
   readonly form = inject(FormBuilder).group({
     email: [this.data.email, [Validators.required, Validators.email]],
     displayName: [this.data.displayName, Validators.required],
+    roles: [this.data.roles.join(', '), Validators.required],
   });
 
   async onSubmit(): Promise<void> {
@@ -100,14 +109,20 @@ export class EditUser {
     this.errorMessage.set('');
 
     try {
-      const updated = await firstValueFrom(
-        this.usersService.update(this.data.id, this.form.getRawValue() as { email: string; displayName: string }),
-      );
+      const formValue = this.form.getRawValue() as { email: string; displayName: string; roles: string };
+      const payload = {
+        email: formValue.email,
+        displayName: formValue.displayName,
+        roles: formValue.roles.split(',').map((r) => r.trim()).filter(Boolean),
+      };
+      const updated = await firstValueFrom(this.usersService.update(this.data.id, payload));
       this.dialogRef.close(updated);
     } catch (err: unknown) {
       const error = err as { status?: number };
       if (error.status === 409) {
         this.errorMessage.set('A user with this email already exists.');
+      } else if (error.status === 404) {
+        this.errorMessage.set('User no longer exists.');
       } else {
         this.errorMessage.set('Failed to update user. Please try again.');
       }

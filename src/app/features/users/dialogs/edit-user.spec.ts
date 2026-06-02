@@ -39,26 +39,35 @@ describe('EditUser', () => {
     const component = fixture.componentInstance;
     expect(component.form.controls.email.value).toBe('test@logicedu.com');
     expect(component.form.controls.displayName.value).toBe('Test User');
+    expect(component.form.controls.roles.value).toBe('TEACHER');
   });
 
-  it('should call UsersService.update() on valid submit', () => {
+  it('should call UsersService.update() with roles on valid submit', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'updated@logicedu.com', displayName: 'Updated' });
+    component.form.patchValue({
+      email: 'updated@logicedu.com',
+      displayName: 'Updated',
+      roles: 'TEACHER, ADMIN',
+    });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/users/usr_1');
     expect(req.request.method).toBe('PATCH');
-    expect(req.request.body).toEqual({ email: 'updated@logicedu.com', displayName: 'Updated' });
-    req.flush({ ...mockUser, email: 'updated@logicedu.com', displayName: 'Updated' });
+    expect(req.request.body).toEqual({
+      email: 'updated@logicedu.com',
+      displayName: 'Updated',
+      roles: ['TEACHER', 'ADMIN'],
+    });
+    req.flush({ ...mockUser, email: 'updated@logicedu.com', displayName: 'Updated', roles: ['TEACHER', 'ADMIN'] });
   });
 
   it('should show error on 409 conflict', async () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'duplicate@logicedu.com', displayName: 'Updated' });
+    component.form.patchValue({ email: 'duplicate@logicedu.com', displayName: 'Updated', roles: 'TEACHER' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/users/usr_1');
@@ -69,11 +78,26 @@ describe('EditUser', () => {
     expect(component.errorMessage()).toContain('already exists');
   });
 
+  it('should show error on 404 (user gone)', async () => {
+    const { fixture, httpMock } = setup();
+    const component = fixture.componentInstance;
+
+    component.form.patchValue({ email: 'updated@logicedu.com', displayName: 'Updated', roles: 'TEACHER' });
+    component.onSubmit();
+
+    const req = httpMock.expectOne('/api/v1/users/usr_1');
+    req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+
+    await fixture.whenStable();
+
+    expect(component.errorMessage()).toContain('no longer exists');
+  });
+
   it('should show error on network failure', async () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'updated@logicedu.com', displayName: 'Updated' });
+    component.form.patchValue({ email: 'updated@logicedu.com', displayName: 'Updated', roles: 'TEACHER' });
     component.onSubmit();
 
     httpMock.expectOne('/api/v1/users/usr_1').error(new ProgressEvent('error'));
@@ -87,7 +111,7 @@ describe('EditUser', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: '', displayName: '' });
+    component.form.patchValue({ email: '', displayName: '', roles: '' });
     component.onSubmit();
 
     httpMock.expectNone('/api/v1/users/usr_1');

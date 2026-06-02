@@ -26,4 +26,5 @@ export interface ChangePasswordPayload {
 export interface UpdateUserPayload {
   email: string;
   displayName: string;
+  roles: string[];
 }
