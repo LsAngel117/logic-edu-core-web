@@ -1,0 +1,67 @@
+<div class="user-detail">
+  <button mat-icon-button class="back-btn" routerLink="/users" aria-label="Back to users">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  @if (loading()) {
+  <div class="loading-state">
+    <mat-spinner diameter="48" />
+  </div>
+  } @else if (notFound()) {
+  <div class="error-state">
+    <h2>User not found</h2>
+    <p>The requested user does not exist or has been removed.</p>
+    <button mat-raised-button routerLink="/users">Back to Users</button>
+  </div>
+  } @else if (error()) {
+  <div class="error-state">
+    <h2>Failed to load user</h2>
+    <p>An error occurred while fetching user details.</p>
+    <button mat-raised-button class="retry-btn" (click)="loadUser(currentId())">
+      Retry
+    </button>
+  </div>
+  } @else if (user(); as u) {
+  <div class="profile-card">
+    <h2>{{ u.displayName }}</h2>
+
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="label">Email</span>
+        <span class="value">{{ u.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Status</span>
+        <mat-chip [class.status-active]="u.status === 'active'" [class.status-inactive]="u.status === 'inactive'">
+          {{ u.status }}
+        </mat-chip>
+      </div>
+      <div class="info-row">
+        <span class="label">Roles</span>
+        <mat-chip-set>
+          @for (role of u.roles; track role) {
+          <mat-chip>{{ role }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      <div class="info-row">
+        <span class="label">Created</span>
+        <span class="value">{{ u.createdAt | date:'yyyy-MM-dd' }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button
+        mat-raised-button
+        color="primary"
+        class="change-password-btn"
+        (click)="openPasswordDialog()"
+      >
+        Change Password
+      </button>
+    </div>
+  </div>
+
+  <app-memberships-panel [userId]="u.id" />
+  }
+</div>
