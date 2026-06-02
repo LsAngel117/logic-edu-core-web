@@ -6,6 +6,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
 import { AuthService } from '../../../core/services/auth';
+import { MembershipsService } from '../../users/memberships/services/memberships';
 import { School, UpdateSchoolStatusPayload } from '../models/school';
 
 @Component({
@@ -22,6 +23,7 @@ import { School, UpdateSchoolStatusPayload } from '../models/school';
 export class SchoolStatusDialogComponent {
   private readonly schoolsService = inject(SchoolsService);
   private readonly authService = inject(AuthService);
+  private readonly membershipsService = inject(MembershipsService);
   private readonly dialogRef = inject(MatDialogRef<SchoolStatusDialogComponent>);
   readonly data: School = inject(MAT_DIALOG_DATA);
 
@@ -30,12 +32,22 @@ export class SchoolStatusDialogComponent {
 
   readonly hasBranches = computed(() => (this.data.branchCount ?? 0) > 0);
 
-  readonly isSelfSchool = computed(() => {
-    const currentUser = this.authService.user();
-    // Self-school protection: simplified check via user ID match.
-    // Full implementation uses MembershipsService to derive admin school IDs.
-    return currentUser !== null && currentUser.id === this.data.id;
-  });
+  readonly isSelfSchool = signal(false);
+
+  constructor() {
+    const user = this.authService.user();
+    if (user) {
+      this.membershipsService.getByUser(user.id).subscribe({
+        next: (memberships) => {
+          const belongsToSchool = memberships.some((m) => m.scope === this.data.id);
+          this.isSelfSchool.set(belongsToSchool);
+        },
+        error: () => {
+          this.isSelfSchool.set(false);
+        },
+      });
+    }
+  }
 
   isToggled(): boolean {
     return this.data.status === 'inactive';

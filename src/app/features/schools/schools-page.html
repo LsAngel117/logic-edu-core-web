@@ -22,6 +22,16 @@
     }
   </mat-form-field>
 
+  <mat-button-toggle-group
+    [value]="statusFilter()"
+    (change)="setStatusFilter($event.value)"
+    class="status-filter"
+  >
+    <mat-button-toggle value="all">All</mat-button-toggle>
+    <mat-button-toggle value="active">Active</mat-button-toggle>
+    <mat-button-toggle value="inactive">Inactive</mat-button-toggle>
+  </mat-button-toggle-group>
+
   @if (loading()) {
   <div class="loading-container">
     <mat-spinner diameter="40" />

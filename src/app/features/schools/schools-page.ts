@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal, computed } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import { SchoolsService } from './services/schools';
@@ -25,6 +26,7 @@ import { School } from './models/school';
     MatButtonModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatButtonToggleModule,
     RouterModule,
   ],
   templateUrl: './schools-page.html',
@@ -35,10 +37,19 @@ export class SchoolsPageComponent {
   private readonly schoolsService = inject(SchoolsService);
   private readonly dialog = inject(MatDialog);
 
-  readonly schools = signal<School[]>([]);
+  private readonly _allSchools = signal<School[]>([]);
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly searchTerm = signal('');
+  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+
+  readonly schools = computed(() => {
+    let result = this._allSchools();
+    if (this.statusFilter() !== 'all') {
+      result = result.filter((s) => s.status === this.statusFilter());
+    }
+    return result;
+  });
 
   readonly displayedColumns = ['name', 'code', 'status', 'branches', 'actions'];
 
@@ -67,7 +78,7 @@ export class SchoolsPageComponent {
 
     this.schoolsService.getAll(search).subscribe({
       next: (result: School[]) => {
-        this.schools.set(result);
+        this._allSchools.set(result);
         this.loading.set(false);
       },
       error: () => {
@@ -75,6 +86,10 @@ export class SchoolsPageComponent {
         this.loading.set(false);
       },
     });
+  }
+
+  setStatusFilter(value: 'all' | 'active' | 'inactive'): void {
+    this.statusFilter.set(value);
   }
 
   onSearchInput(event: Event): void {
@@ -117,12 +132,12 @@ export class SchoolsPageComponent {
     });
     dialogRef.afterClosed().subscribe((result: School | undefined) => {
       if (result) {
-        const schools = this.schools();
-        const index = schools.findIndex((s) => s.id === result.id);
+        const all = this._allSchools();
+        const index = all.findIndex((s) => s.id === result.id);
         if (index !== -1) {
-          const updated = [...schools];
+          const updated = [...all];
           updated[index] = result;
-          this.schools.set(updated);
+          this._allSchools.set(updated);
         }
       }
     });

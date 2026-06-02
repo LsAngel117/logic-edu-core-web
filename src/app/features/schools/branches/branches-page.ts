@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BranchesService } from './services/branches';
@@ -27,6 +28,7 @@ import { School } from '../models/school';
     MatButtonModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatButtonToggleModule,
     RouterModule,
   ],
   templateUrl: './branches-page.html',
@@ -44,17 +46,22 @@ export class BranchesPage {
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly searchTerm = signal('');
+  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
 
   readonly branches = computed(() => {
+    let result = this._allBranches();
     const term = this.searchTerm().toLowerCase();
-    if (!term) {
-      return this._allBranches();
+    if (term) {
+      result = result.filter(
+        (b) =>
+          b.name.toLowerCase().includes(term) ||
+          b.code.toLowerCase().includes(term)
+      );
     }
-    return this._allBranches().filter(
-      (b) =>
-        b.name.toLowerCase().includes(term) ||
-        b.code.toLowerCase().includes(term)
-    );
+    if (this.statusFilter() !== 'all') {
+      result = result.filter((b) => b.status === this.statusFilter());
+    }
+    return result;
   });
 
   readonly displayedColumns = ['name', 'code', 'address', 'status', 'actions'];
@@ -105,6 +112,10 @@ export class BranchesPage {
 
   clearSearch(): void {
     this.searchTerm.set('');
+  }
+
+  setStatusFilter(value: 'all' | 'active' | 'inactive'): void {
+    this.statusFilter.set(value);
   }
 
   async openCreateDialog(): Promise<void> {
