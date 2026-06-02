@@ -10,6 +10,7 @@ interface JwtPayload {
   email: string;
   name: string;
   roles: string[];
+  exp?: number;
   [key: string]: unknown;
 }
 
@@ -67,6 +68,10 @@ export class AuthService {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const json = atob(base64);
     const payload: JwtPayload = JSON.parse(json);
+
+    if (payload.exp && Date.now() / 1000 > payload.exp) {
+      throw new Error('JWT is expired');
+    }
 
     return {
       id: payload.sub,
