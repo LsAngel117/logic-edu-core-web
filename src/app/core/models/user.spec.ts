@@ -84,10 +84,10 @@ describe('User model', () => {
   it('should accept a LoginRequest with email and password', () => {
     const loginReq: LoginRequest = {
       email: 'login@logicedu.com',
-      password: 'secret123',
+      rawPassword: 'secret123',
     };
 
     expect(loginReq.email).toBe('login@logicedu.com');
-    expect(loginReq.password).toBe('secret123');
+    expect(loginReq.rawPassword).toBe('secret123');
   });
 });
