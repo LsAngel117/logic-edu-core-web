@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Change School Status</h2>
+
+<mat-dialog-content>
+  <p>School: <strong>{{ data.name }}</strong></p>
+  <p>Current status: <strong>{{ data.status }}</strong></p>
+  <p>Code: <strong>{{ data.code }}</strong></p>
+
+  @if (hasBranches()) {
+  <p class="cascade-warning">
+    This school has {{ data.branchCount }} active branches. Deactivating it will also deactivate all branches.
+  </p>
+  }
+
+  @if (isSelfSchool()) {
+  <p class="self-disable-message">Cannot deactivate your own school</p>
+  }
+
+  <mat-slide-toggle
+    [checked]="isToggled()"
+    [disabled]="loading() || isSelfSchool()"
+  >
+    {{ data.status === 'active' ? 'Deactivate' : 'Activate' }} school
+  </mat-slide-toggle>
+
+  @if (errorMessage()) {
+  <div class="dialog-error">{{ errorMessage() }}</div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [disabled]="loading()" (click)="onCancel()">
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="loading()"
+    (click)="onConfirm()"
+  >
+    @if (loading()) {
+    <mat-spinner diameter="20" />
+    } @else {
+    Confirm
+    }
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,23 @@
+import { Routes } from '@angular/router';
+import { authGuard } from '../../core/guards/auth';
+
+export default [
+  {
+    path: '',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./schools-page').then(m => m.SchoolsPageComponent),
+      },
+      {
+        path: ':id',
+        loadComponent: () => import('./school-detail').then(m => m.SchoolDetail),
+      },
+      {
+        path: ':schoolId/branches',
+        loadComponent: () => import('./branches/branches-page').then(m => m.BranchesPage),
+      },
+    ],
+  },
+] satisfies Routes;
