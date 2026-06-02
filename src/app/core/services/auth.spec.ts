@@ -22,6 +22,11 @@ const mockUserPayload = {
 
 const mockJwt = encodeJwt(mockUserPayload);
 
+const expiredJwt = encodeJwt({
+  ...mockUserPayload,
+  exp: Math.floor(Date.now() / 1000) - 3600, // expired 1 hour ago
+});
+
 const expectedUser: User = {
   id: 'usr_test123',
   email: 'test@logicedu.com',
@@ -70,6 +75,16 @@ describe('AuthService', () => {
 
       // Invalid base64 in JWT payload should cause decode to fail gracefully
       // The service should clear the token and leave user null
+      expect(service.token()).toBeNull();
+      expect(service.user()).toBeNull();
+      expect(service.isAuthenticated()).toBe(false);
+      expect(localStorage.getItem(TEST_TOKEN_KEY)).toBeNull();
+    });
+
+    it('should NOT rehydrate an expired JWT', () => {
+      localStorage.setItem(TEST_TOKEN_KEY, expiredJwt);
+      const { service } = setupService();
+
       expect(service.token()).toBeNull();
       expect(service.user()).toBeNull();
       expect(service.isAuthenticated()).toBe(false);
