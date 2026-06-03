@@ -203,4 +203,28 @@ describe('Sidebar', () => {
       expect(activeItems.length).toBe(1);
     });
   });
+
+  describe('footer', () => {
+    it('should show version footer when expanded', async () => {
+      setupComponent(PLATFORM_ADMIN_USER);
+      const fixture = await createFixture();
+      fixture.detectChanges();
+
+      const footer = fixture.nativeElement.querySelector('[data-testid="sidebar-footer"]');
+      expect(footer).toBeTruthy();
+      expect(footer.textContent).toContain('v1.0');
+    });
+  });
+
+  describe('tooltip', () => {
+    it('should show tooltip on nav items when collapsed', async () => {
+      setupComponent(PLATFORM_ADMIN_USER);
+      const fixture = await createFixture();
+      fixture.componentRef.setInput('collapsed', true);
+      fixture.detectChanges();
+
+      const navItem = fixture.nativeElement.querySelector('[data-testid="nav-item"]');
+      expect(navItem.getAttribute('title')).toContain('Dashboard');
+    });
+  });
 });

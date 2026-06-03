@@ -57,11 +57,11 @@ Chain strategy: feature-branch-chain
 
 ## Phase 5: Platform Admin Navbar
 
-- [ ] 5.1 Create `platform-navbar.ts`/`.html`/`.scss` — horizontal nav, module chips (Usuarios/Instituciones/Control Académico), global search input, gated by `@if user().roles.includes('PLATFORM_ADMIN')`
-- [ ] 5.2 Write `platform-navbar.spec.ts` — renders chips+search for PLATFORM_ADMIN, empty DOM for other roles, reactive update on `user()` signal change
+- [x] 5.1 Create `platform-navbar.ts`/`.html`/`.scss` — horizontal nav, module chips (Usuarios/Instituciones/Control Académico), global search input, gated by `@if user().roles.includes('PLATFORM_ADMIN')`
+- [x] 5.2 Write `platform-navbar.spec.ts` — renders chips+search for PLATFORM_ADMIN, empty DOM for other roles, reactive update on `user()` signal change
 
 ## Phase 6: Integration Verification
 
-- [ ] 6.1 Run `bun ng test` — all unit tests pass (14 reqs, 28 scenarios)
-- [ ] 6.2 Run `bun ng build` — production build succeeds
+- [x] 6.1 Run `bun ng test` — all unit tests pass (14 reqs, 28 scenarios)
+- [x] 6.2 Run `bun ng build` — production build succeeds (pre-existing login.scss budget issue, unrelated)
 - [ ] 6.3 Manual verification: responsive behavior, logout flow, role gating, route guard, all layouts
