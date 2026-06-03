@@ -41,7 +41,7 @@ export class SchoolsPageComponent {
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly searchTerm = signal('');
-  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+  readonly statusFilter = signal<'all' | 'ACTIVE' | 'INACTIVE'>('all');
 
   readonly schools = computed(() => {
     let result = this._allSchools();
@@ -51,7 +51,7 @@ export class SchoolsPageComponent {
     return result;
   });
 
-  readonly displayedColumns = ['name', 'code', 'status', 'branches', 'actions'];
+  readonly displayedColumns = ['name', 'code', 'status', 'actions'];
 
   constructor() {
     this.loadSchools();
@@ -88,7 +88,7 @@ export class SchoolsPageComponent {
     });
   }
 
-  setStatusFilter(value: 'all' | 'active' | 'inactive'): void {
+  setStatusFilter(value: 'all' | 'ACTIVE' | 'INACTIVE'): void {
     this.statusFilter.set(value);
   }
 

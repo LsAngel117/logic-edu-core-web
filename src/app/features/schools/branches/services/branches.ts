@@ -1,36 +1,33 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
-  Branch,
-  CreateBranchPayload,
-  UpdateBranchPayload,
-  UpdateBranchStatusPayload,
+  BranchResponse,
+  CreateBranchRequest,
+  UpdateBranchRequest,
 } from '../models/branch';
 
 @Injectable({ providedIn: 'root' })
 export class BranchesService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/v1/branches';
 
-  getBySchool(schoolId: string): Observable<Branch[]> {
-    const params = new HttpParams().set('schoolId', schoolId);
-    return this.http.get<Branch[]>(this.baseUrl, { params });
+  getBySchool(schoolId: string): Observable<BranchResponse[]> {
+    return this.http.get<BranchResponse[]>(`/api/v1/schools/${schoolId}/branches`);
   }
 
-  getById(id: string): Observable<Branch> {
-    return this.http.get<Branch>(`${this.baseUrl}/${id}`);
+  getById(schoolId: string, id: string): Observable<BranchResponse> {
+    return this.http.get<BranchResponse>(`/api/v1/schools/${schoolId}/branches/${id}`);
   }
 
-  create(payload: CreateBranchPayload): Observable<Branch> {
-    return this.http.post<Branch>(this.baseUrl, payload);
+  create(schoolId: string, payload: CreateBranchRequest): Observable<BranchResponse> {
+    return this.http.post<BranchResponse>(`/api/v1/schools/${schoolId}/branches`, payload);
   }
 
-  update(id: string, payload: UpdateBranchPayload): Observable<Branch> {
-    return this.http.patch<Branch>(`${this.baseUrl}/${id}`, payload);
+  update(schoolId: string, id: string, payload: UpdateBranchRequest): Observable<BranchResponse> {
+    return this.http.put<BranchResponse>(`/api/v1/schools/${schoolId}/branches/${id}`, payload);
   }
 
-  updateStatus(id: string, payload: UpdateBranchStatusPayload): Observable<Branch> {
-    return this.http.patch<Branch>(`${this.baseUrl}/${id}/status`, payload);
+  updateStatus(schoolId: string, id: string): Observable<BranchResponse> {
+    return this.http.patch<BranchResponse>(`/api/v1/schools/${schoolId}/branches/${id}/deactivate`, null);
   }
 }

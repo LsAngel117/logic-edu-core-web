@@ -35,10 +35,10 @@ describe('CreateUserDialogComponent', () => {
 
   const mockCreatedUser: UserProfile = {
     id: 'new1',
+    username: 'charlie',
     email: 'charlie@logicedu.com',
-    displayName: 'Charlie',
-    status: 'active',
-    roles: ['teacher'],
+    fullName: 'Charlie Brown',
+    status: 'ACTIVE',
     createdAt: '2026-03-01T00:00:00Z',
   };
 
@@ -46,13 +46,14 @@ describe('CreateUserDialogComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render form with email, name, password, and roles fields', async () => {
+  it('should render form with email, name, password fields', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
     const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
 
     expect(emailInput).toBeTruthy();
@@ -83,8 +84,11 @@ describe('CreateUserDialogComponent', () => {
     emailInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    // Fill other required fields
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
+    usernameInput.value = 'testuser';
+    usernameInput.dispatchEvent(new Event('input'));
+
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
     nameInput.value = 'Test';
     nameInput.dispatchEvent(new Event('input'));
     const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
@@ -106,13 +110,16 @@ describe('CreateUserDialogComponent', () => {
     usersServiceMock.create.mockReturnValue(of(mockCreatedUser));
     const fixture = await createFixture();
 
-    // Fill form
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
     emailInput.value = 'charlie@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
 
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
-    nameInput.value = 'Charlie';
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
+    usernameInput.value = 'charlie';
+    usernameInput.dispatchEvent(new Event('input'));
+
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
+    nameInput.value = 'Charlie Brown';
     nameInput.dispatchEvent(new Event('input'));
 
     const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
@@ -127,10 +134,10 @@ describe('CreateUserDialogComponent', () => {
     await fixture.whenStable();
 
     expect(usersServiceMock.create).toHaveBeenCalledWith({
+      username: 'charlie',
       email: 'charlie@logicedu.com',
-      displayName: 'Charlie',
+      fullName: 'Charlie Brown',
       password: 'password123',
-      roles: [],
     } as CreateUserPayload);
     expect(dialogRefMock.close).toHaveBeenCalledWith(mockCreatedUser);
   });
@@ -140,12 +147,15 @@ describe('CreateUserDialogComponent', () => {
     usersServiceMock.create.mockReturnValue(throwError(() => ({ status: 409 })));
     const fixture = await createFixture();
 
-    // Fill form with valid data
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
     emailInput.value = 'existing@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
 
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
+    usernameInput.value = 'existing';
+    usernameInput.dispatchEvent(new Event('input'));
+
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
     nameInput.value = 'Existing User';
     nameInput.dispatchEvent(new Event('input'));
 
@@ -165,7 +175,7 @@ describe('CreateUserDialogComponent', () => {
 
     const errorEl = fixture.nativeElement.querySelector('.dialog-error');
     expect(errorEl).toBeTruthy();
-    expect(errorEl.textContent).toContain('Email already in use');
+    expect(errorEl.textContent).toContain('already in use');
   });
 
   it('should show error message for 403 forbidden', async () => {
@@ -177,7 +187,11 @@ describe('CreateUserDialogComponent', () => {
     emailInput.value = 'test@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
 
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
+    usernameInput.value = 'test';
+    usernameInput.dispatchEvent(new Event('input'));
+
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
     nameInput.value = 'Test';
     nameInput.dispatchEvent(new Event('input'));
 
@@ -220,7 +234,11 @@ describe('CreateUserDialogComponent', () => {
     emailInput.value = 'test@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
 
-    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="displayName"]');
+    const usernameInput = fixture.nativeElement.querySelector('input[formcontrolname="username"]');
+    usernameInput.value = 'test';
+    usernameInput.dispatchEvent(new Event('input'));
+
+    const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="fullName"]');
     nameInput.value = 'Test';
     nameInput.dispatchEvent(new Event('input'));
 

@@ -6,7 +6,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { BranchesService } from './branches';
-import { Branch, CreateBranchPayload, UpdateBranchStatusPayload } from '../models/branch';
+import { BranchResponse, CreateBranchRequest } from '../models/branch';
 
 function setupService(): { service: BranchesService; httpMock: HttpTestingController } {
   TestBed.resetTestingModule();
@@ -18,36 +18,50 @@ function setupService(): { service: BranchesService; httpMock: HttpTestingContro
   return { service, httpMock };
 }
 
-const mockBranch: Branch = {
+const mockBranch: BranchResponse = {
   id: 'b1',
   schoolId: 's1',
   name: 'Main Campus',
   code: 'MC-001',
+  shortName: 'Main',
+  description: 'Main campus building',
+  email: 'main@school.edu',
+  phone: '1234567890',
   address: '123 Campus Dr',
-  status: 'active',
+  type: 'MAIN',
+  status: 'ACTIVE',
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
 };
 
-const mockBranches: Branch[] = [
+const mockBranches: BranchResponse[] = [
   mockBranch,
   {
     id: 'b2',
     schoolId: 's1',
     name: 'Downtown Annex',
     code: 'DA-002',
+    shortName: 'Downtown',
+    description: 'Downtown annex building',
+    email: 'downtown@school.edu',
+    phone: '0987654321',
     address: '456 City Blvd',
-    status: 'inactive',
+    type: 'SECONDARY',
+    status: 'INACTIVE',
+    createdAt: '2026-02-01T00:00:00Z',
+    updatedAt: '2026-02-01T00:00:00Z',
   },
 ];
 
 describe('BranchesService', () => {
   describe('getBySchool', () => {
-    it('should GET /api/v1/branches?schoolId= and return Branch[]', () => {
+    it('should GET /api/v1/schools/{schoolId}/branches and return BranchResponse[]', () => {
       const { service, httpMock } = setupService();
 
-      let result: Branch[] | undefined;
-      service.getBySchool('s1').subscribe((branches: Branch[]) => (result = branches));
+      let result: BranchResponse[] | undefined;
+      service.getBySchool('s1').subscribe((branches: BranchResponse[]) => (result = branches));
 
-      const req = httpMock.expectOne('/api/v1/branches?schoolId=s1');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches');
       expect(req.request.method).toBe('GET');
 
       req.flush(mockBranches);
@@ -58,10 +72,10 @@ describe('BranchesService', () => {
     it('should return empty array when backend returns empty', () => {
       const { service, httpMock } = setupService();
 
-      let result: Branch[] | undefined;
-      service.getBySchool('s1').subscribe((branches: Branch[]) => (result = branches));
+      let result: BranchResponse[] | undefined;
+      service.getBySchool('s1').subscribe((branches: BranchResponse[]) => (result = branches));
 
-      const req = httpMock.expectOne('/api/v1/branches?schoolId=s1');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches');
       req.flush([]);
 
       expect(result).toEqual([]);
@@ -69,13 +83,13 @@ describe('BranchesService', () => {
   });
 
   describe('getById', () => {
-    it('should GET /api/v1/branches/:id and return Branch', () => {
+    it('should GET /api/v1/schools/{schoolId}/branches/{id} and return BranchResponse', () => {
       const { service, httpMock } = setupService();
 
-      let result: Branch | undefined;
-      service.getById('b1').subscribe((branch: Branch) => (result = branch));
+      let result: BranchResponse | undefined;
+      service.getById('s1', 'b1').subscribe((branch: BranchResponse) => (result = branch));
 
-      const req = httpMock.expectOne('/api/v1/branches/b1');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1');
       expect(req.request.method).toBe('GET');
 
       req.flush(mockBranch);
@@ -87,11 +101,11 @@ describe('BranchesService', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.getById('nonexistent').subscribe({
+      service.getById('s1', 'nonexistent').subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/branches/nonexistent');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches/nonexistent');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
@@ -99,29 +113,39 @@ describe('BranchesService', () => {
   });
 
   describe('create', () => {
-    it('should POST to /api/v1/branches with correct payload', () => {
+    it('should POST to /api/v1/schools/{schoolId}/branches with correct payload', () => {
       const { service, httpMock } = setupService();
 
-      const payload: CreateBranchPayload = {
-        schoolId: 's1',
+      const payload: CreateBranchRequest = {
         name: 'East Wing',
         code: 'EW-003',
+        shortName: 'East',
+        description: 'East wing extension',
+        email: 'east@school.edu',
+        phone: '5551234567',
         address: '789 East Rd',
       };
 
-      const created: Branch = {
+      const created: BranchResponse = {
         id: 'b3',
-        schoolId: payload.schoolId,
+        schoolId: 's1',
         name: payload.name,
         code: payload.code,
-        address: payload.address,
-        status: 'active',
+        shortName: payload.shortName,
+        description: payload.description ?? '',
+        email: payload.email ?? '',
+        phone: payload.phone ?? '',
+        address: payload.address ?? '',
+        type: 'SECONDARY',
+        status: 'ACTIVE',
+        createdAt: '2026-03-01T00:00:00Z',
+        updatedAt: '2026-03-01T00:00:00Z',
       };
 
-      let result: Branch | undefined;
-      service.create(payload).subscribe((branch: Branch) => (result = branch));
+      let result: BranchResponse | undefined;
+      service.create('s1', payload).subscribe((branch: BranchResponse) => (result = branch));
 
-      const req = httpMock.expectOne('/api/v1/branches');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(payload);
 
@@ -133,19 +157,19 @@ describe('BranchesService', () => {
     it('should propagate 409 conflict on duplicate', () => {
       const { service, httpMock } = setupService();
 
-      const payload: CreateBranchPayload = {
-        schoolId: 's1',
+      const payload: CreateBranchRequest = {
         name: 'Main Campus',
         code: 'MC-001',
+        shortName: 'Main',
         address: '123 Campus Dr',
       };
 
       let errorStatus: number | undefined;
-      service.create(payload).subscribe({
+      service.create('s1', payload).subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/branches');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches');
       req.flush('Conflict', { status: 409, statusText: 'Conflict' });
 
       expect(errorStatus).toBe(409);
@@ -153,22 +177,23 @@ describe('BranchesService', () => {
   });
 
   describe('update', () => {
-    it('should PATCH /api/v1/branches/:id with correct payload', () => {
+    it('should PUT /api/v1/schools/{schoolId}/branches/{id} with correct payload', () => {
       const { service, httpMock } = setupService();
 
       const payload = {
         name: 'Main Campus Updated',
         code: 'MC-001',
+        shortName: 'Main',
         address: '123 Campus Dr',
       };
 
-      const updated: Branch = { ...mockBranch, name: 'Main Campus Updated' };
+      const updated: BranchResponse = { ...mockBranch, name: 'Main Campus Updated' };
 
-      let result: Branch | undefined;
-      service.update('b1', payload).subscribe((branch: Branch) => (result = branch));
+      let result: BranchResponse | undefined;
+      service.update('s1', 'b1', payload).subscribe((branch: BranchResponse) => (result = branch));
 
-      const req = httpMock.expectOne('/api/v1/branches/b1');
-      expect(req.request.method).toBe('PATCH');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1');
+      expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(payload);
 
       req.flush(updated);
@@ -178,18 +203,17 @@ describe('BranchesService', () => {
   });
 
   describe('updateStatus', () => {
-    it('should PATCH /api/v1/branches/:id/status with status payload', () => {
+    it('should PATCH /api/v1/schools/{schoolId}/branches/{id}/deactivate with no body', () => {
       const { service, httpMock } = setupService();
 
-      const payload: UpdateBranchStatusPayload = { status: 'inactive' };
-      const updated: Branch = { ...mockBranch, status: 'inactive' };
+      const updated: BranchResponse = { ...mockBranch, status: 'INACTIVE' };
 
-      let result: Branch | undefined;
-      service.updateStatus('b1', payload).subscribe((branch: Branch) => (result = branch));
+      let result: BranchResponse | undefined;
+      service.updateStatus('s1', 'b1').subscribe((branch: BranchResponse) => (result = branch));
 
-      const req = httpMock.expectOne('/api/v1/branches/b1/status');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1/deactivate');
       expect(req.request.method).toBe('PATCH');
-      expect(req.request.body).toEqual(payload);
+      expect(req.request.body).toBeNull();
 
       req.flush(updated);
 
@@ -200,11 +224,11 @@ describe('BranchesService', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.updateStatus('nonexistent', { status: 'inactive' }).subscribe({
+      service.updateStatus('s1', 'nonexistent').subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/branches/nonexistent/status');
+      const req = httpMock.expectOne('/api/v1/schools/s1/branches/nonexistent/deactivate');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);

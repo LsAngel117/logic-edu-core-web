@@ -9,14 +9,11 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
 import { CreateUserPayload } from '../models/user-profile';
-
-const AVAILABLE_ROLES = ['PLATFORM_ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] as const;
 
 @Component({
   selector: 'app-create-user',
@@ -25,7 +22,6 @@ const AVAILABLE_ROLES = ['PLATFORM_ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT']
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatSelectModule,
     MatProgressSpinnerModule,
     MatDialogModule,
   ],
@@ -38,22 +34,21 @@ export class CreateUserDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<CreateUserDialogComponent>);
   private readonly fb = inject(FormBuilder);
 
-  readonly roles = AVAILABLE_ROLES;
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly form: FormGroup<{
+    username: FormControl<string>;
     email: FormControl<string>;
-    displayName: FormControl<string>;
+    fullName: FormControl<string>;
     password: FormControl<string>;
-    roles: FormControl<string[]>;
   }>;
 
   constructor() {
     this.form = this.fb.nonNullable.group({
+      username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      displayName: ['', [Validators.required]],
+      fullName: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      roles: [[] as string[]],
     });
   }
 
@@ -68,10 +63,10 @@ export class CreateUserDialogComponent {
 
     const raw = this.form.getRawValue();
     const payload: CreateUserPayload = {
+      username: raw.username,
       email: raw.email,
-      displayName: raw.displayName,
+      fullName: raw.fullName,
       password: raw.password,
-      roles: raw.roles ?? [],
     };
 
     try {
@@ -80,7 +75,7 @@ export class CreateUserDialogComponent {
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
       if (status === 409) {
-        this.errorMessage.set('Email already in use');
+        this.errorMessage.set('Email or username already in use');
       } else if (status === 403) {
         this.errorMessage.set('Insufficient permissions');
       } else {

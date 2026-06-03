@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { of, throwError, Observable } from 'rxjs';
 import { MembershipsService } from './services/memberships';
 import { Membership } from './models/membership';
@@ -16,15 +16,17 @@ describe('MembershipsPanelComponent', () => {
       id: 'm1',
       userId: 'u1',
       role: 'TEACHER',
-      scope: 'SCHOOL',
-      effectivePermissions: ['read:students', 'create:assignments'],
+      scopeType: 'SCHOOL',
+      scopeRefId: 'school-1',
+      active: true,
     },
     {
       id: 'm2',
       userId: 'u1',
       role: 'STUDENT',
-      scope: 'BRANCH',
-      effectivePermissions: ['read:materials'],
+      scopeType: 'BRANCH',
+      scopeRefId: 'branch-5a',
+      active: true,
     },
   ];
 
@@ -80,7 +82,7 @@ describe('MembershipsPanelComponent', () => {
     const firstRow = rows[0].textContent;
     expect(firstRow).toContain('TEACHER');
     expect(firstRow).toContain('SCHOOL');
-    expect(firstRow).toContain('read:students');
+    expect(firstRow).toContain('school-1');
   });
 
   it('should display "No memberships assigned" when empty', async () => {

@@ -37,9 +37,12 @@ describe('CreateSchoolDialogComponent', () => {
     id: 'new1',
     name: 'East Academy',
     code: 'EAC-003',
+    shortName: 'East',
+    description: '',
+    email: '',
+    phone: '',
     address: '789 Pine Rd',
-    status: 'active',
-    branchCount: 0,
+    status: 'ACTIVE',
     createdAt: '2026-03-01T00:00:00Z',
   };
 
@@ -47,12 +50,13 @@ describe('CreateSchoolDialogComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render form with name, code, and address fields', async () => {
+  it('should render form with name, code, shortName, and address fields', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="name"]');
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
     const addressInput = fixture.nativeElement.querySelector('textarea[formcontrolname="address"]');
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
 
@@ -82,6 +86,10 @@ describe('CreateSchoolDialogComponent', () => {
     const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="name"]');
     nameInput.value = 'Test School';
     nameInput.dispatchEvent(new Event('input'));
+
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'Test';
+    shortNameInput.dispatchEvent(new Event('input'));
 
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'invalid code!';
@@ -113,6 +121,10 @@ describe('CreateSchoolDialogComponent', () => {
     nameInput.value = 'East Academy';
     nameInput.dispatchEvent(new Event('input'));
 
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'East';
+    shortNameInput.dispatchEvent(new Event('input'));
+
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'EAC-003';
     codeInput.dispatchEvent(new Event('input'));
@@ -131,6 +143,7 @@ describe('CreateSchoolDialogComponent', () => {
     expect(schoolsServiceMock.create).toHaveBeenCalledWith({
       name: 'East Academy',
       code: 'EAC-003',
+      shortName: 'East',
       address: '789 Pine Rd',
     } as CreateSchoolPayload);
     expect(dialogRefMock.close).toHaveBeenCalledWith(mockCreatedSchool);
@@ -144,6 +157,10 @@ describe('CreateSchoolDialogComponent', () => {
     const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="name"]');
     nameInput.value = 'Existing School';
     nameInput.dispatchEvent(new Event('input'));
+
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'Existing';
+    shortNameInput.dispatchEvent(new Event('input'));
 
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'EXISTING';
@@ -165,7 +182,7 @@ describe('CreateSchoolDialogComponent', () => {
 
     const errorEl = fixture.nativeElement.querySelector('.dialog-error');
     expect(errorEl).toBeTruthy();
-    expect(errorEl.textContent).toContain('A school with this name or code already exists');
+    expect(errorEl.textContent).toContain('already exists');
   });
 
   it('should close dialog without result on cancel', async () => {

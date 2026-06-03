@@ -1,21 +1,21 @@
 export interface UserProfile {
   id: string;
+  username: string;
   email: string;
-  displayName: string;
-  status: 'active' | 'inactive';
-  roles: string[];
+  fullName: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   createdAt: string;
 }
 
 export interface CreateUserPayload {
+  username: string;
   email: string;
-  displayName: string;
+  fullName: string;
   password: string;
-  roles: string[];
 }
 
-export interface UpdateStatusPayload {
-  status: 'active' | 'inactive';
+export interface ChangeStatusRequest {
+  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
 }
 
 export interface ChangePasswordPayload {
@@ -25,6 +25,5 @@ export interface ChangePasswordPayload {
 
 export interface UpdateUserPayload {
   email: string;
-  displayName: string;
-  roles: string[];
+  fullName: string;
 }

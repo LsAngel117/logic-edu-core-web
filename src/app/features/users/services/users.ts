@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import {
   UserProfile,
   CreateUserPayload,
-  UpdateStatusPayload,
+  ChangeStatusRequest,
   ChangePasswordPayload,
   UpdateUserPayload,
 } from '../models/user-profile';
@@ -30,7 +30,7 @@ export class UsersService {
     return this.http.post<UserProfile>(this.baseUrl, payload);
   }
 
-  updateStatus(id: string, payload: UpdateStatusPayload): Observable<UserProfile> {
+  changeStatus(id: string, payload: ChangeStatusRequest): Observable<UserProfile> {
     return this.http.patch<UserProfile>(`${this.baseUrl}/${id}/status`, payload);
   }
 
@@ -39,6 +39,6 @@ export class UsersService {
   }
 
   changePassword(id: string, payload: ChangePasswordPayload): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${id}/password`, payload);
+    return this.http.patch<void>(`${this.baseUrl}/${id}/password`, payload);
   }
 }

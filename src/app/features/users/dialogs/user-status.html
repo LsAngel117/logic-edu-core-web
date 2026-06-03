@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Edit Status</h2>
 
 <mat-dialog-content>
-  <p>User: <strong>{{ data.displayName }}</strong></p>
+  <p>User: <strong>{{ data.fullName }}</strong></p>
   <p>Current status: <strong>{{ data.status }}</strong></p>
 
   @if (isSelf()) {
@@ -12,7 +12,7 @@
     [checked]="isToggled()"
     [disabled]="loading() || isSelf()"
   >
-    {{ data.status === 'active' ? 'Deactivate' : 'Activate' }} user
+    {{ data.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }} user
   </mat-slide-toggle>
 
   @if (errorMessage()) {

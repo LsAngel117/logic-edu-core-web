@@ -7,7 +7,7 @@ import { MatInput } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { firstValueFrom } from 'rxjs';
 import { BranchesService } from '../services/branches';
-import { Branch } from '../models/branch';
+import { BranchResponse, UpdateBranchRequest } from '../models/branch';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
@@ -93,7 +93,7 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
 export class EditBranchDialogComponent {
   private readonly branchesService = inject(BranchesService);
   private readonly dialogRef = inject(MatDialogRef<EditBranchDialogComponent>);
-  private readonly data: Branch = inject(MAT_DIALOG_DATA);
+  private readonly data: BranchResponse = inject(MAT_DIALOG_DATA);
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
@@ -112,12 +112,13 @@ export class EditBranchDialogComponent {
 
     try {
       const formValue = this.form.getRawValue() as { name: string; code: string; address: string };
-      const payload = {
+      const payload: UpdateBranchRequest = {
         name: formValue.name,
         code: formValue.code,
+        shortName: this.data.shortName,
         address: formValue.address,
       };
-      const updated = await firstValueFrom(this.branchesService.update(this.data.id, payload));
+      const updated = await firstValueFrom(this.branchesService.update(this.data.schoolId, this.data.id, payload));
       this.dialogRef.close(updated);
     } catch (err: unknown) {
       const error = err as { status?: number };

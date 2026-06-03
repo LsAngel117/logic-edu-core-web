@@ -7,13 +7,13 @@ import { MembershipsService } from '../services/memberships';
 import { RemoveMembershipDialogComponent } from './remove-membership';
 
 describe('RemoveMembershipDialogComponent', () => {
-  let membershipsServiceMock: { remove: ReturnType<typeof vi.fn> };
+  let membershipsServiceMock: { deactivate: ReturnType<typeof vi.fn> };
   let dialogRefMock: { close: ReturnType<typeof vi.fn> };
 
   const dialogData = { userId: 'u1', membershipId: 'm1', role: 'TEACHER' };
 
   function setupComponent() {
-    membershipsServiceMock = { remove: vi.fn() };
+    membershipsServiceMock = { deactivate: vi.fn() };
     dialogRefMock = { close: vi.fn() };
 
     TestBed.resetTestingModule();
@@ -47,9 +47,9 @@ describe('RemoveMembershipDialogComponent', () => {
     expect(content).toContain('Remove');
   });
 
-  it('should call MembershipsService.remove on confirm', async () => {
+  it('should call MembershipsService.deactivate on confirm', async () => {
     setupComponent();
-    membershipsServiceMock.remove.mockReturnValue(of(undefined));
+    membershipsServiceMock.deactivate.mockReturnValue(of(undefined));
     const fixture = await createFixture();
 
     const removeButton = fixture.nativeElement.querySelector('button[color="warn"]');
@@ -58,13 +58,13 @@ describe('RemoveMembershipDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(membershipsServiceMock.remove).toHaveBeenCalledWith('u1', 'm1');
+    expect(membershipsServiceMock.deactivate).toHaveBeenCalledWith('m1');
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
   it('should show error message when service fails', async () => {
     setupComponent();
-    membershipsServiceMock.remove.mockReturnValue(
+    membershipsServiceMock.deactivate.mockReturnValue(
       throwError(() => ({ status: 500 }))
     );
     const fixture = await createFixture();
@@ -89,6 +89,6 @@ describe('RemoveMembershipDialogComponent', () => {
     cancelButton.click();
 
     expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(membershipsServiceMock.remove).not.toHaveBeenCalled();
+    expect(membershipsServiceMock.deactivate).not.toHaveBeenCalled();
   });
 });

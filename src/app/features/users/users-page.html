@@ -40,9 +40,9 @@
   } @else {
   <table mat-table [dataSource]="users()" class="users-table">
     <!-- Name Column -->
-    <ng-container matColumnDef="displayName">
+    <ng-container matColumnDef="fullName">
       <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let user">{{ user.displayName }}</td>
+      <td mat-cell *matCellDef="let user">{{ user.fullName }}</td>
     </ng-container>
 
     <!-- Email Column -->
@@ -56,18 +56,13 @@
       <th mat-header-cell *matHeaderCellDef>Status</th>
       <td mat-cell *matCellDef="let user">
         <mat-chip
-          [class.status-active]="user.status === 'active'"
-          [class.status-inactive]="user.status === 'inactive'"
+          [class.status-active]="user.status === 'ACTIVE'"
+          [class.status-inactive]="user.status === 'INACTIVE'"
+          [class.status-blocked]="user.status === 'BLOCKED'"
         >
           {{ user.status }}
         </mat-chip>
       </td>
-    </ng-container>
-
-    <!-- Roles Column -->
-    <ng-container matColumnDef="roles">
-      <th mat-header-cell *matHeaderCellDef>Roles</th>
-      <td mat-cell *matCellDef="let user">{{ user.roles.join(', ') }}</td>
     </ng-container>
 
     <!-- Actions Column -->

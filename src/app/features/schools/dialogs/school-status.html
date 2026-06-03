@@ -5,12 +5,6 @@
   <p>Current status: <strong>{{ data.status }}</strong></p>
   <p>Code: <strong>{{ data.code }}</strong></p>
 
-  @if (hasBranches()) {
-  <p class="cascade-warning">
-    This school has {{ data.branchCount }} active branches. Deactivating it will also deactivate all branches.
-  </p>
-  }
-
   @if (isSelfSchool()) {
   <p class="self-disable-message">Cannot deactivate your own school</p>
   }
@@ -19,7 +13,7 @@
     [checked]="isToggled()"
     [disabled]="loading() || isSelfSchool()"
   >
-    {{ data.status === 'active' ? 'Deactivate' : 'Activate' }} school
+    {{ data.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }} school
   </mat-slide-toggle>
 
   @if (errorMessage()) {

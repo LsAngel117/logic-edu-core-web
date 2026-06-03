@@ -11,7 +11,8 @@ import { User } from '../models/user';
 const mockUser: User = {
   id: 'usr_test123',
   email: 'test@logicedu.com',
-  displayName: 'Test User',
+  fullName: 'Test User',
+  username: 'testuser',
   roles: ['teacher'],
   token: 'test-jwt-token-abc123',
 };

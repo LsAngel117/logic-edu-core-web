@@ -6,7 +6,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { UsersService } from './users';
-import { UserProfile, CreateUserPayload, UpdateStatusPayload, ChangePasswordPayload } from '../models/user-profile';
+import { UserProfile, CreateUserPayload, ChangeStatusRequest, ChangePasswordPayload } from '../models/user-profile';
 
 function setupService(): { service: UsersService; httpMock: HttpTestingController } {
   TestBed.resetTestingModule();
@@ -20,10 +20,10 @@ function setupService(): { service: UsersService; httpMock: HttpTestingControlle
 
 const mockUser: UserProfile = {
   id: 'u1',
+  username: 'alice',
   email: 'alice@logicedu.com',
-  displayName: 'Alice',
-  status: 'active',
-  roles: ['teacher'],
+  fullName: 'Alice Johnson',
+  status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00Z',
 };
 
@@ -31,10 +31,10 @@ const mockUsers: UserProfile[] = [
   mockUser,
   {
     id: 'u2',
+    username: 'bob',
     email: 'bob@logicedu.com',
-    displayName: 'Bob',
-    status: 'inactive',
-    roles: ['student'],
+    fullName: 'Bob Smith',
+    status: 'INACTIVE',
     createdAt: '2026-02-01T00:00:00Z',
   },
 ];
@@ -117,18 +117,18 @@ describe('UsersService', () => {
       const { service, httpMock } = setupService();
 
       const payload: CreateUserPayload = {
+        username: 'charlie',
         email: 'charlie@logicedu.com',
-        displayName: 'Charlie',
+        fullName: 'Charlie Brown',
         password: 'secret123',
-        roles: ['teacher'],
       };
 
       const created: UserProfile = {
         id: 'u3',
+        username: payload.username,
         email: payload.email,
-        displayName: payload.displayName,
-        status: 'active',
-        roles: payload.roles,
+        fullName: payload.fullName,
+        status: 'ACTIVE',
         createdAt: '2026-03-01T00:00:00Z',
       };
 
@@ -148,10 +148,10 @@ describe('UsersService', () => {
       const { service, httpMock } = setupService();
 
       const payload: CreateUserPayload = {
+        username: 'alice_dupe',
         email: 'alice@logicedu.com',
-        displayName: 'Alice Dupe',
+        fullName: 'Alice Dupe',
         password: 'secret123',
-        roles: ['student'],
       };
 
       let errorStatus: number | undefined;
@@ -166,15 +166,15 @@ describe('UsersService', () => {
     });
   });
 
-  describe('updateStatus', () => {
-    it('should PATCH /api/v1/users/:id with status payload', () => {
+  describe('changeStatus', () => {
+    it('should PATCH /api/v1/users/:id/status with status payload', () => {
       const { service, httpMock } = setupService();
 
-      const payload: UpdateStatusPayload = { status: 'inactive' };
-      const updated: UserProfile = { ...mockUser, status: 'inactive' };
+      const payload: ChangeStatusRequest = { status: 'INACTIVE' };
+      const updated: UserProfile = { ...mockUser, status: 'INACTIVE' };
 
       let result: UserProfile | undefined;
-      service.updateStatus('u1', payload).subscribe((user: UserProfile) => (result = user));
+      service.changeStatus('u1', payload).subscribe((user: UserProfile) => (result = user));
 
       const req = httpMock.expectOne('/api/v1/users/u1/status');
       expect(req.request.method).toBe('PATCH');
@@ -185,11 +185,29 @@ describe('UsersService', () => {
       expect(result).toEqual(updated);
     });
 
+    it('should support BLOCKED status', () => {
+      const { service, httpMock } = setupService();
+
+      const payload: ChangeStatusRequest = { status: 'BLOCKED' };
+      const updated: UserProfile = { ...mockUser, status: 'BLOCKED' };
+
+      let result: UserProfile | undefined;
+      service.changeStatus('u1', payload).subscribe((user: UserProfile) => (result = user));
+
+      const req = httpMock.expectOne('/api/v1/users/u1/status');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ status: 'BLOCKED' });
+
+      req.flush(updated);
+
+      expect(result).toEqual(updated);
+    });
+
     it('should propagate 404 when user not found', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.updateStatus('nonexistent', { status: 'inactive' }).subscribe({
+      service.changeStatus('nonexistent', { status: 'INACTIVE' }).subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
@@ -201,7 +219,7 @@ describe('UsersService', () => {
   });
 
   describe('changePassword', () => {
-    it('should POST to /api/v1/users/:id/password with correct payload', () => {
+    it('should PATCH /api/v1/users/:id/password with correct payload', () => {
       const { service, httpMock } = setupService();
 
       const payload: ChangePasswordPayload = {
@@ -215,7 +233,7 @@ describe('UsersService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/users/u1/password');
-      expect(req.request.method).toBe('POST');
+      expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(payload);
 
       req.flush(null);

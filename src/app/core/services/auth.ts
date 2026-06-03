@@ -76,7 +76,8 @@ export class AuthService {
     return {
       id: payload.sub,
       email: payload.email,
-      displayName: payload.name,
+      username: payload.email,
+      fullName: payload.name,
       roles: payload.roles ?? [],
       token: jwt,
     };

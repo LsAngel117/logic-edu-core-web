@@ -14,10 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { MembershipsService } from '../services/memberships';
-import { AddMembershipPayload } from '../models/membership';
+import { AssignMembershipRequest } from '../models/membership';
 
 const AVAILABLE_ROLES = ['PLATFORM_ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] as const;
-const AVAILABLE_SCOPES = ['GLOBAL', 'SCHOOL', 'BRANCH'] as const;
+const AVAILABLE_SCOPE_TYPES = ['GLOBAL', 'SCHOOL', 'BRANCH'] as const;
 
 @Component({
   selector: 'app-add-membership',
@@ -41,18 +41,20 @@ export class AddMembershipDialogComponent {
   private readonly data: { userId: string } = inject(MAT_DIALOG_DATA);
 
   readonly roles = AVAILABLE_ROLES;
-  readonly scopes = AVAILABLE_SCOPES;
+  readonly scopeTypes = AVAILABLE_SCOPE_TYPES;
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly form: FormGroup<{
     role: FormControl<string>;
-    scope: FormControl<string>;
+    scopeType: FormControl<string>;
+    scopeRefId: FormControl<string>;
   }>;
 
   constructor() {
     this.form = this.fb.nonNullable.group({
       role: ['', [Validators.required]],
-      scope: ['', [Validators.required]],
+      scopeType: ['', [Validators.required]],
+      scopeRefId: ['', [Validators.required]],
     });
   }
 
@@ -66,14 +68,16 @@ export class AddMembershipDialogComponent {
     this.errorMessage.set('');
 
     const raw = this.form.getRawValue();
-    const payload: AddMembershipPayload = {
+    const payload: AssignMembershipRequest = {
+      userId: this.data.userId,
       role: raw.role,
-      scope: raw.scope,
+      scopeType: raw.scopeType,
+      scopeRefId: raw.scopeRefId,
     };
 
     try {
       const result = await firstValueFrom(
-        this.membershipsService.add(this.data.userId, payload)
+        this.membershipsService.assign(payload)
       );
       this.dialogRef.close(result);
     } catch (err: unknown) {

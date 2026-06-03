@@ -5,7 +5,7 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { firstValueFrom } from 'rxjs';
 import { BranchesService } from '../services/branches';
-import { Branch, UpdateBranchStatusPayload } from '../models/branch';
+import { BranchResponse } from '../models/branch';
 
 @Component({
   selector: 'app-branch-status',
@@ -21,26 +21,22 @@ import { Branch, UpdateBranchStatusPayload } from '../models/branch';
 export class BranchStatusDialogComponent {
   private readonly branchesService = inject(BranchesService);
   private readonly dialogRef = inject(MatDialogRef<BranchStatusDialogComponent>);
-  readonly data: Branch = inject(MAT_DIALOG_DATA);
+  readonly data: BranchResponse = inject(MAT_DIALOG_DATA);
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
 
   isToggled(): boolean {
-    return this.data.status === 'inactive';
+    return this.data.status === 'INACTIVE';
   }
 
   async onConfirm(): Promise<void> {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const newStatus: UpdateBranchStatusPayload = {
-      status: this.data.status === 'active' ? 'inactive' : 'active',
-    };
-
     try {
       const result = await firstValueFrom(
-        this.branchesService.updateStatus(this.data.id, newStatus)
+        this.branchesService.updateStatus(this.data.schoolId, this.data.id)
       );
       this.dialogRef.close(result);
     } catch (err: unknown) {

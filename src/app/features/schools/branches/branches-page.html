@@ -87,8 +87,8 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let branch">
         <mat-chip
-          [class.status-active]="branch.status === 'active'"
-          [class.status-inactive]="branch.status === 'inactive'"
+          [class.status-active]="branch.status === 'ACTIVE'"
+          [class.status-inactive]="branch.status === 'INACTIVE'"
         >
           {{ branch.status }}
         </mat-chip>
@@ -110,7 +110,7 @@
         <button
           mat-icon-button
           color="accent"
-          [attr.aria-label]="branch.status === 'active' ? 'Deactivate branch' : 'Activate branch'"
+          [attr.aria-label]="branch.status === 'ACTIVE' ? 'Deactivate branch' : 'Activate branch'"
           (click)="openStatusDialog(branch)"
         >
           <mat-icon>toggle_on</mat-icon>

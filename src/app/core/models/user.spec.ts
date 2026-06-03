@@ -19,14 +19,15 @@ describe('User model', () => {
     const user: User = {
       id: 'usr_abc123',
       email: 'test@logicedu.com',
-      displayName: 'Test User',
+      fullName: 'Test User',
+      username: 'testuser',
       roles: ['teacher', 'admin'],
       token: 'header.payload.signature',
     };
 
     expect(user.id).toBe('usr_abc123');
     expect(user.email).toBe('test@logicedu.com');
-    expect(user.displayName).toBe('Test User');
+    expect(user.fullName).toBe('Test User');
     expect(user.roles).toEqual(['teacher', 'admin']);
     expect(user.token).toBe('header.payload.signature');
   });
@@ -35,7 +36,8 @@ describe('User model', () => {
     const user: User = {
       id: 'usr_xyz',
       email: 'minimal@logicedu.com',
-      displayName: 'Minimal User',
+      fullName: 'Minimal User',
+      username: 'minimal',
       roles: [],
       token: 'header.payload.signature',
     };

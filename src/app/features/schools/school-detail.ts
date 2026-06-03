@@ -44,20 +44,38 @@ import { School } from './models/school';
             <div class="detail-row">
               <span class="label">Status</span>
               <mat-chip
-                [class.status-active]="school()!.status === 'active'"
-                [class.status-inactive]="school()!.status === 'inactive'"
+                [class.status-active]="school()!.status === 'ACTIVE'"
+                [class.status-inactive]="school()!.status === 'INACTIVE'"
               >
                 {{ school()!.status }}
               </mat-chip>
             </div>
             <div class="detail-row">
+              <span class="label">Short Name</span>
+              <span>{{ school()!.shortName }}</span>
+            </div>
+            <div class="detail-row">
               <span class="label">Address</span>
               <span>{{ school()!.address }}</span>
             </div>
+            @if (school()!.email) {
             <div class="detail-row">
-              <span class="label">Branches</span>
-              <span>{{ school()!.branchCount ?? 0 }}</span>
+              <span class="label">Email</span>
+              <span>{{ school()!.email }}</span>
             </div>
+            }
+            @if (school()!.phone) {
+            <div class="detail-row">
+              <span class="label">Phone</span>
+              <span>{{ school()!.phone }}</span>
+            </div>
+            }
+            @if (school()!.description) {
+            <div class="detail-row">
+              <span class="label">Description</span>
+              <span>{{ school()!.description }}</span>
+            </div>
+            }
           </mat-card-content>
           <mat-card-actions>
             <a

@@ -4,7 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 import { BranchesService } from '../services/branches';
-import { Branch, CreateBranchPayload } from '../models/branch';
+import { BranchResponse, CreateBranchRequest } from '../models/branch';
 import { CreateBranchDialogComponent } from './create-branch';
 
 describe('CreateBranchDialogComponent', () => {
@@ -33,13 +33,20 @@ describe('CreateBranchDialogComponent', () => {
     return fixture;
   }
 
-  const mockCreatedBranch: Branch = {
+  const mockCreatedBranch: BranchResponse = {
     id: 'new1',
     schoolId: 's1',
     name: 'East Wing',
     code: 'EW-003',
+    shortName: 'East',
+    description: '',
+    email: '',
+    phone: '',
     address: '789 East Rd',
-    status: 'active',
+    type: 'SECONDARY',
+    status: 'ACTIVE',
+    createdAt: '2026-03-01T00:00:00Z',
+    updatedAt: '2026-03-01T00:00:00Z',
   };
 
   beforeEach(() => {
@@ -54,6 +61,7 @@ describe('CreateBranchDialogComponent', () => {
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     const addressInput = fixture.nativeElement.querySelector('textarea[formcontrolname="address"]');
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
 
     expect(nameInput).toBeTruthy();
     expect(codeInput).toBeTruthy();
@@ -81,6 +89,10 @@ describe('CreateBranchDialogComponent', () => {
     const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="name"]');
     nameInput.value = 'Test Branch';
     nameInput.dispatchEvent(new Event('input'));
+
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'Test';
+    shortNameInput.dispatchEvent(new Event('input'));
 
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'invalid code!';
@@ -112,6 +124,10 @@ describe('CreateBranchDialogComponent', () => {
     nameInput.value = 'East Wing';
     nameInput.dispatchEvent(new Event('input'));
 
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'East';
+    shortNameInput.dispatchEvent(new Event('input'));
+
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'EW-003';
     codeInput.dispatchEvent(new Event('input'));
@@ -127,12 +143,15 @@ describe('CreateBranchDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(branchesServiceMock.create).toHaveBeenCalledWith({
-      schoolId: 's1',
+    expect(branchesServiceMock.create).toHaveBeenCalledWith('s1', {
       name: 'East Wing',
       code: 'EW-003',
+      shortName: 'East',
+      description: undefined,
+      email: undefined,
+      phone: undefined,
       address: '789 East Rd',
-    } as CreateBranchPayload);
+    } as CreateBranchRequest);
     expect(dialogRefMock.close).toHaveBeenCalledWith(mockCreatedBranch);
   });
 
@@ -144,6 +163,10 @@ describe('CreateBranchDialogComponent', () => {
     const nameInput = fixture.nativeElement.querySelector('input[formcontrolname="name"]');
     nameInput.value = 'Existing Branch';
     nameInput.dispatchEvent(new Event('input'));
+
+    const shortNameInput = fixture.nativeElement.querySelector('input[formcontrolname="shortName"]');
+    shortNameInput.value = 'Existing';
+    shortNameInput.dispatchEvent(new Event('input'));
 
     const codeInput = fixture.nativeElement.querySelector('input[formcontrolname="code"]');
     codeInput.value = 'EXISTING';
@@ -165,7 +188,7 @@ describe('CreateBranchDialogComponent', () => {
 
     const errorEl = fixture.nativeElement.querySelector('.dialog-error');
     expect(errorEl).toBeTruthy();
-    expect(errorEl.textContent).toContain('A branch with this code already exists in this school');
+    expect(errorEl.textContent).toContain('already exists in this school');
   });
 
   it('should close dialog without result on cancel', async () => {

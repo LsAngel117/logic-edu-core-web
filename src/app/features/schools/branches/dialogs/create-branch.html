@@ -21,6 +21,32 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
+      <mat-label>Short Name</mat-label>
+      <input matInput formControlName="shortName" />
+      @if (form.controls.shortName.touched && form.controls.shortName.hasError('required')) {
+      <mat-error>Short name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="2"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" />
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+      <mat-error>Invalid email format</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone" type="tel" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
       <mat-label>Address</mat-label>
       <textarea matInput formControlName="address" rows="3"></textarea>
       @if (form.controls.address.touched && form.controls.address.hasError('required')) {

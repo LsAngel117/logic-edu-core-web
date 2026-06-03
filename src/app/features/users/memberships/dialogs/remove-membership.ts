@@ -31,7 +31,7 @@ export class RemoveMembershipDialogComponent {
 
     try {
       await firstValueFrom(
-        this.membershipsService.remove(this.data.userId, this.data.membershipId)
+        this.membershipsService.deactivate(this.data.membershipId)
       );
       this.dialogRef.close(true);
     } catch (err: unknown) {

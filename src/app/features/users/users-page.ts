@@ -34,13 +34,11 @@ export class UsersPageComponent {
   readonly error = signal(false);
   readonly searchTerm = signal('');
 
-  readonly displayedColumns = ['displayName', 'email', 'status', 'roles', 'actions'];
+  readonly displayedColumns = ['fullName', 'email', 'status', 'actions'];
 
   constructor() {
-    // Initial load without debounce
     this.loadUsers();
 
-    // Effect to debounce subsequent search changes
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     effect((onCleanup) => {

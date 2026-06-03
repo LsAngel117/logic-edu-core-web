@@ -24,7 +24,8 @@ describe('SchoolStatusDialogComponent', () => {
   const mockAuthUser: User = {
     id: 'auth1',
     email: 'admin@logicedu.com',
-    displayName: 'Admin',
+    fullName: 'Admin',
+    username: 'admin',
     roles: ['PLATFORM_ADMIN'],
     token: 'jwt.token',
   };
@@ -33,9 +34,12 @@ describe('SchoolStatusDialogComponent', () => {
     id: 's1',
     name: 'North Academy',
     code: 'NAC-001',
+    shortName: 'North',
+    description: 'A school of excellence',
+    email: 'north@school.edu',
+    phone: '1234567890',
     address: '123 Main St',
-    status: 'active',
-    branchCount: 3,
+    status: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00Z',
   };
 
@@ -43,9 +47,12 @@ describe('SchoolStatusDialogComponent', () => {
     id: 's2',
     name: 'South School',
     code: 'SOS-002',
+    shortName: 'South',
+    description: '',
+    email: '',
+    phone: '',
     address: '456 Oak Ave',
-    status: 'inactive',
-    branchCount: 0,
+    status: 'INACTIVE',
     createdAt: '2026-02-01T00:00:00Z',
   };
 
@@ -88,7 +95,7 @@ describe('SchoolStatusDialogComponent', () => {
 
     const content = fixture.nativeElement.textContent;
     expect(content).toContain('North Academy');
-    expect(content).toContain('active');
+    expect(content).toContain('ACTIVE');
   });
 
   it('should show inactive status when school is inactive', async () => {
@@ -97,12 +104,12 @@ describe('SchoolStatusDialogComponent', () => {
 
     const content = fixture.nativeElement.textContent;
     expect(content).toContain('South School');
-    expect(content).toContain('inactive');
+    expect(content).toContain('INACTIVE');
   });
 
-  it('should call updateStatus with toggled value on confirm', async () => {
+  it('should call updateStatus with school id on confirm', async () => {
     setupComponent(activeSchool);
-    const updatedSchool: School = { ...activeSchool, status: 'inactive' };
+    const updatedSchool: School = { ...activeSchool, status: 'INACTIVE' };
     schoolsServiceMock.updateStatus.mockReturnValue(of(updatedSchool));
     const fixture = await createFixture();
 
@@ -112,28 +119,8 @@ describe('SchoolStatusDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(schoolsServiceMock.updateStatus).toHaveBeenCalledWith('s1', { status: 'inactive' });
+    expect(schoolsServiceMock.updateStatus).toHaveBeenCalledWith('s1');
     expect(dialogRefMock.close).toHaveBeenCalledWith(updatedSchool);
-  });
-
-  it('should show cascade warning when school has branches', async () => {
-    setupComponent(activeSchool);
-    const fixture = await createFixture();
-
-    // The activeSchool has branchCount: 3
-    const warning = fixture.nativeElement.querySelector('.cascade-warning');
-    expect(warning).toBeTruthy();
-    expect(warning.textContent).toContain('3 active branches');
-    expect(warning.textContent).toContain('Deactivating it will also deactivate all branches');
-  });
-
-  it('should not show cascade warning when school has no branches', async () => {
-    const noBranchSchool: School = { ...activeSchool, branchCount: 0 };
-    setupComponent(noBranchSchool);
-    const fixture = await createFixture();
-
-    const warning = fixture.nativeElement.querySelector('.cascade-warning');
-    expect(warning).toBeNull();
   });
 
   it('should close dialog without changes on cancel', async () => {
@@ -151,14 +138,15 @@ describe('SchoolStatusDialogComponent', () => {
     expect(schoolsServiceMock.updateStatus).not.toHaveBeenCalled();
   });
 
-  it('should disable toggle when self-school detected', async () => {
+  it('should disable toggle when self-school detected via scopeRefId', async () => {
     const selfSchool: School = { ...activeSchool, id: 'auth1' };
     const selfMembership: Membership = {
       id: 'm1',
       userId: 'auth1',
       role: 'SCHOOL_ADMIN',
-      scope: 'auth1',
-      effectivePermissions: [],
+      scopeType: 'SCHOOL',
+      scopeRefId: 'auth1',
+      active: true,
     };
     setupComponent(selfSchool, mockAuthUser);
     membershipsServiceMock.getByUser.mockReturnValue(of([selfMembership]));

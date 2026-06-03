@@ -2,7 +2,8 @@
 export interface User {
   id: string;
   email: string;
-  displayName: string;
+  username: string;
+  fullName: string;
   roles: string[];
   /** Raw JWT for interceptor Authorization header injection. */
   token: string;

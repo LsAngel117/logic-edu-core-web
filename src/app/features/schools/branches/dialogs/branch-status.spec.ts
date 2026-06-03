@@ -4,32 +4,46 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { BranchesService } from '../services/branches';
-import { Branch } from '../models/branch';
+import { BranchResponse } from '../models/branch';
 import { BranchStatusDialogComponent } from './branch-status';
 
 describe('BranchStatusDialogComponent', () => {
   let branchesServiceMock: { updateStatus: ReturnType<typeof vi.fn> };
   let dialogRefMock: { close: ReturnType<typeof vi.fn> };
 
-  const activeBranch: Branch = {
+  const activeBranch: BranchResponse = {
     id: 'b1',
     schoolId: 's1',
     name: 'Main Campus',
     code: 'MC-001',
+    shortName: 'Main',
+    description: '',
+    email: '',
+    phone: '',
     address: '123 Campus Dr',
-    status: 'active',
+    type: 'MAIN',
+    status: 'ACTIVE',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
   };
 
-  const inactiveBranch: Branch = {
+  const inactiveBranch: BranchResponse = {
     id: 'b2',
     schoolId: 's1',
     name: 'Downtown Annex',
     code: 'DA-002',
+    shortName: 'Downtown',
+    description: '',
+    email: '',
+    phone: '',
     address: '456 City Blvd',
-    status: 'inactive',
+    type: 'SECONDARY',
+    status: 'INACTIVE',
+    createdAt: '2026-02-01T00:00:00Z',
+    updatedAt: '2026-02-01T00:00:00Z',
   };
 
-  function setupComponent(dialogData: Branch = activeBranch) {
+  function setupComponent(dialogData: BranchResponse = activeBranch) {
     branchesServiceMock = { updateStatus: vi.fn() };
     dialogRefMock = { close: vi.fn() };
 
@@ -61,7 +75,7 @@ describe('BranchStatusDialogComponent', () => {
 
     const content = fixture.nativeElement.textContent;
     expect(content).toContain('Main Campus');
-    expect(content).toContain('active');
+    expect(content).toContain('ACTIVE');
   });
 
   it('should show inactive status when branch is inactive', async () => {
@@ -70,12 +84,12 @@ describe('BranchStatusDialogComponent', () => {
 
     const content = fixture.nativeElement.textContent;
     expect(content).toContain('Downtown Annex');
-    expect(content).toContain('inactive');
+    expect(content).toContain('INACTIVE');
   });
 
-  it('should call updateStatus with toggled value on confirm', async () => {
+  it('should call updateStatus with schoolId and branch id on confirm', async () => {
     setupComponent(activeBranch);
-    const updatedBranch: Branch = { ...activeBranch, status: 'inactive' };
+    const updatedBranch: BranchResponse = { ...activeBranch, status: 'INACTIVE' };
     branchesServiceMock.updateStatus.mockReturnValue(of(updatedBranch));
     const fixture = await createFixture();
 
@@ -85,13 +99,13 @@ describe('BranchStatusDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('b1', { status: 'inactive' });
+    expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('s1', 'b1');
     expect(dialogRefMock.close).toHaveBeenCalledWith(updatedBranch);
   });
 
-  it('should toggle active to inactive correctly', async () => {
+  it('should toggle inactive to active correctly', async () => {
     setupComponent(inactiveBranch);
-    const updatedBranch: Branch = { ...inactiveBranch, status: 'active' };
+    const updatedBranch: BranchResponse = { ...inactiveBranch, status: 'ACTIVE' };
     branchesServiceMock.updateStatus.mockReturnValue(of(updatedBranch));
     const fixture = await createFixture();
 
@@ -100,7 +114,7 @@ describe('BranchStatusDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('b2', { status: 'active' });
+    expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('s1', 'b2');
   });
 
   it('should close dialog without changes on cancel', async () => {

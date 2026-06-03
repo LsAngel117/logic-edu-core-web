@@ -38,18 +38,10 @@ import { UserProfile } from '../models/user-profile';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Display Name</mat-label>
-          <input matInput formControlName="displayName" />
-          @if (form.controls.displayName.hasError('required')) {
-            <mat-error>Display name is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Roles (comma-separated)</mat-label>
-          <input matInput formControlName="roles" />
-          @if (form.controls.roles.hasError('required')) {
-            <mat-error>At least one role is required</mat-error>
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="fullName" />
+          @if (form.controls.fullName.hasError('required')) {
+            <mat-error>Full name is required</mat-error>
           }
         </mat-form-field>
 
@@ -98,8 +90,7 @@ export class EditUser {
 
   readonly form = inject(FormBuilder).group({
     email: [this.data.email, [Validators.required, Validators.email]],
-    displayName: [this.data.displayName, Validators.required],
-    roles: [this.data.roles.join(', '), Validators.required],
+    fullName: [this.data.fullName, Validators.required],
   });
 
   async onSubmit(): Promise<void> {
@@ -109,11 +100,10 @@ export class EditUser {
     this.errorMessage.set('');
 
     try {
-      const formValue = this.form.getRawValue() as { email: string; displayName: string; roles: string };
+      const formValue = this.form.getRawValue() as { email: string; fullName: string };
       const payload = {
         email: formValue.email,
-        displayName: formValue.displayName,
-        roles: formValue.roles.split(',').map((r) => r.trim()).filter(Boolean),
+        fullName: formValue.fullName,
       };
       const updated = await firstValueFrom(this.usersService.update(this.data.id, payload));
       this.dialogRef.close(updated);

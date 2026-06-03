@@ -4,17 +4,17 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 import { MembershipsService } from '../services/memberships';
-import { Membership, AddMembershipPayload } from '../models/membership';
+import { Membership, AssignMembershipRequest } from '../models/membership';
 import { AddMembershipDialogComponent } from './add-membership';
 
 describe('AddMembershipDialogComponent', () => {
-  let membershipsServiceMock: { add: ReturnType<typeof vi.fn> };
+  let membershipsServiceMock: { assign: ReturnType<typeof vi.fn> };
   let dialogRefMock: { close: ReturnType<typeof vi.fn> };
 
   const dialogData = { userId: 'u1' };
 
   function setupComponent() {
-    membershipsServiceMock = { add: vi.fn() };
+    membershipsServiceMock = { assign: vi.fn() };
     dialogRefMock = { close: vi.fn() };
 
     TestBed.resetTestingModule();
@@ -39,23 +39,27 @@ describe('AddMembershipDialogComponent', () => {
     id: 'm1',
     userId: 'u1',
     role: 'TEACHER',
-    scope: 'SCHOOL',
-    effectivePermissions: ['read:students'],
+    scopeType: 'SCHOOL',
+    scopeRefId: 'school-1',
+    active: true,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should render form with role select and scope input', async () => {
+  it('should render form with role select and scope inputs', async () => {
     setupComponent();
     const fixture = await createFixture();
 
-    const roleSelect = fixture.nativeElement.querySelector('mat-select');
+    const roleSelect = fixture.nativeElement.querySelector('mat-select[formcontrolname="role"]');
     expect(roleSelect).toBeTruthy();
 
-    const scopeInput = fixture.nativeElement.querySelector('input[formcontrolname="scope"]');
-    expect(scopeInput).toBeTruthy();
+    const scopeTypeSelect = fixture.nativeElement.querySelector('mat-select[formcontrolname="scopeType"]');
+    expect(scopeTypeSelect).toBeTruthy();
+
+    const scopeRefIdInput = fixture.nativeElement.querySelector('input[formcontrolname="scopeRefId"]');
+    expect(scopeRefIdInput).toBeTruthy();
 
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
     expect(submitButton).toBeTruthy();
@@ -71,23 +75,17 @@ describe('AddMembershipDialogComponent', () => {
 
     const errors = fixture.nativeElement.querySelectorAll('mat-error');
     expect(errors.length).toBeGreaterThan(0);
-    expect(membershipsServiceMock.add).not.toHaveBeenCalled();
+    expect(membershipsServiceMock.assign).not.toHaveBeenCalled();
   });
 
-  it('should call MembershipsService.add with userId and payload on valid submit', async () => {
+  it('should call MembershipsService.assign with userId and payload on valid submit', async () => {
     setupComponent();
-    membershipsServiceMock.add.mockReturnValue(of(mockMembership));
+    membershipsServiceMock.assign.mockReturnValue(of(mockMembership));
     const fixture = await createFixture();
 
-    // Set scope value
-    const scopeInput = fixture.nativeElement.querySelector('input[formcontrolname="scope"]');
-    expect(scopeInput).toBeTruthy();
-    scopeInput.value = 'SCHOOL';
-    scopeInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    // Select role via component (mat-select requires different interaction)
     fixture.componentInstance.form.controls.role.setValue('TEACHER');
+    fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+    fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
     fixture.detectChanges();
 
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
@@ -95,21 +93,24 @@ describe('AddMembershipDialogComponent', () => {
 
     await fixture.whenStable();
 
-    const expectedPayload: AddMembershipPayload = {
+    const expectedPayload: AssignMembershipRequest = {
+      userId: 'u1',
       role: 'TEACHER',
-      scope: 'SCHOOL',
+      scopeType: 'SCHOOL',
+      scopeRefId: 'school-1',
     };
-    expect(membershipsServiceMock.add).toHaveBeenCalledWith('u1', expectedPayload);
+    expect(membershipsServiceMock.assign).toHaveBeenCalledWith(expectedPayload);
     expect(dialogRefMock.close).toHaveBeenCalledWith(mockMembership);
   });
 
   it('should show error message when service returns 409 conflict', async () => {
     setupComponent();
-    membershipsServiceMock.add.mockReturnValue(throwError(() => ({ status: 409 })));
+    membershipsServiceMock.assign.mockReturnValue(throwError(() => ({ status: 409 })));
     const fixture = await createFixture();
 
     fixture.componentInstance.form.controls.role.setValue('TEACHER');
-    fixture.componentInstance.form.controls.scope.setValue('SCHOOL');
+    fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+    fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
     fixture.detectChanges();
 
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
@@ -127,11 +128,12 @@ describe('AddMembershipDialogComponent', () => {
 
   it('should show error for 403 forbidden', async () => {
     setupComponent();
-    membershipsServiceMock.add.mockReturnValue(throwError(() => ({ status: 403 })));
+    membershipsServiceMock.assign.mockReturnValue(throwError(() => ({ status: 403 })));
     const fixture = await createFixture();
 
     fixture.componentInstance.form.controls.role.setValue('TEACHER');
-    fixture.componentInstance.form.controls.scope.setValue('SCHOOL');
+    fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+    fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
     fixture.detectChanges();
 
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
@@ -155,6 +157,6 @@ describe('AddMembershipDialogComponent', () => {
     cancelButton.click();
 
     expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(membershipsServiceMock.add).not.toHaveBeenCalled();
+    expect(membershipsServiceMock.assign).not.toHaveBeenCalled();
   });
 });

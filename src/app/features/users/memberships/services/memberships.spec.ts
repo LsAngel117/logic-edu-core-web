@@ -6,7 +6,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { MembershipsService } from './memberships';
-import { Membership, AddMembershipPayload } from '../models/membership';
+import { Membership, AssignMembershipRequest } from '../models/membership';
 
 function setupService(): { service: MembershipsService; httpMock: HttpTestingController } {
   TestBed.resetTestingModule();
@@ -21,9 +21,10 @@ function setupService(): { service: MembershipsService; httpMock: HttpTestingCon
 const mockMembership: Membership = {
   id: 'm1',
   userId: 'u1',
-  role: 'teacher',
-  scope: 'school-1',
-  effectivePermissions: ['read:courses', 'grade:assignments'],
+  role: 'TEACHER',
+  scopeType: 'SCHOOL',
+  scopeRefId: 'school-1',
+  active: true,
 };
 
 const mockMemberships: Membership[] = [
@@ -31,21 +32,22 @@ const mockMemberships: Membership[] = [
   {
     id: 'm2',
     userId: 'u1',
-    role: 'student',
-    scope: 'class-5a',
-    effectivePermissions: ['read:courses'],
+    role: 'STUDENT',
+    scopeType: 'BRANCH',
+    scopeRefId: 'branch-5a',
+    active: true,
   },
 ];
 
 describe('MembershipsService', () => {
   describe('getByUser', () => {
-    it('should GET /api/v1/users/:userId/memberships and return Membership[]', () => {
+    it('should GET /api/v1/memberships/users/{userId} and return Membership[]', () => {
       const { service, httpMock } = setupService();
 
       let result: Membership[] | undefined;
       service.getByUser('u1').subscribe((memberships: Membership[]) => (result = memberships));
 
-      const req = httpMock.expectOne('/api/v1/memberships?userId=u1');
+      const req = httpMock.expectOne('/api/v1/memberships/users/u1');
       expect(req.request.method).toBe('GET');
 
       req.flush(mockMemberships);
@@ -59,7 +61,7 @@ describe('MembershipsService', () => {
       let result: Membership[] | undefined;
       service.getByUser('u1').subscribe((memberships: Membership[]) => (result = memberships));
 
-      const req = httpMock.expectOne('/api/v1/memberships?userId=u1');
+      const req = httpMock.expectOne('/api/v1/memberships/users/u1');
       req.flush([]);
 
       expect(result).toEqual([]);
@@ -73,36 +75,39 @@ describe('MembershipsService', () => {
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/memberships?userId=nonexistent');
+      const req = httpMock.expectOne('/api/v1/memberships/users/nonexistent');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
     });
   });
 
-  describe('add', () => {
-    it('should POST to /api/v1/users/:userId/memberships with correct payload', () => {
+  describe('assign', () => {
+    it('should POST to /api/v1/memberships with correct payload', () => {
       const { service, httpMock } = setupService();
 
-      const payload: AddMembershipPayload = {
-        role: 'admin',
-        scope: 'school-2',
+      const payload: AssignMembershipRequest = {
+        userId: 'u1',
+        role: 'SCHOOL_ADMIN',
+        scopeType: 'SCHOOL',
+        scopeRefId: 'school-2',
       };
 
       const created: Membership = {
         id: 'm3',
-        userId: 'u1',
+        userId: payload.userId,
         role: payload.role,
-        scope: payload.scope,
-        effectivePermissions: ['manage:users', 'read:courses'],
+        scopeType: payload.scopeType,
+        scopeRefId: payload.scopeRefId,
+        active: true,
       };
 
       let result: Membership | undefined;
-      service.add('u1', payload).subscribe((m: Membership) => (result = m));
+      service.assign(payload).subscribe((m: Membership) => (result = m));
 
       const req = httpMock.expectOne('/api/v1/memberships');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ ...payload, userId: 'u1' });
+      expect(req.request.body).toEqual(payload);
 
       req.flush(created);
 
@@ -113,7 +118,12 @@ describe('MembershipsService', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.add('u1', { role: 'teacher', scope: 'school-1' }).subscribe({
+      service.assign({
+        userId: 'u1',
+        role: 'TEACHER',
+        scopeType: 'SCHOOL',
+        scopeRefId: 'school-1',
+      }).subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
@@ -124,12 +134,12 @@ describe('MembershipsService', () => {
     });
   });
 
-  describe('remove', () => {
-    it('should DELETE /api/v1/users/:userId/memberships/:membershipId', () => {
+  describe('deactivate', () => {
+    it('should DELETE /api/v1/memberships/{id}', () => {
       const { service, httpMock } = setupService();
 
       let completed = false;
-      service.remove('u1', 'm1').subscribe({
+      service.deactivate('m1').subscribe({
         complete: () => (completed = true),
       });
 
@@ -145,7 +155,7 @@ describe('MembershipsService', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.remove('u1', 'm-gone').subscribe({
+      service.deactivate('m-gone').subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
@@ -153,6 +163,63 @@ describe('MembershipsService', () => {
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);
+    });
+  });
+
+  describe('activate', () => {
+    it('should PATCH /api/v1/memberships/{id}/activate with no body', () => {
+      const { service, httpMock } = setupService();
+
+      const activated: Membership = { ...mockMembership, active: true };
+
+      let result: Membership | undefined;
+      service.activate('m1').subscribe((m: Membership) => (result = m));
+
+      const req = httpMock.expectOne('/api/v1/memberships/m1/activate');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toBeNull();
+
+      req.flush(activated);
+
+      expect(result).toEqual(activated);
+    });
+  });
+
+  describe('changeRole', () => {
+    it('should PATCH /api/v1/memberships/{id}/role with role payload', () => {
+      const { service, httpMock } = setupService();
+
+      const updated: Membership = { ...mockMembership, role: 'STUDENT' };
+
+      let result: Membership | undefined;
+      service.changeRole('m1', { role: 'STUDENT' }).subscribe((m: Membership) => (result = m));
+
+      const req = httpMock.expectOne('/api/v1/memberships/m1/role');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ role: 'STUDENT' });
+
+      req.flush(updated);
+
+      expect(result).toEqual(updated);
+    });
+  });
+
+  describe('changeScope', () => {
+    it('should PATCH /api/v1/memberships/{id}/scope with scope payload', () => {
+      const { service, httpMock } = setupService();
+
+      const updated: Membership = { ...mockMembership, scopeType: 'BRANCH', scopeRefId: 'branch-1' };
+
+      let result: Membership | undefined;
+      service.changeScope('m1', { scopeType: 'BRANCH', scopeRefId: 'branch-1' }).subscribe((m: Membership) => (result = m));
+
+      const req = httpMock.expectOne('/api/v1/memberships/m1/scope');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ scopeType: 'BRANCH', scopeRefId: 'branch-1' });
+
+      req.flush(updated);
+
+      expect(result).toEqual(updated);
     });
   });
 });

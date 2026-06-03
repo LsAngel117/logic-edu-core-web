@@ -26,15 +26,15 @@
   <div class="memberships-list">
     <div class="membership-header">
       <span class="col-role">Role</span>
-      <span class="col-scope">Scope</span>
-      <span class="col-permissions">Permissions</span>
+      <span class="col-scope">Scope Type</span>
+      <span class="col-permissions">Scope Ref ID</span>
       <span class="col-actions">Actions</span>
     </div>
     @for (m of memberships(); track m.id) {
     <div class="membership-row">
       <span class="col-role">{{ m.role }}</span>
-      <span class="col-scope">{{ m.scope }}</span>
-      <span class="col-permissions">{{ m.effectivePermissions.join(', ') }}</span>
+      <span class="col-scope">{{ m.scopeType }}</span>
+      <span class="col-permissions">{{ m.scopeRefId }}</span>
       <span class="col-actions">
         <button
           mat-icon-button

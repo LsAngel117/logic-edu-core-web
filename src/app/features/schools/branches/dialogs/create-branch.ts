@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { BranchesService } from '../services/branches';
-import { CreateBranchPayload } from '../models/branch';
+import { CreateBranchRequest } from '../models/branch';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
@@ -41,6 +41,10 @@ export class CreateBranchDialogComponent {
   readonly form: FormGroup<{
     name: FormControl<string>;
     code: FormControl<string>;
+    shortName: FormControl<string>;
+    description: FormControl<string>;
+    email: FormControl<string>;
+    phone: FormControl<string>;
     address: FormControl<string>;
   }>;
 
@@ -48,6 +52,10 @@ export class CreateBranchDialogComponent {
     this.form = this.fb.nonNullable.group({
       name: ['', [Validators.required]],
       code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
+      shortName: ['', [Validators.required]],
+      description: [''],
+      email: ['', [Validators.email]],
+      phone: [''],
       address: ['', [Validators.required]],
     });
   }
@@ -62,15 +70,18 @@ export class CreateBranchDialogComponent {
     this.errorMessage.set('');
 
     const raw = this.form.getRawValue();
-    const payload: CreateBranchPayload = {
-      schoolId: this.schoolId,
+    const payload: CreateBranchRequest = {
       name: raw.name,
       code: raw.code,
+      shortName: raw.shortName,
+      description: raw.description || undefined,
+      email: raw.email || undefined,
+      phone: raw.phone || undefined,
       address: raw.address,
     };
 
     try {
-      const result = await firstValueFrom(this.branchesService.create(payload));
+      const result = await firstValueFrom(this.branchesService.create(this.schoolId, payload));
       this.dialogRef.close(result);
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;

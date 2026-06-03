@@ -44,7 +44,6 @@ export class UserDetailComponent {
   readonly currentId = signal('');
 
   constructor() {
-    // Read route param into a signal, then effect reacts to changes
     this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) {

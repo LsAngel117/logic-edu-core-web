@@ -1,19 +1,26 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { EditBranchDialogComponent } from './edit-branch';
-import { Branch } from '../models/branch';
+import { BranchResponse } from '../models/branch';
 
-const mockBranch: Branch = {
+const mockBranch: BranchResponse = {
   id: 'b1',
   schoolId: 's1',
   name: 'Main Campus',
   code: 'MC-001',
+  shortName: 'Main',
+  description: '',
+  email: '',
+  phone: '',
   address: '123 Campus Dr',
-  status: 'active',
+  type: 'MAIN',
+  status: 'ACTIVE',
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
 };
 
 function setup() {
@@ -53,11 +60,12 @@ describe('EditBranchDialogComponent', () => {
     });
     component.onSubmit();
 
-    const req = httpMock.expectOne('/api/v1/branches/b1');
-    expect(req.request.method).toBe('PATCH');
+    const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1');
+    expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({
       name: 'Main Campus Updated',
       code: 'MC-001',
+      shortName: 'Main',
       address: '456 New St',
     });
     req.flush({ ...mockBranch, name: 'Main Campus Updated', address: '456 New St' });
@@ -70,7 +78,7 @@ describe('EditBranchDialogComponent', () => {
     component.form.patchValue({ name: 'Duplicate', code: 'DUP-001', address: '123 Main St' });
     component.onSubmit();
 
-    const req = httpMock.expectOne('/api/v1/branches/b1');
+    const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1');
     req.flush('Conflict', { status: 409, statusText: 'Conflict' });
 
     await fixture.whenStable();
@@ -85,7 +93,7 @@ describe('EditBranchDialogComponent', () => {
     component.form.patchValue({ name: 'Updated', code: 'MC-001', address: '123 Main St' });
     component.onSubmit();
 
-    const req = httpMock.expectOne('/api/v1/branches/b1');
+    const req = httpMock.expectOne('/api/v1/schools/s1/branches/b1');
     req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
     await fixture.whenStable();
@@ -100,7 +108,7 @@ describe('EditBranchDialogComponent', () => {
     component.form.patchValue({ name: '', code: '', address: '' });
     component.onSubmit();
 
-    httpMock.expectNone('/api/v1/branches/b1');
+    httpMock.expectNone('/api/v1/schools/s1/branches/b1');
   });
 
   it('should show error on network failure', async () => {
@@ -110,7 +118,7 @@ describe('EditBranchDialogComponent', () => {
     component.form.patchValue({ name: 'Updated', code: 'MC-001', address: '123 Main St' });
     component.onSubmit();
 
-    httpMock.expectOne('/api/v1/branches/b1').error(new ProgressEvent('error'));
+    httpMock.expectOne('/api/v1/schools/s1/branches/b1').error(new ProgressEvent('error'));
 
     await fixture.whenStable();
 

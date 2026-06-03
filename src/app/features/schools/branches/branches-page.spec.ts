@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { BranchesService } from './services/branches';
 import { SchoolsService } from '../services/schools';
-import { Branch } from './models/branch';
+import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 import { BranchesPage } from './branches-page';
 
@@ -18,28 +18,45 @@ describe('BranchesPage', () => {
     id: 's1',
     name: 'North Academy',
     code: 'NAC-001',
+    shortName: 'North',
+    description: '',
+    email: '',
+    phone: '',
     address: '123 Main St',
-    status: 'active',
-    branchCount: 3,
+    status: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00Z',
   };
 
-  const mockBranches: Branch[] = [
+  const mockBranches: BranchResponse[] = [
     {
       id: 'b1',
       schoolId: 's1',
       name: 'Main Campus',
       code: 'MC-001',
+      shortName: 'Main',
+      description: '',
+      email: '',
+      phone: '',
       address: '123 Campus Dr',
-      status: 'active',
+      type: 'MAIN',
+      status: 'ACTIVE',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
     },
     {
       id: 'b2',
       schoolId: 's1',
       name: 'Downtown Annex',
       code: 'DA-002',
+      shortName: 'Downtown',
+      description: '',
+      email: '',
+      phone: '',
       address: '456 City Blvd',
-      status: 'inactive',
+      type: 'SECONDARY',
+      status: 'INACTIVE',
+      createdAt: '2026-02-01T00:00:00Z',
+      updatedAt: '2026-02-01T00:00:00Z',
     },
   ];
 
@@ -210,10 +227,10 @@ describe('BranchesPage', () => {
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     const activeChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'active'
+      (c) => c.textContent?.trim() === 'ACTIVE'
     );
     const inactiveChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'inactive'
+      (c) => c.textContent?.trim() === 'INACTIVE'
     );
     expect(activeChip).toBeTruthy();
     expect(inactiveChip).toBeTruthy();

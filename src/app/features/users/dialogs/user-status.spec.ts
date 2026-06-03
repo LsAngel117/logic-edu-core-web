@@ -11,7 +11,7 @@ import { UserProfile } from '../models/user-profile';
 import { UserStatusDialogComponent } from './user-status';
 
 describe('UserStatusDialogComponent', () => {
-  let usersServiceMock: { updateStatus: ReturnType<typeof vi.fn> };
+  let usersServiceMock: { changeStatus: ReturnType<typeof vi.fn> };
   let dialogRefMock: { close: ReturnType<typeof vi.fn> };
   let authServiceMock: {
     user: ReturnType<typeof signal<User | null>>;
@@ -21,31 +21,32 @@ describe('UserStatusDialogComponent', () => {
   const mockAuthUser: User = {
     id: 'auth1',
     email: 'admin@logicedu.com',
-    displayName: 'Admin',
+    username: 'admin',
+    fullName: 'Admin',
     roles: ['PLATFORM_ADMIN'],
     token: 'jwt.token',
   };
 
   const activeUser: UserProfile = {
     id: 'u1',
+    username: 'alice',
     email: 'alice@logicedu.com',
-    displayName: 'Alice',
-    status: 'active',
-    roles: ['teacher'],
+    fullName: 'Alice Johnson',
+    status: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00Z',
   };
 
   const inactiveUser: UserProfile = {
     id: 'u2',
+    username: 'bob',
     email: 'bob@logicedu.com',
-    displayName: 'Bob',
-    status: 'inactive',
-    roles: ['student'],
+    fullName: 'Bob Smith',
+    status: 'INACTIVE',
     createdAt: '2026-02-01T00:00:00Z',
   };
 
   function setupComponent(dialogData: UserProfile = activeUser, authUser: User | null = null) {
-    usersServiceMock = { updateStatus: vi.fn() };
+    usersServiceMock = { changeStatus: vi.fn() };
     dialogRefMock = { close: vi.fn() };
     authServiceMock = {
       user: signal(authUser),
@@ -80,8 +81,8 @@ describe('UserStatusDialogComponent', () => {
     const fixture = await createFixture();
 
     const content = fixture.nativeElement.textContent;
-    expect(content).toContain('active');
-    expect(content).toContain('Alice');
+    expect(content).toContain('ACTIVE');
+    expect(content).toContain('Alice Johnson');
   });
 
   it('should show inactive status when user is inactive', async () => {
@@ -89,14 +90,14 @@ describe('UserStatusDialogComponent', () => {
     const fixture = await createFixture();
 
     const content = fixture.nativeElement.textContent;
-    expect(content).toContain('inactive');
-    expect(content).toContain('Bob');
+    expect(content).toContain('INACTIVE');
+    expect(content).toContain('Bob Smith');
   });
 
-  it('should call updateStatus with toggled value on confirm', async () => {
+  it('should call changeStatus with toggled value on confirm', async () => {
     setupComponent(activeUser);
-    const updatedUser: UserProfile = { ...activeUser, status: 'inactive' };
-    usersServiceMock.updateStatus.mockReturnValue(of(updatedUser));
+    const updatedUser: UserProfile = { ...activeUser, status: 'INACTIVE' };
+    usersServiceMock.changeStatus.mockReturnValue(of(updatedUser));
     const fixture = await createFixture();
 
     const confirmButton = fixture.nativeElement.querySelector('button[color="primary"]');
@@ -105,7 +106,7 @@ describe('UserStatusDialogComponent', () => {
 
     await fixture.whenStable();
 
-    expect(usersServiceMock.updateStatus).toHaveBeenCalledWith('u1', { status: 'inactive' });
+    expect(usersServiceMock.changeStatus).toHaveBeenCalledWith('u1', { status: 'INACTIVE' });
     expect(dialogRefMock.close).toHaveBeenCalledWith(updatedUser);
   });
 
@@ -121,23 +122,22 @@ describe('UserStatusDialogComponent', () => {
     (cancelButton as HTMLButtonElement).click();
 
     expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(usersServiceMock.updateStatus).not.toHaveBeenCalled();
+    expect(usersServiceMock.changeStatus).not.toHaveBeenCalled();
   });
 
   it('should disable toggle and show message when editing own status', async () => {
     const selfUser: UserProfile = {
       id: 'auth1',
+      username: 'admin',
       email: 'admin@logicedu.com',
-      displayName: 'Admin',
-      status: 'active',
-      roles: ['PLATFORM_ADMIN'],
+      fullName: 'Admin',
+      status: 'ACTIVE',
       createdAt: '2026-01-01T00:00:00Z',
     };
     setupComponent(selfUser, mockAuthUser);
     const fixture = await createFixture();
     fixture.detectChanges();
 
-    // Check that self-disable is detected
     expect(fixture.componentInstance.isSelf()).toBe(true);
 
     const message = fixture.nativeElement.querySelector('.self-disable-message');

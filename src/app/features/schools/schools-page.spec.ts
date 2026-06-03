@@ -28,18 +28,24 @@ describe('SchoolsPageComponent', () => {
       id: 's1',
       name: 'North Academy',
       code: 'NAC-001',
+      shortName: 'North',
+      description: 'A school of excellence',
+      email: 'north@school.edu',
+      phone: '1234567890',
       address: '123 Main St',
-      status: 'active',
-      branchCount: 3,
+      status: 'ACTIVE',
       createdAt: '2026-01-01T00:00:00Z',
     },
     {
       id: 's2',
       name: 'South School',
       code: 'SOS-002',
+      shortName: 'South',
+      description: '',
+      email: '',
+      phone: '',
       address: '456 Oak Ave',
-      status: 'inactive',
-      branchCount: 0,
+      status: 'INACTIVE',
       createdAt: '2026-02-01T00:00:00Z',
     },
   ];
@@ -117,7 +123,7 @@ describe('SchoolsPageComponent', () => {
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     const activeChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'active'
+      (c) => c.textContent?.trim() === 'ACTIVE'
     );
     expect(activeChip).toBeTruthy();
   });
@@ -132,7 +138,7 @@ describe('SchoolsPageComponent', () => {
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     const inactiveChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'inactive'
+      (c) => c.textContent?.trim() === 'INACTIVE'
     );
     expect(inactiveChip).toBeTruthy();
   });
@@ -157,20 +163,6 @@ describe('SchoolsPageComponent', () => {
     expect(schoolsServiceMock.getAll).toHaveBeenCalledWith('north');
 
     vi.useRealTimers();
-  });
-
-  it('should display branch count in table column', async () => {
-    setupComponent();
-    schoolsServiceMock.getAll.mockReturnValue(of(mockSchools));
-
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
-    const cells0 = rows[0].querySelectorAll('td');
-    // branchCount column should be the 4th (0-indexed: 3)
-    expect(cells0[3].textContent).toContain('3');
   });
 
   it('should render action buttons for each school row', async () => {

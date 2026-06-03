@@ -44,7 +44,8 @@ describe('LoginComponent', () => {
   const mockUser: User = {
     id: 'usr_test123',
     email: 'test@logicedu.com',
-    displayName: 'Test User',
+    username: 'testuser',
+    fullName: 'Test User',
     roles: ['teacher'],
     token: 'test.jwt.token',
   };

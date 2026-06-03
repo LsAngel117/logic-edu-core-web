@@ -15,10 +15,22 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Scope</mat-label>
-      <input matInput formControlName="scope" placeholder="e.g., SCHOOL" />
-      @if (form.controls.scope.touched && form.controls.scope.hasError('required')) {
-      <mat-error>Scope is required</mat-error>
+      <mat-label>Scope Type</mat-label>
+      <mat-select formControlName="scopeType">
+        @for (scopeType of scopeTypes; track scopeType) {
+        <mat-option [value]="scopeType">{{ scopeType }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.scopeType.touched && form.controls.scopeType.hasError('required')) {
+      <mat-error>Scope type is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Scope Reference ID</mat-label>
+      <input matInput formControlName="scopeRefId" placeholder="e.g., school-1" />
+      @if (form.controls.scopeRefId.touched && form.controls.scopeRefId.hasError('required')) {
+      <mat-error>Scope reference ID is required</mat-error>
       }
     </mat-form-field>
 

@@ -30,7 +30,8 @@ const expiredJwt = encodeJwt({
 const expectedUser: User = {
   id: 'usr_test123',
   email: 'test@logicedu.com',
-  displayName: 'Test User',
+  username: 'test@logicedu.com',
+  fullName: 'Test User',
   roles: ['teacher'],
   token: mockJwt,
 };

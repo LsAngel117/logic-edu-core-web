@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
 import { AuthService } from '../../../core/services/auth';
 import { MembershipsService } from '../../users/memberships/services/memberships';
-import { School, UpdateSchoolStatusPayload } from '../models/school';
+import { School } from '../models/school';
 
 @Component({
   selector: 'app-school-status',
@@ -30,8 +30,6 @@ export class SchoolStatusDialogComponent {
   readonly loading = signal(false);
   readonly errorMessage = signal('');
 
-  readonly hasBranches = computed(() => (this.data.branchCount ?? 0) > 0);
-
   readonly isSelfSchool = signal(false);
 
   constructor() {
@@ -39,7 +37,7 @@ export class SchoolStatusDialogComponent {
     if (user) {
       this.membershipsService.getByUser(user.id).subscribe({
         next: (memberships) => {
-          const belongsToSchool = memberships.some((m) => m.scope === this.data.id);
+          const belongsToSchool = memberships.some((m) => m.scopeRefId === this.data.id);
           this.isSelfSchool.set(belongsToSchool);
         },
         error: () => {
@@ -50,20 +48,16 @@ export class SchoolStatusDialogComponent {
   }
 
   isToggled(): boolean {
-    return this.data.status === 'inactive';
+    return this.data.status === 'INACTIVE';
   }
 
   async onConfirm(): Promise<void> {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const newStatus: UpdateSchoolStatusPayload = {
-      status: this.data.status === 'active' ? 'inactive' : 'active',
-    };
-
     try {
       const result = await firstValueFrom(
-        this.schoolsService.updateStatus(this.data.id, newStatus)
+        this.schoolsService.updateStatus(this.data.id)
       );
       this.dialogRef.close(result);
     } catch (err: unknown) {

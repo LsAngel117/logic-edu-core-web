@@ -6,7 +6,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
 import { AuthService } from '../../../core/services/auth';
-import { UserProfile, UpdateStatusPayload } from '../models/user-profile';
+import { UserProfile, ChangeStatusRequest } from '../models/user-profile';
 
 @Component({
   selector: 'app-user-status',
@@ -35,20 +35,20 @@ export class UserStatusDialogComponent {
   });
 
   isToggled(): boolean {
-    return this.data.status === 'inactive';
+    return this.data.status === 'INACTIVE';
   }
 
   async onConfirm(): Promise<void> {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const newStatus: UpdateStatusPayload = {
-      status: this.data.status === 'active' ? 'inactive' : 'active',
+    const newStatus: ChangeStatusRequest = {
+      status: this.data.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE',
     };
 
     try {
       const result = await firstValueFrom(
-        this.usersService.updateStatus(this.data.id, newStatus)
+        this.usersService.changeStatus(this.data.id, newStatus)
       );
       this.dialogRef.close(result);
     } catch (err: unknown) {

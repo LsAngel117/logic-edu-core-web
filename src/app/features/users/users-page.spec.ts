@@ -26,18 +26,18 @@ describe('UsersPageComponent', () => {
   const mockUsers: UserProfile[] = [
     {
       id: 'u1',
+      username: 'alice',
       email: 'alice@logicedu.com',
-      displayName: 'Alice',
-      status: 'active',
-      roles: ['teacher'],
+      fullName: 'Alice Johnson',
+      status: 'ACTIVE',
       createdAt: '2026-01-01T00:00:00Z',
     },
     {
       id: 'u2',
+      username: 'bob',
       email: 'bob@logicedu.com',
-      displayName: 'Bob',
-      status: 'inactive',
-      roles: ['student'],
+      fullName: 'Bob Smith',
+      status: 'INACTIVE',
       createdAt: '2026-02-01T00:00:00Z',
     },
   ];
@@ -54,7 +54,6 @@ describe('UsersPageComponent', () => {
 
   it('should render mat-spinner while loading', async () => {
     setupComponent();
-    // Return an Observable that never emits to keep loading state
     usersServiceMock.getAll.mockReturnValue(new Observable());
 
     const fixture = await TestBed.createComponent(UsersPageComponent);
@@ -70,21 +69,18 @@ describe('UsersPageComponent', () => {
 
     const fixture = await createFixture();
 
-    // Advance past debounce and wait for Observable
     await fixture.whenStable();
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
     expect(rows.length).toBe(2);
 
-    // Verify first row has user data
     const cells0 = rows[0].querySelectorAll('td');
-    expect(cells0[0].textContent).toContain('Alice');
+    expect(cells0[0].textContent).toContain('Alice Johnson');
     expect(cells0[1].textContent).toContain('alice@logicedu.com');
 
-    // Verify second row has user data
     const cells1 = rows[1].querySelectorAll('td');
-    expect(cells1[0].textContent).toContain('Bob');
+    expect(cells1[0].textContent).toContain('Bob Smith');
     expect(cells1[1].textContent).toContain('bob@logicedu.com');
   });
 
@@ -124,7 +120,7 @@ describe('UsersPageComponent', () => {
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     const activeChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'active'
+      (c) => c.textContent?.trim() === 'ACTIVE'
     );
     expect(activeChip).toBeTruthy();
   });
@@ -139,7 +135,7 @@ describe('UsersPageComponent', () => {
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     const inactiveChip = Array.from(chips as Element[]).find(
-      (c) => c.textContent?.trim() === 'inactive'
+      (c) => c.textContent?.trim() === 'INACTIVE'
     );
     expect(inactiveChip).toBeTruthy();
   });
@@ -159,7 +155,6 @@ describe('UsersPageComponent', () => {
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    // Advance debounce timer (300ms) — the callback runs synchronously
     vi.advanceTimersByTime(300);
 
     expect(usersServiceMock.getAll).toHaveBeenCalledWith('alice');
@@ -180,22 +175,6 @@ describe('UsersPageComponent', () => {
 
     const table = fixture.nativeElement.querySelector('table');
     expect(table).toBeTruthy();
-  });
-
-  it('should display roles as comma-separated text', async () => {
-    setupComponent();
-    const multiRoleUser: UserProfile = {
-      ...mockUsers[0],
-      roles: ['PLATFORM_ADMIN', 'TEACHER'],
-    };
-    usersServiceMock.getAll.mockReturnValue(of([multiRoleUser]));
-
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const rolesCell = fixture.nativeElement.querySelectorAll('td')[3];
-    expect(rolesCell.textContent).toContain('PLATFORM_ADMIN, TEACHER');
   });
 
   it('should render action buttons for each user row', async () => {

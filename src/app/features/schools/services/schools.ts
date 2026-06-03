@@ -5,7 +5,6 @@ import {
   School,
   CreateSchoolPayload,
   UpdateSchoolPayload,
-  UpdateSchoolStatusPayload,
 } from '../models/school';
 
 @Injectable({ providedIn: 'root' })
@@ -33,7 +32,7 @@ export class SchoolsService {
     return this.http.patch<School>(`${this.baseUrl}/${id}`, payload);
   }
 
-  updateStatus(id: string, payload: UpdateSchoolStatusPayload): Observable<School> {
-    return this.http.patch<School>(`${this.baseUrl}/${id}/status`, payload);
+  updateStatus(id: string): Observable<School> {
+    return this.http.patch<School>(`${this.baseUrl}/${id}/deactivate`, null);
   }
 }

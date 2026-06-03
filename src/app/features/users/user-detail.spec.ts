@@ -15,10 +15,10 @@ describe('UserDetailComponent', () => {
 
   const mockUser: UserProfile = {
     id: 'u1',
+    username: 'alice',
     email: 'alice@logicedu.com',
-    displayName: 'Alice',
-    status: 'active',
-    roles: ['TEACHER', 'STUDENT'],
+    fullName: 'Alice Johnson',
+    status: 'ACTIVE',
     createdAt: '2026-06-01T12:00:00Z',
   };
 
@@ -67,7 +67,7 @@ describe('UserDetailComponent', () => {
     expect(spinner).toBeTruthy();
   });
 
-  it('should render user display name, email, and status after loading', async () => {
+  it('should render user name, email, username, and status after loading', async () => {
     setupComponent();
     usersServiceMock.getById.mockReturnValue(of(mockUser));
 
@@ -76,27 +76,10 @@ describe('UserDetailComponent', () => {
     fixture.detectChanges();
 
     const content = fixture.nativeElement.textContent;
-    expect(content).toContain('Alice');
+    expect(content).toContain('Alice Johnson');
     expect(content).toContain('alice@logicedu.com');
-    expect(content).toContain('active');
-  });
-
-  it('should render role chips for each role', async () => {
-    setupComponent();
-    usersServiceMock.getById.mockReturnValue(of(mockUser));
-
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    // Scope to role chips only (inside the Roles row)
-    const rolesRow = fixture.nativeElement.querySelector('.info-row:nth-child(3)');
-    const chips = rolesRow.querySelectorAll('mat-chip');
-    expect(chips.length).toBe(2);
-
-    const chipTexts = Array.from(chips as Element[]).map((c) => c.textContent?.trim());
-    expect(chipTexts).toContain('TEACHER');
-    expect(chipTexts).toContain('STUDENT');
+    expect(content).toContain('alice');
+    expect(content).toContain('ACTIVE');
   });
 
   it('should render createdAt date', async () => {

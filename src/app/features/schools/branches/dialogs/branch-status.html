@@ -9,7 +9,7 @@
     [checked]="isToggled()"
     [disabled]="loading()"
   >
-    {{ data.status === 'active' ? 'Deactivate' : 'Activate' }} branch
+    {{ data.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }} branch
   </mat-slide-toggle>
 
   @if (errorMessage()) {

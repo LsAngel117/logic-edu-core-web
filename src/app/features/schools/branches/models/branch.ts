@@ -1,25 +1,35 @@
-export interface Branch {
+export interface BranchResponse {
   id: string;
   schoolId: string;
   name: string;
   code: string;
+  shortName: string;
+  description: string;
+  email: string;
+  phone: string;
   address: string;
-  status: 'active' | 'inactive';
+  type: 'MAIN' | 'SECONDARY' | 'VIRTUAL';
+  status: 'ACTIVE' | 'INACTIVE';
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CreateBranchPayload {
-  schoolId: string;
+export interface CreateBranchRequest {
   name: string;
   code: string;
-  address: string;
+  shortName: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }
 
-export interface UpdateBranchPayload {
+export interface UpdateBranchRequest {
   name: string;
   code: string;
-  address: string;
-}
-
-export interface UpdateBranchStatusPayload {
-  status: 'active' | 'inactive';
+  shortName: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }

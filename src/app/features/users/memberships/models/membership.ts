@@ -2,11 +2,14 @@ export interface Membership {
   id: string;
   userId: string;
   role: string;
-  scope: string;
-  effectivePermissions: string[];
+  scopeType: string;
+  scopeRefId: string;
+  active: boolean;
 }
 
-export interface AddMembershipPayload {
+export interface AssignMembershipRequest {
+  userId: string;
   role: string;
-  scope: string;
+  scopeType: string;
+  scopeRefId: string;
 }

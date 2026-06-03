@@ -23,7 +23,7 @@
   </div>
   } @else if (user(); as u) {
   <div class="profile-card">
-    <h2>{{ u.displayName }}</h2>
+    <h2>{{ u.fullName }}</h2>
 
     <div class="info-grid">
       <div class="info-row">
@@ -31,18 +31,14 @@
         <span class="value">{{ u.email }}</span>
       </div>
       <div class="info-row">
-        <span class="label">Status</span>
-        <mat-chip [class.status-active]="u.status === 'active'" [class.status-inactive]="u.status === 'inactive'">
-          {{ u.status }}
-        </mat-chip>
+        <span class="label">Username</span>
+        <span class="value">{{ u.username }}</span>
       </div>
       <div class="info-row">
-        <span class="label">Roles</span>
-        <mat-chip-set>
-          @for (role of u.roles; track role) {
-          <mat-chip>{{ role }}</mat-chip>
-          }
-        </mat-chip-set>
+        <span class="label">Status</span>
+        <mat-chip [class.status-active]="u.status === 'ACTIVE'" [class.status-inactive]="u.status === 'INACTIVE'" [class.status-blocked]="u.status === 'BLOCKED'">
+          {{ u.status }}
+        </mat-chip>
       </div>
       <div class="info-row">
         <span class="label">Created</span>

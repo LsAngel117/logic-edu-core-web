@@ -6,7 +6,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { SchoolsService } from './schools';
-import { School, CreateSchoolPayload, UpdateSchoolStatusPayload } from '../models/school';
+import { School, CreateSchoolPayload } from '../models/school';
 
 function setupService(): { service: SchoolsService; httpMock: HttpTestingController } {
   TestBed.resetTestingModule();
@@ -22,9 +22,12 @@ const mockSchool: School = {
   id: 's1',
   name: 'North Academy',
   code: 'NAC-001',
+  shortName: 'North',
+  description: 'A school of excellence',
+  email: 'north@school.edu',
+  phone: '1234567890',
   address: '123 Main St',
-  status: 'active',
-  branchCount: 3,
+  status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00Z',
 };
 
@@ -34,9 +37,12 @@ const mockSchools: School[] = [
     id: 's2',
     name: 'South School',
     code: 'SOS-002',
+    shortName: 'South',
+    description: '',
+    email: '',
+    phone: '',
     address: '456 Oak Ave',
-    status: 'inactive',
-    branchCount: 0,
+    status: 'INACTIVE',
     createdAt: '2026-02-01T00:00:00Z',
   },
 ];
@@ -121,6 +127,7 @@ describe('SchoolsService', () => {
       const payload: CreateSchoolPayload = {
         name: 'East Academy',
         code: 'EAC-003',
+        shortName: 'East',
         address: '789 Pine Rd',
       };
 
@@ -128,9 +135,12 @@ describe('SchoolsService', () => {
         id: 's3',
         name: payload.name,
         code: payload.code,
+        shortName: payload.shortName,
+        description: '',
+        email: '',
+        phone: '',
         address: payload.address,
-        status: 'active',
-        branchCount: 0,
+        status: 'ACTIVE',
         createdAt: '2026-03-01T00:00:00Z',
       };
 
@@ -152,6 +162,7 @@ describe('SchoolsService', () => {
       const payload: CreateSchoolPayload = {
         name: 'North Academy',
         code: 'NAC-001',
+        shortName: 'North',
         address: '123 Main St',
       };
 
@@ -174,6 +185,7 @@ describe('SchoolsService', () => {
       const payload = {
         name: 'North Academy Updated',
         code: 'NAC-001',
+        shortName: 'North',
         address: '123 Main St',
       };
 
@@ -193,18 +205,17 @@ describe('SchoolsService', () => {
   });
 
   describe('updateStatus', () => {
-    it('should PATCH /api/v1/schools/:id/status with status payload', () => {
+    it('should PATCH /api/v1/schools/{id}/deactivate with no body', () => {
       const { service, httpMock } = setupService();
 
-      const payload: UpdateSchoolStatusPayload = { status: 'inactive' };
-      const updated: School = { ...mockSchool, status: 'inactive' };
+      const updated: School = { ...mockSchool, status: 'INACTIVE' };
 
       let result: School | undefined;
-      service.updateStatus('s1', payload).subscribe((school: School) => (result = school));
+      service.updateStatus('s1').subscribe((school: School) => (result = school));
 
-      const req = httpMock.expectOne('/api/v1/schools/s1/status');
+      const req = httpMock.expectOne('/api/v1/schools/s1/deactivate');
       expect(req.request.method).toBe('PATCH');
-      expect(req.request.body).toEqual(payload);
+      expect(req.request.body).toBeNull();
 
       req.flush(updated);
 
@@ -215,11 +226,11 @@ describe('SchoolsService', () => {
       const { service, httpMock } = setupService();
 
       let errorStatus: number | undefined;
-      service.updateStatus('nonexistent', { status: 'inactive' }).subscribe({
+      service.updateStatus('nonexistent').subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 
-      const req = httpMock.expectOne('/api/v1/schools/nonexistent/status');
+      const req = httpMock.expectOne('/api/v1/schools/nonexistent/deactivate');
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
 
       expect(errorStatus).toBe(404);

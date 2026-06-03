@@ -13,7 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BranchesService } from './services/branches';
 import { SchoolsService } from '../services/schools';
-import { Branch } from './models/branch';
+import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 
 @Component({
@@ -42,11 +42,11 @@ export class BranchesPage {
   private readonly dialog = inject(MatDialog);
 
   readonly school = signal<School | null>(null);
-  private readonly _allBranches = signal<Branch[]>([]);
+  private readonly _allBranches = signal<BranchResponse[]>([]);
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly searchTerm = signal('');
-  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+  readonly statusFilter = signal<'all' | 'ACTIVE' | 'INACTIVE'>('all');
 
   readonly branches = computed(() => {
     let result = this._allBranches();
@@ -94,7 +94,7 @@ export class BranchesPage {
     });
 
     this.branchesService.getBySchool(this.schoolId).subscribe({
-      next: (result: Branch[]) => {
+      next: (result: BranchResponse[]) => {
         this._allBranches.set(result);
         this.loading.set(false);
       },
@@ -114,7 +114,7 @@ export class BranchesPage {
     this.searchTerm.set('');
   }
 
-  setStatusFilter(value: 'all' | 'active' | 'inactive'): void {
+  setStatusFilter(value: 'all' | 'ACTIVE' | 'INACTIVE'): void {
     this.statusFilter.set(value);
   }
 
@@ -124,33 +124,33 @@ export class BranchesPage {
       width: '480px',
       data: this.schoolId,
     });
-    dialogRef.afterClosed().subscribe((result: Branch | undefined) => {
+    dialogRef.afterClosed().subscribe((result: BranchResponse | undefined) => {
       if (result) {
         this.loadData();
       }
     });
   }
 
-  async openEditDialog(branch: Branch): Promise<void> {
+  async openEditDialog(branch: BranchResponse): Promise<void> {
     const { EditBranchDialogComponent } = await import('./dialogs/edit-branch');
     const dialogRef = this.dialog.open(EditBranchDialogComponent, {
       width: '480px',
       data: branch,
     });
-    dialogRef.afterClosed().subscribe((result: Branch | undefined) => {
+    dialogRef.afterClosed().subscribe((result: BranchResponse | undefined) => {
       if (result) {
         this.loadData();
       }
     });
   }
 
-  async openStatusDialog(branch: Branch): Promise<void> {
+  async openStatusDialog(branch: BranchResponse): Promise<void> {
     const { BranchStatusDialogComponent } = await import('./dialogs/branch-status');
     const dialogRef = this.dialog.open(BranchStatusDialogComponent, {
       width: '480px',
       data: branch,
     });
-    dialogRef.afterClosed().subscribe((result: Branch | undefined) => {
+    dialogRef.afterClosed().subscribe((result: BranchResponse | undefined) => {
       if (result) {
         const all = this._allBranches();
         const index = all.findIndex((b) => b.id === result.id);

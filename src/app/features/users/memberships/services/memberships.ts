@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Membership, AddMembershipPayload } from '../models/membership';
+import { Membership, AssignMembershipRequest } from '../models/membership';
 
 @Injectable({ providedIn: 'root' })
 export class MembershipsService {
@@ -9,15 +9,26 @@ export class MembershipsService {
   private readonly baseUrl = '/api/v1/memberships';
 
   getByUser(userId: string): Observable<Membership[]> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<Membership[]>(this.baseUrl, { params });
+    return this.http.get<Membership[]>(`${this.baseUrl}/users/${userId}`);
   }
 
-  add(userId: string, payload: AddMembershipPayload): Observable<Membership> {
-    return this.http.post<Membership>(this.baseUrl, { ...payload, userId });
+  assign(payload: AssignMembershipRequest): Observable<Membership> {
+    return this.http.post<Membership>(this.baseUrl, payload);
   }
 
-  remove(userId: string, membershipId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${membershipId}`);
+  deactivate(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  activate(id: string): Observable<Membership> {
+    return this.http.patch<Membership>(`${this.baseUrl}/${id}/activate`, null);
+  }
+
+  changeRole(id: string, payload: { role: string }): Observable<Membership> {
+    return this.http.patch<Membership>(`${this.baseUrl}/${id}/role`, payload);
+  }
+
+  changeScope(id: string, payload: { scopeType: string; scopeRefId: string }): Observable<Membership> {
+    return this.http.patch<Membership>(`${this.baseUrl}/${id}/scope`, payload);
   }
 }

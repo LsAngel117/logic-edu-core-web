@@ -7,7 +7,7 @@ import { MatInput } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
-import { School } from '../models/school';
+import { School, UpdateSchoolPayload } from '../models/school';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
@@ -44,6 +44,14 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
           }
           @if (form.controls.code.hasError('pattern')) {
             <mat-error>Invalid code format. Use uppercase letters, numbers, and hyphens.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Short Name</mat-label>
+          <input matInput formControlName="shortName" />
+          @if (form.controls.shortName.hasError('required')) {
+            <mat-error>Short name is required</mat-error>
           }
         </mat-form-field>
 
@@ -101,6 +109,7 @@ export class EditSchoolDialogComponent {
   readonly form = inject(FormBuilder).group({
     name: [this.data.name, [Validators.required]],
     code: [this.data.code, [Validators.required, Validators.pattern(CODE_PATTERN)]],
+    shortName: [this.data.shortName, [Validators.required]],
     address: [this.data.address, [Validators.required]],
   });
 
@@ -111,10 +120,11 @@ export class EditSchoolDialogComponent {
     this.errorMessage.set('');
 
     try {
-      const formValue = this.form.getRawValue() as { name: string; code: string; address: string };
-      const payload = {
+      const formValue = this.form.getRawValue() as { name: string; code: string; shortName: string; address: string };
+      const payload: UpdateSchoolPayload = {
         name: formValue.name,
         code: formValue.code,
+        shortName: formValue.shortName,
         address: formValue.address,
       };
       const updated = await firstValueFrom(this.schoolsService.update(this.data.id, payload));

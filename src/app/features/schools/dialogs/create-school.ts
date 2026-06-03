@@ -40,6 +40,7 @@ export class CreateSchoolDialogComponent {
   readonly form: FormGroup<{
     name: FormControl<string>;
     code: FormControl<string>;
+    shortName: FormControl<string>;
     address: FormControl<string>;
   }>;
 
@@ -47,6 +48,7 @@ export class CreateSchoolDialogComponent {
     this.form = this.fb.nonNullable.group({
       name: ['', [Validators.required]],
       code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
+      shortName: ['', [Validators.required]],
       address: ['', [Validators.required]],
     });
   }
@@ -64,6 +66,7 @@ export class CreateSchoolDialogComponent {
     const payload: CreateSchoolPayload = {
       name: raw.name,
       code: raw.code,
+      shortName: raw.shortName,
       address: raw.address,
     };
 

@@ -2,24 +2,31 @@ export interface School {
   id: string;
   name: string;
   code: string;
+  shortName: string;
+  description: string;
+  email: string;
+  phone: string;
   address: string;
-  status: 'active' | 'inactive';
-  branchCount?: number;
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
 }
 
 export interface CreateSchoolPayload {
   name: string;
   code: string;
+  shortName: string;
+  description?: string;
+  email?: string;
+  phone?: string;
   address: string;
 }
 
 export interface UpdateSchoolPayload {
   name: string;
   code: string;
+  shortName: string;
+  description?: string;
+  email?: string;
+  phone?: string;
   address: string;
-}
-
-export interface UpdateSchoolStatusPayload {
-  status: 'active' | 'inactive';
 }

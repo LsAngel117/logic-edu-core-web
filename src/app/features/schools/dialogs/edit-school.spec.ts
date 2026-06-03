@@ -11,9 +11,12 @@ const mockSchool: School = {
   id: 's1',
   name: 'North Academy',
   code: 'NAC-001',
+  shortName: 'North',
+  description: 'A school of excellence',
+  email: 'north@school.edu',
+  phone: '1234567890',
   address: '123 Main St',
-  status: 'active',
-  branchCount: 3,
+  status: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00Z',
 };
 
@@ -40,6 +43,7 @@ describe('EditSchoolDialogComponent', () => {
     const component = fixture.componentInstance;
     expect(component.form.controls.name.value).toBe('North Academy');
     expect(component.form.controls.code.value).toBe('NAC-001');
+    expect(component.form.controls.shortName.value).toBe('North');
     expect(component.form.controls.address.value).toBe('123 Main St');
   });
 
@@ -50,6 +54,7 @@ describe('EditSchoolDialogComponent', () => {
     component.form.patchValue({
       name: 'North Academy Updated',
       code: 'NAC-001',
+      shortName: 'North',
       address: '456 New St',
     });
     component.onSubmit();
@@ -59,6 +64,7 @@ describe('EditSchoolDialogComponent', () => {
     expect(req.request.body).toEqual({
       name: 'North Academy Updated',
       code: 'NAC-001',
+      shortName: 'North',
       address: '456 New St',
     });
     req.flush({ ...mockSchool, name: 'North Academy Updated', address: '456 New St' });
@@ -68,7 +74,7 @@ describe('EditSchoolDialogComponent', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ name: 'Duplicate Name', code: 'NAC-001', address: '123 Main St' });
+    component.form.patchValue({ name: 'Duplicate Name', code: 'NAC-001', shortName: 'North', address: '123 Main St' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/schools/s1');
@@ -83,7 +89,7 @@ describe('EditSchoolDialogComponent', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ name: 'Updated', code: 'NAC-001', address: '123 Main St' });
+    component.form.patchValue({ name: 'Updated', code: 'NAC-001', shortName: 'North', address: '123 Main St' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/schools/s1');
@@ -98,7 +104,7 @@ describe('EditSchoolDialogComponent', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ name: '', code: '', address: '' });
+    component.form.patchValue({ name: '', code: '', shortName: '', address: '' });
     component.onSubmit();
 
     httpMock.expectNone('/api/v1/schools/s1');
@@ -108,7 +114,7 @@ describe('EditSchoolDialogComponent', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ name: 'Updated', code: 'NAC-001', address: '123 Main St' });
+    component.form.patchValue({ name: 'Updated', code: 'NAC-001', shortName: 'North', address: '123 Main St' });
     component.onSubmit();
 
     httpMock.expectOne('/api/v1/schools/s1').error(new ProgressEvent('error'));
