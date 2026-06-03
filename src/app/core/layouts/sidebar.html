@@ -1,0 +1,62 @@
+<aside
+  class="sidebar"
+  [class.collapsed]="collapsed()"
+  data-testid="sidebar"
+>
+  <!-- Branding -->
+  <div class="branding">
+    <span class="brand-icon">
+      <svg lucideLayoutDashboard></svg>
+    </span>
+    @if (!collapsed()) {
+      <span class="brand-text">LogicEdu</span>
+    }
+  </div>
+
+  <!-- Navigation items -->
+  <nav class="nav-list">
+    @for (item of navItems(); track item.route) {
+      <a
+        class="nav-item"
+        [class.active]="isActive(item.route)"
+        [routerLink]="item.route"
+        data-testid="nav-item"
+      >
+        <span class="nav-icon">
+          @switch (item.icon) {
+            @case ('layout-dashboard') {
+              <svg lucideLayoutDashboard></svg>
+            }
+            @case ('users') {
+              <svg lucideUsers></svg>
+            }
+            @case ('building-2') {
+              <svg lucideBuilding2></svg>
+            }
+            @default {
+              <svg lucideLayoutDashboard></svg>
+            }
+          }
+        </span>
+        @if (!collapsed()) {
+          <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Collapse toggle -->
+  <button
+    class="collapse-toggle"
+    (click)="toggle()"
+    data-testid="collapse-toggle"
+  >
+    <span class="toggle-icon">
+      @if (collapsed()) {
+        <svg lucideChevronRight></svg>
+      } @else {
+        <svg lucideChevronLeft></svg>
+      }
+    </span>
+  </button>
+</aside>
