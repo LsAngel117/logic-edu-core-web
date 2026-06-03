@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { computed, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
 import { User } from '../../core/models/user';
 import { LoginComponent } from './login';
@@ -25,7 +24,7 @@ describe('LoginComponent', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, LoginComponent],
+      imports: [LoginComponent],
       providers: [
         provideRouter([]),
         provideAnimationsAsync(),
@@ -54,12 +53,13 @@ describe('LoginComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render form with email and password fields', async () => {
+  // --- Task 1: Form field rendering ---
+  it('should render form with email and password fields with mat-labels', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const button = fixture.nativeElement.querySelector('button[type="submit"]');
 
     expect(emailInput).toBeTruthy();
@@ -68,6 +68,7 @@ describe('LoginComponent', () => {
     expect(button.textContent).toContain('Iniciar sesión');
   });
 
+  // --- Task 2: Validation errors ---
   it('should show validation errors when fields are empty and submitted', async () => {
     setupComponent();
     const fixture = await createFixture();
@@ -81,12 +82,13 @@ describe('LoginComponent', () => {
     expect(authServiceMock.login).not.toHaveBeenCalled();
   });
 
+  // --- Task 3: Successful login call ---
   it('should call AuthService.login() on valid submit', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const form = fixture.nativeElement.querySelector('form');
 
     emailInput.value = 'test@logicedu.com';
@@ -102,12 +104,13 @@ describe('LoginComponent', () => {
     expect(authServiceMock.login).toHaveBeenCalledWith('test@logicedu.com', 'password123');
   });
 
+  // --- Task 4: Error message display ---
   it('should show error message when login fails with 401', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const form = fixture.nativeElement.querySelector('form');
 
     emailInput.value = 'wrong@logicedu.com';
@@ -122,18 +125,19 @@ describe('LoginComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorElement = fixture.nativeElement.querySelector('.login-error');
+    const errorElement = fixture.nativeElement.querySelector('.error-message');
     expect(errorElement).toBeTruthy();
     expect(errorElement.textContent).toContain('Credenciales inválidas');
   });
 
+  // --- Task 5: Navigation on success ---
   it('should navigate to /dashboard on successful login', async () => {
     setupComponent();
     const navigateSpy = vi.spyOn(router, 'navigate');
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const form = fixture.nativeElement.querySelector('form');
 
     emailInput.value = 'test@logicedu.com';
@@ -150,13 +154,13 @@ describe('LoginComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/dashboard']);
   });
 
+  // --- Task 6: Disabled button while loading ---
   it('should disable submit button while loading', async () => {
     setupComponent();
     const fixture = await createFixture();
 
-    // Fill in valid data to enable the button
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
 
     emailInput.value = 'test@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
@@ -164,7 +168,6 @@ describe('LoginComponent', () => {
     passwordInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    // Make login hang to observe loading state
     let resolveLogin!: (value: void | PromiseLike<void>) => void;
     authServiceMock.login.mockReturnValue(new Promise<void>((resolve) => { resolveLogin = resolve; }));
 
@@ -175,19 +178,17 @@ describe('LoginComponent', () => {
     const button = fixture.nativeElement.querySelector('button[type="submit"]');
     expect(button.disabled).toBe(true);
 
-    // Clean up
     resolveLogin();
     await fixture.whenStable();
   });
 
+  // --- Task 7: Already authenticated redirect ---
   it('should redirect to /dashboard when already authenticated', async () => {
-    const navigateSpy = vi.fn();
     setupComponent(true);
 
-    // Override router navigate to track calls
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, LoginComponent],
+      imports: [LoginComponent],
       providers: [
         provideRouter([]),
         provideAnimationsAsync(),
@@ -203,12 +204,13 @@ describe('LoginComponent', () => {
     expect(navSpy).toHaveBeenCalledWith(['/dashboard']);
   });
 
+  // --- Task 8: Network error message ---
   it('should show network error message on connection failure', async () => {
     setupComponent();
     const fixture = await createFixture();
 
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const form = fixture.nativeElement.querySelector('form');
 
     emailInput.value = 'test@logicedu.com';
@@ -223,18 +225,18 @@ describe('LoginComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorElement = fixture.nativeElement.querySelector('.login-error');
+    const errorElement = fixture.nativeElement.querySelector('.error-message');
     expect(errorElement).toBeTruthy();
     expect(errorElement.textContent).toContain('Error de conexión');
   });
 
+  // --- Task 9: Error clears on typing ---
   it('should clear error message when user starts typing after a failed login', async () => {
     setupComponent();
     const fixture = await createFixture();
 
-    // First, trigger an error
     const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
-    const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
     const form = fixture.nativeElement.querySelector('form');
 
     emailInput.value = 'wrong@logicedu.com';
@@ -249,13 +251,179 @@ describe('LoginComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.login-error')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.error-message')).toBeTruthy();
 
-    // Now type a character — error should clear
     emailInput.value = 'test@logicedu.com';
     emailInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.login-error')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.error-message')).toBeNull();
+  });
+
+  // --- Task 10: Password visibility toggle ---
+  it('should toggle password visibility when clicking the toggle icon', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const passwordInput = fixture.nativeElement.querySelector(
+      '[formControlName="password"]',
+    ) as HTMLInputElement;
+    expect(passwordInput).toBeTruthy();
+    expect(passwordInput.type).toBe('password');
+
+    // Find the visibility toggle button — it's the mat-icon suffix button
+    const toggleButton = fixture.nativeElement.querySelector(
+      '.password-toggle',
+    ) as HTMLButtonElement;
+    expect(toggleButton).toBeTruthy();
+
+    // Click to show password
+    toggleButton.click();
+    fixture.detectChanges();
+
+    expect(passwordInput.type).toBe('text');
+
+    // Click again to hide password
+    toggleButton.click();
+    fixture.detectChanges();
+
+    expect(passwordInput.type).toBe('password');
+  });
+
+  // --- Task 11: Remember me checkbox ---
+  it('should have a remember me checkbox', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const checkbox = fixture.nativeElement.querySelector('mat-checkbox');
+    expect(checkbox).toBeTruthy();
+  });
+
+  // --- Task 12: Loading text ---
+  it('should display "Iniciando sesión..." while submitting', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const emailInput = fixture.nativeElement.querySelector('input[type="email"]');
+    const passwordInput = fixture.nativeElement.querySelector('[formControlName="password"]');
+
+    emailInput.value = 'test@logicedu.com';
+    emailInput.dispatchEvent(new Event('input'));
+    passwordInput.value = 'password123';
+    passwordInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    let resolveLogin!: (value: void | PromiseLike<void>) => void;
+    authServiceMock.login.mockReturnValue(new Promise<void>((resolve) => { resolveLogin = resolve; }));
+
+    const form = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(button.textContent).toContain('Iniciando sesión');
+
+    resolveLogin();
+    await fixture.whenStable();
+  });
+
+  // --- Task 13: Hero section exists ---
+  it('should render the hero section with brand and title', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const heroSection = fixture.nativeElement.querySelector('.login-left');
+    expect(heroSection).toBeTruthy();
+
+    const branding = heroSection.querySelector('.branding');
+    expect(branding).toBeTruthy();
+    expect(branding.textContent).toContain('LogicEdu');
+
+    const welcomeHeading = heroSection.querySelector('h1');
+    expect(welcomeHeading).toBeTruthy();
+    expect(welcomeHeading.textContent).toContain('Bienvenido');
+  });
+
+  // --- Task 14: Auth card structure ---
+  it('should render auth card with title and icon', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const cardTitle = fixture.nativeElement.querySelector('.auth-title');
+    expect(cardTitle).toBeTruthy();
+    expect(cardTitle.textContent).toContain('Iniciar sesión');
+
+    const lockIcon = fixture.nativeElement.querySelector('.icon-circle mat-icon');
+    expect(lockIcon).toBeTruthy();
+  });
+
+  // --- Task 15: Footer text ---
+  it('should display copyright footer', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const footer = fixture.nativeElement.querySelector('.login-footer');
+    expect(footer).toBeTruthy();
+    expect(footer.textContent).toContain('© 2026 LogicEdu');
+  });
+
+  // --- Task 16: Password toggle icon text (TRIANGULATE) ---
+  it('should change toggle icon between visibility_off and visibility', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const toggleButton = fixture.nativeElement.querySelector('.password-toggle');
+    expect(toggleButton).toBeTruthy();
+
+    const icon = toggleButton.querySelector('mat-icon');
+    expect(icon).toBeTruthy();
+    // Default: password hidden → icon shows visibility_off
+    expect(icon.textContent.trim()).toBe('visibility_off');
+
+    toggleButton.click();
+    fixture.detectChanges();
+
+    // After toggle: password visible → icon shows visibility
+    expect(icon.textContent.trim()).toBe('visibility');
+
+    toggleButton.click();
+    fixture.detectChanges();
+
+    // Back to hidden
+    expect(icon.textContent.trim()).toBe('visibility_off');
+  });
+
+  // --- Task 17: Forgot password link (TRIANGULATE) ---
+  it('should render forgot password link', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const forgotLink = fixture.nativeElement.querySelector('.forgot-link');
+    expect(forgotLink).toBeTruthy();
+    expect(forgotLink.textContent).toContain('Olvidaste');
+    expect(forgotLink.getAttribute('href')).toBe('#');
+  });
+
+  // --- Task 18: Form field matPrefix icons (TRIANGULATE) ---
+  it('should have prefix icons inside form fields', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const formFields = fixture.nativeElement.querySelectorAll('mat-form-field');
+    expect(formFields.length).toBeGreaterThanOrEqual(2);
+
+    // Each mat-form-field should contain a mat-icon with matPrefix
+    const prefixIcons = fixture.nativeElement.querySelectorAll('mat-icon[matprefix]');
+    expect(prefixIcons.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // --- Task 19: Hero subtitle text ---
+  it('should render hero subtitle with platform description', async () => {
+    setupComponent();
+    const fixture = await createFixture();
+
+    const subtitle = fixture.nativeElement.querySelector('.hero-subtitle');
+    expect(subtitle).toBeTruthy();
+    expect(subtitle.textContent).toContain('Gestiona escuelas');
   });
 });

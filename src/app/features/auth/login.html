@@ -1,12 +1,34 @@
-<div class="login-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>LogicEdu</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+<div class="login-page">
+  <div class="login-left">
+    <div class="hero-overlay">
+      <div class="branding">
+        <mat-icon>school</mat-icon>
+        <span>LogicEdu</span>
+        <span class="brand-dot"></span>
+      </div>
+      <div class="hero-content">
+        <h1 class="hero-title">Bienvenido a LogicEdu</h1>
+        <p class="hero-subtitle">
+          Gestiona escuelas, usuarios, sedes, estructuras académicas y procesos educativos desde una
+          única plataforma.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="auth-card">
+      <div class="icon-circle">
+        <mat-icon>lock</mat-icon>
+      </div>
+
+      <h2 class="auth-title">Iniciar sesión</h2>
+      <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma.</p>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
+          <mat-label>Correo electrónico</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
           <input matInput type="email" formControlName="email" />
           @if (form.controls.email.touched && form.controls.email.hasError('required')) {
           <mat-error>El email es requerido</mat-error>
@@ -17,26 +39,54 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Contraseña</mat-label>
-          <input matInput type="password" formControlName="password" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
           @if (form.controls.password.touched && form.controls.password.hasError('required')) {
           <mat-error>La contraseña es requerida</mat-error>
-          } @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+          } @if (form.controls.password.touched &&
+          form.controls.password.hasError('minlength')) {
           <mat-error>La contraseña debe tener al menos 6 caracteres</mat-error>
           }
         </mat-form-field>
 
+        <div class="form-options">
+          <mat-checkbox
+            [checked]="rememberMe()"
+            (change)="rememberMe.set($event.checked)"
+          >
+            Recordarme
+          </mat-checkbox>
+          <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </div>
+
         @if (errorMessage()) {
-        <div class="login-error">{{ errorMessage() }}</div>
+        <div class="error-message">{{ errorMessage() }}</div>
         }
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
+        <button type="submit" [disabled]="loading()" class="submit-btn">
           @if (loading()) {
           <mat-spinner diameter="20" />
+          <span>Iniciando sesión...</span>
           } @else {
           Iniciar sesión
           }
         </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+
+      <p class="login-footer">© 2026 LogicEdu. Todos los derechos reservados.</p>
+    </div>
+  </div>
 </div>
