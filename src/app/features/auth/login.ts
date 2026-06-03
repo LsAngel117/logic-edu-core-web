@@ -72,6 +72,7 @@ export class LoginComponent {
       await this.auth.login(email, password);
       await this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
+      // Error message comes pre-translated from ErrorInterceptor
       const message = err instanceof Error ? err.message : 'Error de conexión';
       this.errorMessage.set(message);
       this.loading.set(false);
