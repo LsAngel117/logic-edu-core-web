@@ -1,0 +1,23 @@
+<mat-drawer-container class="layout-container" data-testid="app-layout">
+  <mat-drawer
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    [disableClose]="!isMobile()"
+    class="layout-sidebar"
+  >
+    <app-sidebar
+      [collapsed]="collapsed()"
+      (toggleCollapsed)="toggleSidebar()"
+    />
+  </mat-drawer>
+  <mat-drawer-content class="layout-content">
+    <app-header
+      [collapsed]="collapsed()"
+      (toggleCollapsed)="toggleSidebar()"
+    />
+    <app-platform-navbar />
+    <main class="content-area">
+      <router-outlet />
+    </main>
+  </mat-drawer-content>
+</mat-drawer-container>

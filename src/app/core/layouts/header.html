@@ -1,0 +1,28 @@
+<header class="header" data-testid="header">
+  <!-- Left: hamburger toggle -->
+  <button
+    class="hamburger-btn"
+    (click)="onToggle()"
+    data-testid="hamburger-btn"
+    [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+  >
+    <svg lucideMenu></svg>
+  </button>
+
+  <!-- Center: spacer / breadcrumb placeholder -->
+  <div class="header-center"></div>
+
+  <!-- Right: user info + logout -->
+  <div class="header-right">
+    <span class="user-name" data-testid="user-name">{{ userName() }}</span>
+    <span class="avatar-placeholder" data-testid="avatar-placeholder">{{ userInitials() }}</span>
+    <button
+      class="logout-btn"
+      (click)="onLogout()"
+      data-testid="logout-btn"
+      aria-label="Cerrar sesión"
+    >
+      <svg lucideLogOut></svg>
+    </button>
+  </div>
+</header>
