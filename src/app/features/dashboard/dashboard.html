@@ -1,0 +1,46 @@
+<section class="dashboard">
+  <header class="welcome">
+    <h1 data-testid="welcome-message">Bienvenido, {{ userName() }}</h1>
+    <p data-testid="subtitle" class="subtitle">Panel de control</p>
+  </header>
+
+  <div class="stats">
+    @for (card of stats(); track card.label) {
+      <div class="stat-card" data-testid="stat-card">
+        <div class="stat-icon" data-testid="stat-icon">
+          @if (card.icon === 'users') {
+            <svg lucideUsers></svg>
+          } @else if (card.icon === 'building-2') {
+            <svg lucideBuilding2></svg>
+          } @else if (card.icon === 'git-branch') {
+            <svg lucideGitBranch></svg>
+          }
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" data-testid="stat-value">{{ card.value }}</span>
+          <span class="stat-label" data-testid="stat-label">{{ card.label }}</span>
+          <span class="stat-desc" data-testid="stat-desc">{{ card.desc }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <nav class="quick-links">
+    <a
+      class="quick-link"
+      data-testid="quick-link-users"
+      [routerLink]="['/users']"
+    >
+      <svg lucideUsers></svg>
+      <span>Usuarios</span>
+    </a>
+    <a
+      class="quick-link"
+      data-testid="quick-link-schools"
+      [routerLink]="['/schools']"
+    >
+      <svg lucideBuilding2></svg>
+      <span>Instituciones</span>
+    </a>
+  </nav>
+</section>
