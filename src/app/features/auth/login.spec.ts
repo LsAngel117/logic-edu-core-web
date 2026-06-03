@@ -424,6 +424,6 @@ describe('LoginComponent', () => {
 
     const subtitle = fixture.nativeElement.querySelector('.hero-subtitle');
     expect(subtitle).toBeTruthy();
-    expect(subtitle.textContent).toContain('Gestiona escuelas');
+    expect(subtitle.textContent).toContain('Plataforma integral');
   });
 });
