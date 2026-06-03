@@ -1,0 +1,36 @@
+.layout-container {
+  height: 100vh;
+  background: #f9fafb;
+}
+
+.layout-sidebar {
+  width: 260px;
+  background: #111827;
+  border: none;
+  box-shadow: none;
+}
+
+// Remove default Material drawer inner scrollbar
+::ng-deep .layout-sidebar .mat-drawer-inner-container {
+  overflow: hidden;
+}
+
+// Remove default Material drawer default styling
+::ng-deep .layout-sidebar.mat-drawer {
+  border-right: none;
+  box-shadow: none;
+}
+
+.layout-content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: #f9fafb;
+}
