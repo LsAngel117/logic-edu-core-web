@@ -1,381 +1,170 @@
-# Frontend Execution Plan
+# Frontend Execution Plan — LogicEdu Core Web
 
 ## Proyecto
 
-LogiEdu Core
+LogicEdu Core — Plataforma SaaS de gestión educativa.
+Frontend: Angular 21 + Angular Material 3 + Lucide Icons + Vitest + bun.
 
 ---
-
-# Objetivo
-
-Desarrollar el frontend de manera incremental, priorizando primero la estabilidad arquitectónica, luego la experiencia de usuario y finalmente los módulos de negocio.
-
-El objetivo es minimizar retrabajo, garantizar mantenibilidad y permitir que Angular evolucione alineado con el contrato OpenAPI definido por el backend.
-
----
-
-# Estado Actual
-
-## Backend
-
-Completado:
-
-* Arquitectura Hexagonal
-* Use Cases estandarizados
-* JWT Authentication
-* GlobalExceptionHandler
-* ErrorResponse estandarizado
-* OpenAPI / Swagger documentado
-* Spring Boot 4
-* Java 25 LTS
-* Gradle
-
-## Frontend
-
-Actual:
-
-* Angular 21
-* Login implementado
-* Consumo inicial de APIs
-* Base de diseño definida
-
----
-
-# Fase 1 - Completar Autenticación
 
 ## Objetivo
 
-Finalizar todo el ciclo de autenticación antes de construir funcionalidades de negocio.
-
-## Alcance
-
-### Login
-
-* Validación de credenciales
-* Persistencia de sesión
-* Redirección automática
-
-### Logout
-
-* Eliminación de tokens
-* Limpieza de sesión
-
-### Recuperación de Contraseña
-
-#### Solicitud de recuperación
-
-* Formulario
-* Consumo de API
-* Confirmación al usuario
-
-#### Restablecimiento
-
-* Validación de token
-* Cambio de contraseña
-
-### Seguridad
-
-* Guards
-* Interceptor JWT
-* Manejo de expiración de sesión
-
-## Entregables
-
-* Flujo completo de autenticación
-* Rutas protegidas
-* Sesión persistente
+Desarrollar el frontend incrementalmente, priorizando primero la estabilidad arquitectónica, luego la experiencia de usuario y finalmente los módulos de negocio. Cada fase se ejecuta con SDD ligero: propuesta → specs → diseño → tareas → implementación → verificación → archivo.
 
 ---
 
-# Fase 2 - Infraestructura Frontend
+## Estado Actual
 
-## Objetivo
+### Backend
 
-Construir la base técnica reutilizable para toda la aplicación.
+- Arquitectura Hexagonal completa
+- JWT Authentication con Spring Security
+- GlobalExceptionHandler + ErrorResponse estandarizado
+- OpenAPI / Swagger documentado (`api-docs.json`)
+- Spring Boot + Java 25 LTS + Gradle
+- 14 tags documentados: Autenticación, Usuarios, Membresías, Instituciones, Sedes, Estructura Académica, Niveles Académicos, Períodos Académicos, Cortes de Evaluación, Materias, Grupos, Matrículas, Evaluaciones, Asistencia, Calificaciones
 
-## Core
+### Frontend
 
-core/
-├── auth/
-├── guards/
-├── interceptors/
-├── services/
-├── state/
-├── models/
-└── layouts/
+| Fase | Estado | Tests | Specs |
+|------|--------|-------|-------|
+| 0 — Base técnica | ✅ Archivado | 8 | `base-tecnica` |
+| 1 — Autenticación | ✅ Archivado | 40 | `user-auth` |
+| 1.5 — Error Handling | ✅ Completado | 8 | — |
+| 2 — Usuarios y Membresías | ✅ Archivado | 124 | `user-management`, `membership-management` |
+| 3 — Instituciones y Sedes | ✅ Archivado | 200 | `school-management`, `branch-management` |
 
-## Shared
+**Total: 200+ tests, 6 specs maestras, modelos alineados con OpenAPI.**
 
-shared/
-├── ui/
-├── forms/
-├── tables/
-├── dialogs/
-└── pipes/
-
-## Manejo de Errores
-
-Consumir ErrorResponse del backend.
-
-Ejemplo:
-
-{
-"status": 404,
-"code": "USER_NOT_FOUND",
-"message": "Usuario no encontrado"
-}
-
-## Entregables
-
-* Infraestructura reutilizable
-* Manejo centralizado de errores
-* Componentes compartidos
+Infraestructura lista:
+- `core/interceptors/error.ts` — manejo centralizado de errores SaaS
+- `core/interceptors/auth.ts` — inyección de JWT + logout en 401
+- `core/guards/auth.ts` — protección de rutas
+- `core/services/auth.ts` — AuthService con signals, JWT decode, rehidratación
+- `core/constants/error-messages.ts` — mapeo code→mensaje amigable
+- `core/models/api-error.ts` — interfaz ErrorResponse del backend
+- `app.config.ts` — provideHttpClient con errorInterceptor + authInterceptor
 
 ---
 
-# Fase 3 - Dashboard Base
+## Reglas de Ejecución
 
-## Objetivo
+Estas reglas aplican a todas las fases. El orchestrator las valida en cada ciclo SDD.
 
-Construir la estructura principal de navegación.
+1. **No iniciar una fase sin completar la anterior.** Las dependencias entre fases son estrictas: no se implementa navegación sin auth, ni operación académica sin configuración.
 
-## Alcance
+2. **Toda funcionalidad consume contratos OpenAPI.** Modelos, endpoints, payloads y respuestas deben coincidir exactamente con `api-docs.json`. Nunca inventar campos que el backend no expone.
 
-### Layout Principal
+3. **Toda pantalla reutiliza componentes Shared cuando existan.** Si un componente se usa en 2+ features, se mueve a `shared/`. Si solo una feature lo usa, vive dentro de ella. (Regla de Scope: 1 feature → `features/[feature]/components/`, 2+ features → `shared/components/`).
 
-* Sidebar
-* Topbar
-* Perfil usuario
-* Menú de sesión
+4. **No duplicar lógica de negocio en Angular.** Validaciones de reglas de negocio (unicidad, capacidad, conflictos de horario, restricciones de membresía) viven en el backend. El frontend solo valida formato (email, required, minLength) y muestra errores del backend vía ErrorInterceptor.
 
-### Dashboard Home
+5. **Las validaciones críticas permanecen en Backend.** Spring Security + Use Cases son la fuente de verdad. El frontend refleja permisos visualmente pero nunca reemplaza la seguridad real.
 
-* Bienvenida
-* Accesos rápidos
-* Información del usuario
+### Valoración de las reglas
 
-## Entregables
-
-* Shell principal de la aplicación
-* Navegación funcional
+Son excelentes. Cubren los puntos críticos de una arquitectura frontend-backend bien separada: contrato de API como fuente de verdad, responsabilidad única del backend en reglas de negocio, y reutilización de componentes gobernada por una regla clara (Scope Rule). La regla 1 (secuencialidad) es la más importante para evitar retrabajo y la hemos seguido estrictamente con SDD.
 
 ---
 
-# Fase 4 - Configuración Académica
+# Fases Pendientes
 
-## Objetivo
+## Fase 4 — Dashboard y Layout Principal
 
-Implementar la parametrización necesaria antes de la operación académica.
+**Objetivo**: Construir el shell de navegación para que los CRUDs ya implementados (usuarios, escuelas, sedes) sean accesibles.
 
-## Módulos
+**Por qué ahora**: Tenemos 3 módulos CRUD completos que no se pueden navegar porque el dashboard es un stub. Sin layout, las features construidas no se ven.
 
-### Instituciones Educativas
+**Alcance**:
+- Layout principal con sidebar + topbar (Angular Material)
+- Sidebar dinámico por rol (lee memberships del usuario)
+- Topbar con nombre de usuario, avatar, botón de logout
+- Navegación a `/users`, `/schools`, `/dashboard`
+- Reemplazar el stub del dashboard por uno real con resumen y accesos rápidos
 
-* Listar
-* Crear
-* Editar
-* Consultar
+**Depende de**: Fase 1 (auth), Fase 2 (users/memberships), Fase 3 (schools)
 
-### Sedes
-
-* Gestión de sedes
-* Asociación a institución
-
-### Niveles Académicos
-
-* Preescolar
-* Básica
-* Media
-* Otros
-
-### Grados
-
-* Crear grados
-* Configuración
-
-### Jornadas
-
-* Mañana
-* Tarde
-* Nocturna
-* Personalizadas
-
-### Periodos Académicos
-
-* Apertura
-* Configuración
-* Cierre
-
-### Grupos
-
-* Creación
-* Asignación
-
-## Entregables
-
-Toda la estructura académica parametrizada.
+**Entregables**: Shell funcional con navegación por rol.
 
 ---
 
-# Fase 5 - Operación Académica
+## Fase 5 — Configuración Académica
 
-## Objetivo
+**Objetivo**: Implementar la parametrización necesaria antes de la operación académica.
 
-Implementar el núcleo funcional del sistema educativo.
+**Módulos (basados en OpenAPI)**:
+- **Estructura Académica** — `POST/GET /api/v1/schools/{schoolId}/structures`
+- **Niveles Académicos** — `POST/GET /api/v1/schools/{schoolId}/levels`
+- **Períodos Académicos** — `POST/GET /api/v1/levels/{levelId}/periods`
+- **Cortes de Evaluación** — `POST/GET /api/v1/periods/{periodId}/evaluations`
+- **Materias** — `POST/GET /api/v1/schools/{schoolId}/subjects`
 
-## Módulos
+**Depende de**: Fase 3 (schools), Fase 4 (layout para navegar entre ellos)
 
-### Estudiantes
-
-* Registro
-* Consulta
-* Actualización
-* Estado
-
-### Matrículas
-
-* Nueva matrícula
-* Renovación
-* Traslado
-* Cancelación
-
-### Asignación Académica
-
-* Estudiante → Grupo
-* Estudiante → Grado
-* Estudiante → Periodo
-
-### Historial Académico
-
-* Seguimiento
-* Consulta histórica
-
-### Gestión de Cupos
-
-* Disponibilidad
-* Control por grupo
-
-## Entregables
-
-Operación académica completamente funcional.
+**Entregables**: Toda la estructura académica parametrizada y navegable.
 
 ---
 
-# Fase 6 - Administración de Usuarios
+## Fase 6 — Operación Académica
 
-## Objetivo
+**Objetivo**: Implementar el núcleo funcional del sistema educativo.
 
-Gestionar acceso y operación administrativa.
+**Módulos (basados en OpenAPI)**:
+- **Grupos** — `POST/GET /api/v1/schools/{schoolId}/groups` (con horarios, filtros por sede/período)
+- **Matrículas** — `POST /api/v1/enrollments`, `GET /api/v1/groups/{groupId}/enrollments`
+- **Evaluaciones** — `POST/GET /api/v1/groups/{groupId}/assessments`
+- **Calificaciones** — `POST/GET /api/v1/assessments/{assessmentId}/grades`
+- **Asistencia** — `POST/GET /api/v1/groups/{groupId}/attendances`
 
-## Módulos
+**Depende de**: Fase 5 (configuración académica completa)
 
-### Usuarios
-
-* CRUD
-* Activación
-* Desactivación
-
-### Roles
-
-* Gestión de roles
-
-### Permisos
-
-* Gestión de permisos
-
-### Auditoría
-
-* Acciones del usuario
-* Trazabilidad
-
-## Entregables
-
-Administración completa de usuarios.
+**Entregables**: Operación académica de extremo a extremo.
 
 ---
 
-# Fase 7 - Membresías y Comercial
+## Fase 7 — Experiencia de Usuario y Optimización
 
-## Objetivo
+**Objetivo**: Llevar la UI a nivel producción.
 
-Gestionar el modelo SaaS de la plataforma.
+**Mejoras**:
+- Skeleton loaders en todas las tablas
+- Estados vacíos personalizados por módulo
+- Notificaciones toast (éxito/error) vía servicio central
+- Confirmaciones con diálogos reutilizables
+- Responsive completo en todas las pantallas
+- Animaciones de transición entre rutas
+- Temas claro/oscuro con Angular Material 3
 
-## Módulos
-
-### Planes
-
-* Crear
-* Editar
-* Consultar
-
-### Membresías
-
-* Asignación
-* Renovación
-* Suspensión
-
-### Suscripciones
-
-* Estado
-* Vigencia
-
-### Facturación (Futuro)
-
-* Integraciones de pago
-
-## Entregables
-
-Modelo SaaS operativo.
+**Depende de**: Fase 6 (todos los módulos funcionales)
 
 ---
 
-# Fase 8 - Integración OpenAPI
+## Fase 8 — OpenAPI Generator (Automatización)
 
-## Objetivo
+**Objetivo**: Eliminar la escritura manual de modelos y servicios HTTP.
 
-Reducir mantenimiento manual mediante generación automática.
+**Flujo**:
+```
+api-docs.json → openapi-generator → Angular SDK (models + services)
+```
 
-## Flujo
+**Depende de**: Backend estable con OpenAPI completo.
 
-Backend
-↓
-OpenAPI
-↓
-SDK Generado
-↓
-Angular
-
-## Actividades
-
-* Evaluar OpenAPI Generator
-* Generar modelos
-* Generar clientes HTTP
-* Integrar SDK
-
-## Entregables
-
-SDK Angular generado automáticamente.
+**Nota**: Posponer hasta que el backend esté maduro. Hacerlo antes genera fricción con cada cambio de API y perdemos el control fino que tenemos ahora con modelos manuales. Ideal para cuando el catálogo de endpoints esté cerrado.
 
 ---
 
-# Fase 9 - UX y Optimización
+# Criterio de Éxito
 
-## Objetivo
+El frontend estará listo para producción cuando:
 
-Mejorar experiencia de usuario.
-
-## Mejoras
-
-* Skeleton Loaders
-* Estados vacíos
-* Confirmaciones
-* Notificaciones
-* Responsive
-* Accesibilidad
-
-## Entregables
-
-Experiencia de usuario de nivel producción.
+1. La autenticación esté completamente cerrada (login, logout, sesión, recuperación). ✅ Parcial — falta recuperación de contraseña.
+2. Exista infraestructura reutilizable (error handling, guards, interceptors, shared components). ✅
+3. El Dashboard y la navegación estén funcionales. 🔲
+4. La configuración académica esté parametrizada. 🔲
+5. La operación académica funcione de extremo a extremo. 🔲
+6. Los contratos OpenAPI estén integrados como fuente de verdad. ✅
+7. Los módulos de negocio se desarrollen sin modificar la infraestructura base. ✅
 
 ---
 
@@ -384,29 +173,19 @@ Experiencia de usuario de nivel producción.
 ## Orchestrator
 
 Responsabilidades:
+- Validar cada fase contra las reglas de ejecución
+- Controlar dependencias entre fases
+- Coordinar agentes SDD (propose → spec → design → tasks → apply → verify → archive)
+- Aprobar entregables contra specs
+- Evitar trabajo fuera de alcance
+- Aplicar revision budget (400 líneas) y feature-branch-chain
 
-* Validar cada fase
-* Controlar dependencias
-* Coordinar agentes
-* Aprobar entregables
-* Evitar trabajo fuera de alcance
-
-## Reglas de Ejecución
-
-- No iniciar una fase sin completar la anterior.
-- Toda funcionalidad debe consumir contratos OpenAPI.
-- Toda pantalla debe reutilizar componentes Shared cuando existan.
-- No duplicar lógica de negocio en Angular.
-- Las validaciones críticas deben permanecer en Backend.
-
-# Criterio de Éxito
-
-El frontend estará listo para crecimiento sostenido cuando:
-
-* La autenticación esté completamente cerrada.
-* Exista infraestructura reutilizable.
-* El Dashboard sea estable.
-* La configuración académica esté parametrizada.
-* La operación académica funcione de extremo a extremo.
-* Los contratos OpenAPI estén integrados.
-* Los módulos de negocio se desarrollen sin modificar la infraestructura base.
+## Reglas para agentes IA
+- Priorizar consistencia sobre creatividad
+- No introducir patrones innecesarios en frontend
+- No duplicar lógica de backend en Angular
+- Usar Angular Material como base visual (customizado, no por defecto)
+- Mantener la estructura feature-first (core / shared / features)
+- Evitar archivos sueltos sin propósito
+- Mantener cambios pequeños y comprobables
+- Todo código generado en inglés; UI copy y mensajes de error en español
