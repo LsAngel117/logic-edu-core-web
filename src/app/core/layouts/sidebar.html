@@ -20,6 +20,7 @@
         class="nav-item"
         [class.active]="isActive(item.route)"
         [routerLink]="item.route"
+        [attr.title]="collapsed() ? item.label : null"
         data-testid="nav-item"
       >
         <span class="nav-icon">
@@ -44,6 +45,13 @@
       </a>
     }
   </nav>
+
+  <!-- Footer branding -->
+  @if (!collapsed()) {
+    <div class="sidebar-footer" data-testid="sidebar-footer">
+      <span class="footer-version">LogicEdu v1.0</span>
+    </div>
+  }
 
   <!-- Collapse toggle -->
   <button

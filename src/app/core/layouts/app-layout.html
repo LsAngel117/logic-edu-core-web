@@ -1,5 +1,10 @@
 <mat-drawer-container class="layout-container" data-testid="app-layout">
-  <mat-drawer mode="side" [opened]="true" [disableClose]="true" class="layout-sidebar">
+  <mat-drawer
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    [disableClose]="!isMobile()"
+    class="layout-sidebar"
+  >
     <app-sidebar
       [collapsed]="collapsed()"
       (toggleCollapsed)="toggleSidebar()"
