@@ -28,10 +28,10 @@ Chain strategy: feature-branch-chain
 
 ## Phase 1: Nav Config & Sidebar
 
-- [ ] 1.1 Create `core/layouts/nav-items.ts` — `NavItem` interface + `NAV_ITEMS` const array with role filters per item
-- [ ] 1.2 Add layout CSS tokens to `styles.scss` (`--sidebar-width`, `--sidebar-collapsed`, `--sidebar-bg`)
-- [ ] 1.3 Create `sidebar.ts`/`.html`/`.scss` — role-filtered `@if`, collapse toggle (64px/260px), 3px active border (#4F46E5), tooltip on hover
-- [ ] 1.4 Write `sidebar.spec.ts` — 5 role variants (PLATFORM_ADMIN, SCHOOL_ADMIN, TEACHER, STUDENT, empty), collapse states, active border, tooltip
+- [x] 1.1 Create `core/layouts/nav-items.ts` — `NavItem` interface + `NAV_ITEMS` const array with role filters per item
+- [x] 1.2 Add layout CSS tokens to `styles.scss` (`--sidebar-width`, `--sidebar-collapsed`, `--sidebar-bg`)
+- [x] 1.3 Create `sidebar.ts`/`.html`/`.scss` — role-filtered `@if`, collapse toggle (64px/260px), 3px active border (#4F46E5), tooltip on hover
+- [x] 1.4 Write `sidebar.spec.ts` — 5 role variants (PLATFORM_ADMIN, SCHOOL_ADMIN, TEACHER, STUDENT, empty), collapse states, active border, tooltip
 
 ## Phase 2: Header & AppLayout Shell
 
@@ -42,18 +42,18 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Routes & App Wiring
 
-- [ ] 3.1 Restructure `app.routes.ts` — layout parent route with `authGuard`, flat `/auth/login`, children via `loadChildren`
-- [ ] 3.2 Simplify `app.ts` template to `<router-outlet />` — remove mat-toolbar import and template
-- [ ] 3.3 Update `app.spec.ts` — remove toolbar assertions, verify router-outlet renders
-- [ ] 3.4 Rewrite `app.routes.spec.ts` — layout inheritance, unauthenticated redirect, login flat, lazy loading preserved
-- [ ] 3.5 Delete `core/layouts/.gitkeep`
+- [x] 3.1 Restructure `app.routes.ts` — layout parent route with `authGuard`, flat `/auth/login`, children via `loadChildren`
+- [x] 3.2 Simplify `app.ts` template to `<router-outlet />` — remove mat-toolbar import and template
+- [x] 3.3 Update `app.spec.ts` — remove toolbar assertions, verify router-outlet renders
+- [x] 3.4 Rewrite `app.routes.spec.ts` — layout inheritance, unauthenticated redirect, login flat, lazy loading preserved
+- [x] 3.5 Delete `core/layouts/.gitkeep`
 
 ## Phase 4: Dashboard Page
 
-- [ ] 4.1 Rewrite `dashboard.ts` — inject AuthService, welcome heading `Bienvenido, {fullName}` with email fallback, static stat cards, quick links
-- [ ] 4.2 Create `dashboard.html` — welcome message, 3 stat cards (Usuarios/Instituciones/Sedes), RouterLink cards to /users and /schools
-- [ ] 4.3 Create `dashboard.scss` — stat card grid, responsive column layout
-- [ ] 4.4 Rewrite `dashboard.spec.ts` — welcome with name + fallback, stat cards rendered, quick link navigation
+- [x] 4.1 Rewrite `dashboard.ts` — inject AuthService, welcome heading `Bienvenido, {fullName}` with email fallback, static stat cards, quick links
+- [x] 4.2 Create `dashboard.html` — welcome message, 3 stat cards (Usuarios/Instituciones/Sedes), RouterLink cards to /users and /schools
+- [x] 4.3 Create `dashboard.scss` — stat card grid, responsive column layout
+- [x] 4.4 Rewrite `dashboard.spec.ts` — welcome with name + fallback, stat cards rendered, quick link navigation
 
 ## Phase 5: Platform Admin Navbar
 
