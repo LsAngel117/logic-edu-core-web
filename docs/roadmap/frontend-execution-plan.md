@@ -51,19 +51,44 @@ Infraestructura lista:
 
 Estas reglas aplican a todas las fases. El orchestrator las valida en cada ciclo SDD.
 
-1. **No iniciar una fase sin completar la anterior.** Las dependencias entre fases son estrictas: no se implementa navegación sin auth, ni operación académica sin configuración.
+### R1 — Secuencialidad con criterio
 
-2. **Toda funcionalidad consume contratos OpenAPI.** Modelos, endpoints, payloads y respuestas deben coincidir exactamente con `api-docs.json`. Nunca inventar campos que el backend no expone.
+**No implementar una fase sin completar la anterior.** Las dependencias entre fases son estrictas: no se construye navegación sin auth, ni operación académica sin configuración.
 
-3. **Toda pantalla reutiliza componentes Shared cuando existan.** Si un componente se usa en 2+ features, se mueve a `shared/`. Si solo una feature lo usa, vive dentro de ella. (Regla de Scope: 1 feature → `features/[feature]/components/`, 2+ features → `shared/components/`).
+**Flexibilidad**: la planificación (spec/design) de la siguiente fase puede comenzar en paralelo al apply/verify de la actual. Planificación ≠ implementación. Esto evita cuellos de botella sin romper la secuencialidad.
 
-4. **No duplicar lógica de negocio en Angular.** Validaciones de reglas de negocio (unicidad, capacidad, conflictos de horario, restricciones de membresía) viven en el backend. El frontend solo valida formato (email, required, minLength) y muestra errores del backend vía ErrorInterceptor.
+### R2 — OpenAPI como fuente de verdad (LA MÁS IMPORTANTE)
 
-5. **Las validaciones críticas permanecen en Backend.** Spring Security + Use Cases son la fuente de verdad. El frontend refleja permisos visualmente pero nunca reemplaza la seguridad real.
+**Modelos, endpoints, payloads y respuestas deben coincidir exactamente con `api-docs.json`.** Nunca inventar campos que el backend no expone. Nunca asumir endpoints planos si el spec dice anidados. Cada divergencia se paga en verify con CRITICAL issues.
 
-### Valoración de las reglas
+**Lección aprendida**: branches con URLs planas, memberships con `scope` inventado, password con POST en vez de PATCH — todo corregido en el alineamiento de API. No repetir.
 
-Son excelentes. Cubren los puntos críticos de una arquitectura frontend-backend bien separada: contrato de API como fuente de verdad, responsabilidad única del backend en reglas de negocio, y reutilización de componentes gobernada por una regla clara (Scope Rule). La regla 1 (secuencialidad) es la más importante para evitar retrabajo y la hemos seguido estrictamente con SDD.
+### R3 — Scope Rule para reutilización
+
+**1 feature → `features/[feature]/components/`. 2+ features → `shared/components/`.**
+
+Hoy `shared/` está vacío. Cuando construyamos Dashboard van a emerger patrones repetidos (tablas, diálogos de confirmación, chips de status). En ese momento la regla se activa: si el mismo componente se necesita en 2 features distintas, se promueve a `shared/`. Hasta entonces, cada feature mantiene sus componentes locales.
+
+### R4 — Separación frontend/backend en reglas de negocio
+
+**Frontend**: solo validaciones de formato (required, email, minLength).  
+**Backend**: reglas de negocio (unicidad, capacidad, conflictos de horario, restricciones de membresía, integridad de datos).
+
+El ErrorInterceptor es el mecanismo para esta separación: el backend rechaza con código HTTP + mensaje, el interceptor lo traduce, el componente lo muestra. El frontend nunca implementa lógica del tipo "no se puede matricular si el grupo está lleno" — eso lo decide el backend.
+
+### R5 — Seguridad real en backend, reflejo visual en frontend
+
+Spring Security + Use Cases son la fuente de verdad para autorización. El frontend puede ocultar botones, deshabilitar acciones y filtrar rutas según el rol del usuario, pero **nunca** reemplaza la validación del backend. Si el frontend muestra un botón que el backend rechaza, el ErrorInterceptor maneja el 403 y el usuario ve "No tienes permisos".
+
+### Por qué estas reglas
+
+| Regla | Previene |
+|-------|----------|
+| R1 | Integración caótica, fases a medio terminar |
+| R2 | Retrabajo masivo por divergencia API (ya lo vivimos) |
+| R3 | Duplicación de componentes, inconsistencia visual |
+| R4 | Frontend gordo con lógica de negocio duplicada |
+| R5 | Falsa sensación de seguridad — el frontend es maquillaje, no candado |
 
 ---
 
