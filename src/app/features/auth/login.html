@@ -2,8 +2,8 @@
   <div class="login-left">
     <div class="hero-overlay">
       <div class="branding">
-        <mat-icon>school</mat-icon>
-        <span>LogicEdu</span>
+        <svg lucideSchool class="brand-icon"></svg>
+        <span>LogicEdu</span><span class="brand">Core</span>
         <span class="brand-dot"></span>
       </div>
       <div class="hero-content">
@@ -22,56 +22,62 @@
   <div class="login-right">
     <div class="auth-card">
       <div class="icon-circle">
-        <mat-icon>lock</mat-icon>
+        <svg lucideLock class="circle-icon"></svg>
       </div>
 
       <h2 class="auth-title">Iniciar sesión</h2>
-      <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma.</p>
+      <p class="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Correo electrónico</mat-label>
-          <mat-icon matPrefix>person</mat-icon>
-          <input matInput type="email" formControlName="email" />
-          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
-          <mat-error>El email es requerido</mat-error>
-          } @if (form.controls.email.touched && form.controls.email.hasError('email')) {
-          <mat-error>Ingrese un email válido</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Ingresa tu contraseña</mat-label>
-          <mat-icon matPrefix>lock</mat-icon>
+        <!-- Email -->
+        <div class="input-group" [class.has-error]="form.controls.email.touched && form.controls.email.invalid">
+          <svg lucideMail class="input-icon"></svg>
           <input
-            matInput
+            type="email"
+            formControlName="email"
+            placeholder="Correo electrónico"
+            autocomplete="email"
+          />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        <span class="field-error">El email es requerido</span>
+        } @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <span class="field-error">Ingrese un email válido</span>
+        }
+
+        <!-- Password -->
+        <div class="input-group" [class.has-error]="form.controls.password.touched && form.controls.password.invalid">
+          <svg lucideLock class="input-icon"></svg>
+          <input
             [type]="hidePassword() ? 'password' : 'text'"
             formControlName="password"
+            placeholder="Contraseña"
+            autocomplete="current-password"
           />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            class="password-toggle"
-            (click)="togglePasswordVisibility()"
-          >
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <button type="button" class="toggle-visibility" (click)="togglePasswordVisibility()">
+            @if (hidePassword()) {
+            <svg lucideEyeOff class="toggle-icon"></svg>
+            } @else {
+            <svg lucideEye class="toggle-icon"></svg>
+            }
           </button>
-          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
-          <mat-error>La contraseña es requerida</mat-error>
-          } @if (form.controls.password.touched &&
-          form.controls.password.hasError('minlength')) {
-          <mat-error>La contraseña debe tener al menos 6 caracteres</mat-error>
-          }
-        </mat-form-field>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+        <span class="field-error">La contraseña es requerida</span>
+        } @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+        <span class="field-error">La contraseña debe tener al menos 6 caracteres</span>
+        }
 
         <div class="form-options">
-          <mat-checkbox
-            [checked]="rememberMe()"
-            (change)="rememberMe.set($event.checked)"
-          >
+          <label class="custom-checkbox">
+            <input
+              type="checkbox"
+              [checked]="rememberMe()"
+              (change)="rememberMe.set($event.target.checked)"
+            />
+            <span class="checkmark"></span>
             Recordarme
-          </mat-checkbox>
+          </label>
           <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
         </div>
 

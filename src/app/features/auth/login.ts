@@ -1,24 +1,21 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { LucideSchool, LucideLock, LucideUser, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule,
-    MatCheckboxModule,
+    LucideSchool,
+    LucideLock,
+    LucideUser,
+    LucideMail,
+    LucideEye,
+    LucideEyeOff,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

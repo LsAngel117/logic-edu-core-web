@@ -54,7 +54,7 @@ describe('LoginComponent', () => {
   });
 
   // --- Task 1: Form field rendering ---
-  it('should render form with email and password fields with mat-labels', async () => {
+  it('should render form with email and password fields', async () => {
     setupComponent();
     const fixture = await createFixture();
 
@@ -77,7 +77,7 @@ describe('LoginComponent', () => {
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    const errors = fixture.nativeElement.querySelectorAll('mat-error');
+    const errors = fixture.nativeElement.querySelectorAll('.field-error');
     expect(errors.length).toBeGreaterThan(0);
     expect(authServiceMock.login).not.toHaveBeenCalled();
   });
@@ -271,9 +271,9 @@ describe('LoginComponent', () => {
     expect(passwordInput).toBeTruthy();
     expect(passwordInput.type).toBe('password');
 
-    // Find the visibility toggle button — it's the mat-icon suffix button
+    // Find the visibility toggle button
     const toggleButton = fixture.nativeElement.querySelector(
-      '.password-toggle',
+      '.toggle-visibility',
     ) as HTMLButtonElement;
     expect(toggleButton).toBeTruthy();
 
@@ -295,7 +295,7 @@ describe('LoginComponent', () => {
     setupComponent();
     const fixture = await createFixture();
 
-    const checkbox = fixture.nativeElement.querySelector('mat-checkbox');
+    const checkbox = fixture.nativeElement.querySelector('.custom-checkbox');
     expect(checkbox).toBeTruthy();
   });
 
@@ -353,7 +353,7 @@ describe('LoginComponent', () => {
     expect(cardTitle).toBeTruthy();
     expect(cardTitle.textContent).toContain('Iniciar sesión');
 
-    const lockIcon = fixture.nativeElement.querySelector('.icon-circle mat-icon');
+    const lockIcon = fixture.nativeElement.querySelector('.icon-circle svg[lucideLock]');
     expect(lockIcon).toBeTruthy();
   });
 
@@ -364,33 +364,38 @@ describe('LoginComponent', () => {
 
     const footer = fixture.nativeElement.querySelector('.login-footer');
     expect(footer).toBeTruthy();
-    expect(footer.textContent).toContain('© 2026 LogicEdu');
+    expect(footer.textContent).toContain('© 2026 LogosSystemsIT');
   });
 
-  // --- Task 16: Password toggle icon text (TRIANGULATE) ---
-  it('should change toggle icon between visibility_off and visibility', async () => {
+  // --- Task 16: Password toggle icon (TRIANGULATE) ---
+  it('should toggle between eye-off and eye icons', async () => {
     setupComponent();
     const fixture = await createFixture();
 
-    const toggleButton = fixture.nativeElement.querySelector('.password-toggle');
+    const toggleButton = fixture.nativeElement.querySelector('.toggle-visibility');
     expect(toggleButton).toBeTruthy();
 
-    const icon = toggleButton.querySelector('mat-icon');
-    expect(icon).toBeTruthy();
-    // Default: password hidden → icon shows visibility_off
-    expect(icon.textContent.trim()).toBe('visibility_off');
+    // Default: password hidden → eye-off icon present, eye absent
+    const eyeOff = toggleButton.querySelector('svg[lucideEyeOff]');
+    const eyeVisible = toggleButton.querySelector('svg[lucideEye]');
+    expect(eyeOff).toBeTruthy();
+    expect(eyeVisible).toBeNull();
 
     toggleButton.click();
     fixture.detectChanges();
 
-    // After toggle: password visible → icon shows visibility
-    expect(icon.textContent.trim()).toBe('visibility');
+    // After toggle: password visible → eye icon present, eye-off absent
+    const eyeNow = toggleButton.querySelector('svg[lucideEye]');
+    const eyeOffNow = toggleButton.querySelector('svg[lucideEyeOff]');
+    expect(eyeNow).toBeTruthy();
+    expect(eyeOffNow).toBeNull();
 
     toggleButton.click();
     fixture.detectChanges();
 
     // Back to hidden
-    expect(icon.textContent.trim()).toBe('visibility_off');
+    const eyeOffBack = toggleButton.querySelector('svg[lucideEyeOff]');
+    expect(eyeOffBack).toBeTruthy();
   });
 
   // --- Task 17: Forgot password link (TRIANGULATE) ---
@@ -404,16 +409,16 @@ describe('LoginComponent', () => {
     expect(forgotLink.getAttribute('href')).toBe('#');
   });
 
-  // --- Task 18: Form field matPrefix icons (TRIANGULATE) ---
-  it('should have prefix icons inside form fields', async () => {
+  // --- Task 18: Form field prefix icons (TRIANGULATE) ---
+  it('should have Lucide prefix icons next to inputs', async () => {
     setupComponent();
     const fixture = await createFixture();
 
-    const formFields = fixture.nativeElement.querySelectorAll('mat-form-field');
-    expect(formFields.length).toBeGreaterThanOrEqual(2);
+    const inputGroups = fixture.nativeElement.querySelectorAll('.input-group');
+    expect(inputGroups.length).toBeGreaterThanOrEqual(2);
 
-    // Each mat-form-field should contain a mat-icon with matPrefix
-    const prefixIcons = fixture.nativeElement.querySelectorAll('mat-icon[matprefix]');
+    // Each input-group should contain an .input-icon svg
+    const prefixIcons = fixture.nativeElement.querySelectorAll('.input-icon');
     expect(prefixIcons.length).toBeGreaterThanOrEqual(2);
   });
 
