@@ -30,6 +30,7 @@
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <!-- Email -->
+         <label class="field-label">Correo electrónico</label>
         <div class="input-group" [class.has-error]="form.controls.email.touched && form.controls.email.invalid">
           <svg lucideMail class="input-icon"></svg>
           <input
@@ -46,6 +47,7 @@
         }
 
         <!-- Password -->
+        <label class="field-label">Contraseña</label>
         <div class="input-group" [class.has-error]="form.controls.password.touched && form.controls.password.invalid">
           <svg lucideLock class="input-icon"></svg>
           <input
@@ -95,7 +97,7 @@
         </button>
       </form>
 
-      <p class="login-footer">© 2026 LogosSystemsIT. Todos los derechos reservados.</p>
     </div>
+    <footer class="login-footer">© 2026 LogosSystemsIT. Todos los derechos reservados.</footer>
   </div>
 </div>
