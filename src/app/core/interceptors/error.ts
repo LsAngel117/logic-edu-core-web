@@ -74,7 +74,7 @@ function genericMessage(status: number): string {
     case 400:
       return 'La solicitud contiene datos inválidos.';
     case 401:
-      return 'Tu sesión ha expirado, inicia sesión nuevamente.';
+      return 'Usuario o contraseña incorrectos.';
     case 403:
       return 'No tienes permisos para realizar esta acción.';
     case 404:
