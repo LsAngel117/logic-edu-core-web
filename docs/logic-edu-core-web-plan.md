@@ -69,7 +69,7 @@ El frontend no debe replicar reglas de negocio críticas; esas reglas viven en e
 
 ### 3.2 Gestión de paquetes
 
-- Preferencia: `pnpm`
+- Preferencia: `bun`
 - Compatible con Angular CLI
 
 ### 3.3 Estilos y UI

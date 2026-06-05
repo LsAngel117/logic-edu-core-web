@@ -96,20 +96,7 @@ Spring Security + Use Cases son la fuente de verdad para autorización. El front
 
 ## Fase 4 — Dashboard y Layout Principal
 
-**Objetivo**: Construir el shell de navegación para que los CRUDs ya implementados (usuarios, escuelas, sedes) sean accesibles.
-
-**Por qué ahora**: Tenemos 3 módulos CRUD completos que no se pueden navegar porque el dashboard es un stub. Sin layout, las features construidas no se ven.
-
-**Alcance**:
-- Layout principal con sidebar + topbar (Angular Material)
-- Sidebar dinámico por rol (lee memberships del usuario)
-- Topbar con nombre de usuario, avatar, botón de logout
-- Navegación a `/users`, `/schools`, `/dashboard`
-- Reemplazar el stub del dashboard por uno real con resumen y accesos rápidos
-
-**Depende de**: Fase 1 (auth), Fase 2 (users/memberships), Fase 3 (schools)
-
-**Entregables**: Shell funcional con navegación por rol.
+**Depende de** /logic-edu-core-web/docs/UI/dashboard/dashboard-admin-spec.md, dashboard-school-spec.md, teacher-dashboard-spec.md
 
 ---
 
