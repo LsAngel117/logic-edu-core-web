@@ -1,0 +1,11 @@
+<div class="page-header">
+  <h1 class="page-header__title">{{ title() }}</h1>
+
+  @if (description()) {
+    <p class="page-header__description" data-testid="page-header-description">
+      {{ description() }}
+    </p>
+  }
+
+  <ng-content />
+</div>

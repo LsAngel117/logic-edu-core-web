@@ -1,0 +1,37 @@
+<div class="stat-card">
+  <div class="stat-card__icon" data-testid="stat-icon">
+    @if (icon() === 'users') {
+      <svg lucideUsers></svg>
+    } @else if (icon() === 'building-2') {
+      <svg lucideBuilding2></svg>
+    } @else if (icon() === 'git-branch') {
+      <svg lucideGitBranch></svg>
+    } @else if (icon() === 'inbox') {
+      <svg lucideInbox></svg>
+    } @else if (icon() === 'school') {
+      <svg lucideSchool></svg>
+    } @else if (icon() === 'book-open') {
+      <svg lucideBookOpen></svg>
+    }
+  </div>
+
+  <p class="stat-card__label" data-testid="stat-label">{{ label() }}</p>
+
+  <p class="stat-card__value" data-testid="stat-value">{{ value() }}</p>
+
+  @if (trend() !== undefined) {
+    <div
+      class="stat-card__trend"
+      data-testid="stat-trend"
+      [class.stat-card__trend--positive]="trend()! >= 0"
+      [class.stat-card__trend--negative]="trend()! < 0"
+    >
+      @if (trend()! >= 0) {
+        <svg lucideTrendingUp></svg>
+      } @else {
+        <svg lucideTrendingDown></svg>
+      }
+      <span>{{ trend()! >= 0 ? '+' : '' }}{{ trend() }}%</span>
+    </div>
+  }
+</div>
