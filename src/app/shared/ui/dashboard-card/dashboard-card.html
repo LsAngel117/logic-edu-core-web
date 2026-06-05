@@ -1,0 +1,12 @@
+<div class="dashboard-card">
+  <div class="dashboard-card__header">
+    <h3 class="dashboard-card__title" data-testid="dashboard-card-title">
+      {{ title() }}
+    </h3>
+    <ng-content select="[card-actions]" />
+  </div>
+
+  <div class="dashboard-card__body">
+    <ng-content />
+  </div>
+</div>

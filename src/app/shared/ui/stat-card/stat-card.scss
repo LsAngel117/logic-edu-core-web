@@ -1,0 +1,60 @@
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  position: relative;
+  font-family: Roboto, sans-serif;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: #2563eb;
+    }
+  }
+
+  &__label {
+    margin: 12px 0 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: #6b7280;
+  }
+
+  &__value {
+    margin: 4px 0 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  &__trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &--positive {
+      color: #10b981;
+    }
+
+    &--negative {
+      color: #ef4444;
+    }
+  }
+}
