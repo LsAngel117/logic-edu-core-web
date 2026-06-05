@@ -1,0 +1,19 @@
+.platform-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.platform-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.platform-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f3f4f6;
+  padding: 24px;
+}

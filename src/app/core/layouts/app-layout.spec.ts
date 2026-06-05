@@ -98,4 +98,26 @@ describe('AppLayout', () => {
     fixture.detectChanges();
     expect(instance.collapsed()).toBe(false);
   });
+
+  it('should compute navItems from NAV_ITEMS filtered by user roles', async () => {
+    setupComponent(MOCK_USER);
+    const fixture = await createFixture();
+
+    const instance = fixture.componentInstance as unknown as AppLayout;
+    const items = instance.navItems();
+    expect(items.length).toBeGreaterThanOrEqual(1);
+    // TEACHER role: only Dashboard (no role restriction) should be visible
+    expect(items[0].label).toBe('Dashboard');
+  });
+
+  it('should compute all navItems for PLATFORM_ADMIN', async () => {
+    const platformAdmin: User = { ...MOCK_USER, roles: ['PLATFORM_ADMIN'] };
+    setupComponent(platformAdmin);
+    const fixture = await createFixture();
+
+    const instance = fixture.componentInstance as unknown as AppLayout;
+    const items = instance.navItems();
+    expect(items.length).toBe(3);
+    expect(items.map((i) => i.label)).toEqual(['Dashboard', 'Usuarios', 'Instituciones']);
+  });
 });

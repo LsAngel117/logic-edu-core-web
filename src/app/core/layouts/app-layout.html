@@ -6,6 +6,7 @@
     class="layout-sidebar"
   >
     <app-sidebar
+      [navItems]="navItems()"
       [collapsed]="collapsed()"
       (toggleCollapsed)="toggleSidebar()"
     />
@@ -15,7 +16,6 @@
       [collapsed]="collapsed()"
       (toggleCollapsed)="toggleSidebar()"
     />
-    <app-platform-navbar />
     <main class="content-area">
       <router-outlet />
     </main>

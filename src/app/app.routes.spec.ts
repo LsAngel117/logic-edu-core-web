@@ -6,6 +6,7 @@ import { computed, signal } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { AuthService } from './core/services/auth';
+import { LayoutRouter } from './core/layouts/layout-router/layout-router';
 import type { User } from './core/models/user';
 
 describe('app.routes', () => {
@@ -142,6 +143,12 @@ describe('app.routes', () => {
     await router.navigate(['/schools', 'school-1', 'branches']);
 
     expect(location.path()).toBe('/schools/school-1/branches');
+  });
+
+  it('should use LayoutRouter as the authenticated route wrapper', () => {
+    const authenticatedRoute = routes.find((r) => r.path === '' && r.component === LayoutRouter);
+    expect(authenticatedRoute).toBeTruthy();
+    expect(authenticatedRoute?.canActivate?.length).toBeGreaterThan(0);
   });
 
   // --- Login stays outside layout ---

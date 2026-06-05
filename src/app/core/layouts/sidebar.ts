@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import {
@@ -8,8 +8,7 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
 } from '@lucide/angular';
-import { AuthService } from '../../core/services/auth';
-import { NAV_ITEMS, filterByRole } from './nav-items';
+import { NavItem } from './nav-items';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,14 +27,9 @@ import { NAV_ITEMS, filterByRole } from './nav-items';
 export class Sidebar {
   readonly collapsed = input(false);
   readonly toggleCollapsed = output<void>();
+  readonly navItems = input<NavItem[]>([]);
 
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-
-  readonly navItems = computed(() => {
-    const roles = this.auth.user()?.roles ?? [];
-    return filterByRole(NAV_ITEMS, roles);
-  });
 
   readonly activeRoute = signal(this.router.url);
 

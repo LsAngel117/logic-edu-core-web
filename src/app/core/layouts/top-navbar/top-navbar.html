@@ -1,0 +1,55 @@
+<header class="top-navbar" data-testid="top-navbar">
+  <!-- Left: Branding -->
+  <div class="branding" data-testid="topnav-branding">
+    <span class="brand-icon">
+      <svg lucideSchool></svg>
+    </span>
+    <span class="brand-text">LogicEdu Core</span>
+  </div>
+
+  <!-- Center: Section Tabs -->
+  <nav class="section-tabs">
+    @for (section of sections(); track section.id) {
+      <button
+        class="tab"
+        [class.active]="activeSection() === section.id"
+        (click)="selectSection(section.id)"
+        [attr.data-testid]="'topnav-tab'"
+      >
+        <span class="tab-icon">
+          @switch (section.icon) {
+            @case ('layout-dashboard') {
+              <svg lucideLayoutDashboard></svg>
+            }
+            @case ('shield') {
+              <svg lucideShield></svg>
+            }
+            @case ('settings') {
+              <svg lucideSettings></svg>
+            }
+            @case ('wrench') {
+              <svg lucideWrench></svg>
+            }
+            @case ('bar-chart-3') {
+              <svg lucideBarChart3></svg>
+            }
+            @default {
+              <svg lucideLayoutDashboard></svg>
+            }
+          }
+        </span>
+        <span class="tab-label">{{ section.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <!-- Right: User Area -->
+  <div class="user-area" data-testid="topnav-user-area">
+    <button class="bell-btn" data-testid="topnav-bell">
+      <svg lucideBell></svg>
+    </button>
+    <div class="avatar">
+      <span class="avatar-text">PA</span>
+    </div>
+  </div>
+</header>

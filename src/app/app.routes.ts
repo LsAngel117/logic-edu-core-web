@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth';
-import { AppLayout } from './core/layouts/app-layout';
+import { LayoutRouter } from './core/layouts/layout-router/layout-router';
 
 export const routes: Routes = [
   // Login — outside layout, no guard (auth check is in LoginComponent effect)
@@ -8,10 +8,10 @@ export const routes: Routes = [
     path: 'auth/login',
     loadChildren: () => import('./features/auth/routes'),
   },
-  // Authenticated routes — wrapped in AppLayout
+  // Authenticated routes — wrapped in LayoutRouter
   {
     path: '',
-    component: AppLayout,
+    component: LayoutRouter,
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

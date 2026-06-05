@@ -1,0 +1,15 @@
+<div class="platform-layout" data-testid="platform-layout">
+  <app-top-navbar
+    [sections]="sections"
+    [(activeSection)]="activeSection"
+  />
+  <div class="platform-body">
+    <app-sidebar
+      [navItems]="contextualNavItems()"
+      [collapsed]="collapsed()"
+    />
+    <main class="platform-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
