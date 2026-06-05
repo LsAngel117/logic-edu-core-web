@@ -5,7 +5,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { AuthService } from '../../core/services/auth';
-import { NAV_ITEMS, filterByRole } from './nav-items';
+import { getNavItemsForRoles } from './nav-items';
 
 @Component({
   selector: 'app-layout',
@@ -25,7 +25,7 @@ export class AppLayout {
 
   readonly navItems = computed(() => {
     const roles = this.auth.user()?.roles ?? [];
-    return filterByRole(NAV_ITEMS, roles);
+    return getNavItemsForRoles(roles);
   });
 
   constructor() {
