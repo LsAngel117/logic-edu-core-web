@@ -43,10 +43,19 @@ body {
   --sidebar-collapsed: 64px;
   --sidebar-bg: #111827;
 
-  /* Design system colors */
-  --color-primary: #4f46e5;
+  /* Design system colors — LogicEdu Core */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #3b82f6;
+  --color-accent: #60a5fa;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
   --color-surface: #ffffff;
   --color-text: #111827;
   --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-bg-light: #f9fafb;
 }
 /* You can add global styles to this file, and also import other style files */
