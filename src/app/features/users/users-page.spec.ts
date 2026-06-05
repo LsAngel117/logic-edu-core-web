@@ -52,27 +52,26 @@ describe('UsersPageComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render mat-spinner while loading', async () => {
+  it('should render loading spinner while loading', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(new Observable());
 
     const fixture = await TestBed.createComponent(UsersPageComponent);
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('mat-spinner');
-    expect(spinner).toBeTruthy();
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
+    expect(loadingEl).toBeTruthy();
   });
 
-  it('should render users in mat-table rows after loading', async () => {
+  it('should render users in data-table rows after loading', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
     const fixture = await createFixture();
-
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const cells0 = rows[0].querySelectorAll('td');
@@ -84,7 +83,7 @@ describe('UsersPageComponent', () => {
     expect(cells1[1].textContent).toContain('bob@logicedu.com');
   });
 
-  it('should show "No users found" when list is empty', async () => {
+  it('should show empty state when list is empty', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of([]));
 
@@ -92,9 +91,9 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const message = fixture.nativeElement.querySelector('.empty-state');
-    expect(message).toBeTruthy();
-    expect(message.textContent).toContain('No users found');
+    const title = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
+    expect(title).toBeTruthy();
+    expect(title.textContent).toContain('No hay usuarios');
   });
 
   it('should show error message when loading fails', async () => {
@@ -110,7 +109,7 @@ describe('UsersPageComponent', () => {
     expect(error.textContent).toContain('Failed to load users');
   });
 
-  it('should render green status chip for active users', async () => {
+  it('should render active status in table', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of([mockUsers[0]]));
 
@@ -118,14 +117,14 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
-    const activeChip = Array.from(chips as Element[]).find(
+    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
+    const activeSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'ACTIVE'
     );
-    expect(activeChip).toBeTruthy();
+    expect(activeSpan).toBeTruthy();
   });
 
-  it('should render red status chip for inactive users', async () => {
+  it('should render inactive status in table', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of([mockUsers[1]]));
 
@@ -133,11 +132,11 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
-    const inactiveChip = Array.from(chips as Element[]).find(
+    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
+    const inactiveSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'INACTIVE'
     );
-    expect(inactiveChip).toBeTruthy();
+    expect(inactiveSpan).toBeTruthy();
   });
 
   it('should call service.getAll with search term after debounce', async () => {
@@ -162,7 +161,7 @@ describe('UsersPageComponent', () => {
     vi.useRealTimers();
   });
 
-  it('should hide spinner and show table after data loads', async () => {
+  it('should hide loading and show table after data loads', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -170,8 +169,8 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('mat-spinner');
-    expect(spinner).toBeNull();
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
+    expect(loadingEl).toBeNull();
 
     const table = fixture.nativeElement.querySelector('table');
     expect(table).toBeTruthy();
@@ -185,13 +184,26 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const rowElements = Array.from(rows as Element[]);
     for (const row of rowElements) {
-      const buttons = row.querySelectorAll('button');
+      const buttons = row.querySelectorAll('[data-testid="action-btn"]');
       expect(buttons.length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it('should render page header with title', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of([]));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector('app-page-header h1');
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain('Usuarios');
   });
 });

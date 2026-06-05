@@ -1,33 +1,28 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal, computed } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule } from '@angular/material/sort';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SchoolsService } from './services/schools';
 import { School } from './models/school';
+import { TableColumn, TableAction, RowActionEvent } from '../../shared/ui/models';
+import { PageHeader, DataTable, EmptyState } from '../../shared/ui';
 
 @Component({
   selector: 'app-schools-page',
   imports: [
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
     MatButtonToggleModule,
     RouterModule,
+    PageHeader,
+    DataTable,
+    EmptyState,
   ],
   templateUrl: './schools-page.html',
   styleUrl: './schools-page.scss',
@@ -36,6 +31,7 @@ import { School } from './models/school';
 export class SchoolsPageComponent {
   private readonly schoolsService = inject(SchoolsService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   private readonly _allSchools = signal<School[]>([]);
   readonly loading = signal(true);
@@ -51,7 +47,21 @@ export class SchoolsPageComponent {
     return result;
   });
 
-  readonly displayedColumns = ['name', 'code', 'status', 'actions'];
+  readonly schoolColumns: TableColumn[] = [
+    { key: 'name', label: 'Nombre' },
+    { key: 'code', label: 'Código' },
+    { key: 'status', label: 'Estado' },
+  ];
+
+  readonly rowActions: TableAction[] = [
+    { icon: 'pencil', label: 'Editar', action: 'edit' },
+    { icon: 'trash2', label: 'Cambiar Estado', action: 'status' },
+    { icon: 'eye', label: 'Ver Sedes', action: 'branches' },
+  ];
+
+  readonly tableData = computed(() =>
+    this.schools() as unknown as Record<string, unknown>[]
+  );
 
   constructor() {
     this.loadSchools();
@@ -99,6 +109,17 @@ export class SchoolsPageComponent {
 
   clearSearch(): void {
     this.searchTerm.set('');
+  }
+
+  onRowAction(event: RowActionEvent): void {
+    const row = event.row as unknown as School;
+    if (event.action === 'edit') {
+      this.openEditDialog(row);
+    } else if (event.action === 'status') {
+      this.openStatusDialog(row);
+    } else if (event.action === 'branches') {
+      this.router.navigate(['/schools', row.id, 'branches']);
+    }
   }
 
   async openCreateDialog(): Promise<void> {

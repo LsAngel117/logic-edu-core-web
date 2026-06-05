@@ -60,18 +60,18 @@ describe('SchoolsPageComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render mat-spinner while loading', async () => {
+  it('should render loading state while loading', async () => {
     setupComponent();
     schoolsServiceMock.getAll.mockReturnValue(new Observable());
 
     const fixture = await TestBed.createComponent(SchoolsPageComponent);
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('mat-spinner');
-    expect(spinner).toBeTruthy();
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
+    expect(loadingEl).toBeTruthy();
   });
 
-  it('should render schools in mat-table rows after loading', async () => {
+  it('should render schools in data-table rows after loading', async () => {
     setupComponent();
     schoolsServiceMock.getAll.mockReturnValue(of(mockSchools));
 
@@ -79,7 +79,7 @@ describe('SchoolsPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const cells0 = rows[0].querySelectorAll('td');
@@ -87,7 +87,7 @@ describe('SchoolsPageComponent', () => {
     expect(cells0[1].textContent).toContain('NAC-001');
   });
 
-  it('should show "No schools found" when list is empty', async () => {
+  it('should show empty state when list is empty', async () => {
     setupComponent();
     schoolsServiceMock.getAll.mockReturnValue(of([]));
 
@@ -95,9 +95,9 @@ describe('SchoolsPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const message = fixture.nativeElement.querySelector('.empty-state');
-    expect(message).toBeTruthy();
-    expect(message.textContent).toContain('No schools found');
+    const title = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
+    expect(title).toBeTruthy();
+    expect(title.textContent).toContain('No hay instituciones');
   });
 
   it('should show error message when loading fails', async () => {
@@ -113,7 +113,7 @@ describe('SchoolsPageComponent', () => {
     expect(error.textContent).toContain('Failed to load schools');
   });
 
-  it('should render green status chip for active schools', async () => {
+  it('should render active status in table', async () => {
     setupComponent();
     schoolsServiceMock.getAll.mockReturnValue(of([mockSchools[0]]));
 
@@ -121,14 +121,14 @@ describe('SchoolsPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
-    const activeChip = Array.from(chips as Element[]).find(
+    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
+    const activeSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'ACTIVE'
     );
-    expect(activeChip).toBeTruthy();
+    expect(activeSpan).toBeTruthy();
   });
 
-  it('should render red status chip for inactive schools', async () => {
+  it('should render inactive status in table', async () => {
     setupComponent();
     schoolsServiceMock.getAll.mockReturnValue(of([mockSchools[1]]));
 
@@ -136,11 +136,11 @@ describe('SchoolsPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
-    const inactiveChip = Array.from(chips as Element[]).find(
+    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
+    const inactiveSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'INACTIVE'
     );
-    expect(inactiveChip).toBeTruthy();
+    expect(inactiveSpan).toBeTruthy();
   });
 
   it('should call service.getAll with search term after debounce', async () => {
@@ -173,13 +173,38 @@ describe('SchoolsPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const rowElements = Array.from(rows as Element[]);
     for (const row of rowElements) {
-      const buttons = row.querySelectorAll('button');
+      const buttons = row.querySelectorAll('[data-testid="action-btn"]');
       expect(buttons.length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it('should render page header with title', async () => {
+    setupComponent();
+    schoolsServiceMock.getAll.mockReturnValue(of([]));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector('app-page-header h1');
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain('Instituciones');
+  });
+
+  it('should render status filter toggles', async () => {
+    setupComponent();
+    schoolsServiceMock.getAll.mockReturnValue(of(mockSchools));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const toggleGroup = fixture.nativeElement.querySelector('mat-button-toggle-group');
+    expect(toggleGroup).toBeTruthy();
   });
 });

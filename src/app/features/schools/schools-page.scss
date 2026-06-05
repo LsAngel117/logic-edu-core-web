@@ -4,28 +4,15 @@
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-  }
-}
-
 .search-field {
   width: 100%;
   max-width: 400px;
   margin-bottom: 16px;
 }
 
-.loading-container {
-  display: flex;
-  justify-content: center;
-  padding: 48px 0;
+.status-filter {
+  margin-bottom: 16px;
+  display: block;
 }
 
 .error-state {
@@ -35,27 +22,5 @@
 
   p {
     margin-bottom: 16px;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px 0;
-  color: #757575;
-}
-
-.schools-table {
-  width: 100%;
-
-  .mat-mdc-chip {
-    &.status-active {
-      background-color: #4caf50;
-      color: #fff;
-    }
-
-    &.status-inactive {
-      background-color: #f44336;
-      color: #fff;
-    }
   }
 }

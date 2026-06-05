@@ -92,7 +92,7 @@ describe('BranchesPage', () => {
     vi.clearAllMocks();
   });
 
-  it('should render mat-spinner while loading', async () => {
+  it('should render loading state while loading', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(new Observable());
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -100,11 +100,11 @@ describe('BranchesPage', () => {
     const fixture = await TestBed.createComponent(BranchesPage);
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('mat-spinner');
-    expect(spinner).toBeTruthy();
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
+    expect(loadingEl).toBeTruthy();
   });
 
-  it('should render branches in mat-table rows after loading', async () => {
+  it('should render branches in data-table rows after loading', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -113,7 +113,7 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const cells0 = rows[0].querySelectorAll('td');
@@ -134,7 +134,7 @@ describe('BranchesPage', () => {
     expect(content).toContain('North Academy');
   });
 
-  it('should show "No branches for this school" when list is empty', async () => {
+  it('should show empty state when list is empty', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(of([]));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -143,9 +143,9 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const message = fixture.nativeElement.querySelector('.empty-state');
-    expect(message).toBeTruthy();
-    expect(message.textContent).toContain('No branches for this school');
+    const title = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
+    expect(title).toBeTruthy();
+    expect(title.textContent).toContain('No hay sedes');
   });
 
   it('should show error message when loading fails', async () => {
@@ -178,7 +178,7 @@ describe('BranchesPage', () => {
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(1);
     const cells0 = rows[0].querySelectorAll('td');
     expect(cells0[0].textContent).toContain('Main Campus');
@@ -193,12 +193,12 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
+    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
     expect(rows.length).toBe(2);
 
     const rowElements = Array.from(rows as Element[]);
     for (const row of rowElements) {
-      const buttons = row.querySelectorAll('button');
+      const buttons = row.querySelectorAll('[data-testid="action-btn"]');
       expect(buttons.length).toBeGreaterThanOrEqual(1);
     }
   });
@@ -216,7 +216,7 @@ describe('BranchesPage', () => {
     expect(backLink).toBeTruthy();
   });
 
-  it('should render status chips for branches', async () => {
+  it('should render status for branches in table', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -225,14 +225,29 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
-    const activeChip = Array.from(chips as Element[]).find(
+    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
+    const activeSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'ACTIVE'
     );
-    const inactiveChip = Array.from(chips as Element[]).find(
+    const inactiveSpan = Array.from(statusSpans as Element[]).find(
       (c) => c.textContent?.trim() === 'INACTIVE'
     );
-    expect(activeChip).toBeTruthy();
-    expect(inactiveChip).toBeTruthy();
+    expect(activeSpan).toBeTruthy();
+    expect(inactiveSpan).toBeTruthy();
+  });
+
+  it('should render page header with school name', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector('app-page-header h1');
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain('North Academy');
+    expect(header.textContent).toContain('Sedes');
   });
 });

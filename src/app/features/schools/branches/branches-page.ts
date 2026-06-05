@@ -1,13 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule } from '@angular/material/sort';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -15,21 +10,21 @@ import { BranchesService } from './services/branches';
 import { SchoolsService } from '../services/schools';
 import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
+import { TableColumn, TableAction, RowActionEvent } from '../../../shared/ui/models';
+import { PageHeader, DataTable, EmptyState } from '../../../shared/ui';
 
 @Component({
   selector: 'app-branches-page',
   imports: [
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
     MatButtonToggleModule,
     RouterModule,
+    PageHeader,
+    DataTable,
+    EmptyState,
   ],
   templateUrl: './branches-page.html',
   styleUrl: './branches-page.scss',
@@ -64,7 +59,26 @@ export class BranchesPage {
     return result;
   });
 
-  readonly displayedColumns = ['name', 'code', 'address', 'status', 'actions'];
+  readonly branchColumns: TableColumn[] = [
+    { key: 'name', label: 'Nombre' },
+    { key: 'code', label: 'Código' },
+    { key: 'address', label: 'Dirección' },
+    { key: 'status', label: 'Estado' },
+  ];
+
+  readonly rowActions: TableAction[] = [
+    { icon: 'pencil', label: 'Editar', action: 'edit' },
+    { icon: 'trash2', label: 'Cambiar Estado', action: 'status' },
+  ];
+
+  readonly tableData = computed(() =>
+    this.branches() as unknown as Record<string, unknown>[]
+  );
+
+  readonly pageTitle = computed(() => {
+    const s = this.school();
+    return s ? `${s.name} — Sedes` : 'Sedes';
+  });
 
   private schoolId: string | null = null;
 
@@ -116,6 +130,15 @@ export class BranchesPage {
 
   setStatusFilter(value: 'all' | 'ACTIVE' | 'INACTIVE'): void {
     this.statusFilter.set(value);
+  }
+
+  onRowAction(event: RowActionEvent): void {
+    const row = event.row as unknown as BranchResponse;
+    if (event.action === 'edit') {
+      this.openEditDialog(row);
+    } else if (event.action === 'status') {
+      this.openStatusDialog(row);
+    }
   }
 
   async openCreateDialog(): Promise<void> {

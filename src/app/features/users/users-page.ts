@@ -1,26 +1,25 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { UsersService } from './services/users';
 import { UserProfile } from './models/user-profile';
+import { TableColumn, TableAction, RowActionEvent } from '../../shared/ui/models';
+import { PageHeader, DataTable, EmptyState } from '../../shared/ui';
 
 @Component({
   selector: 'app-users-page',
   imports: [
-    MatTableModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
     RouterModule,
+    PageHeader,
+    DataTable,
+    EmptyState,
   ],
   templateUrl: './users-page.html',
   styleUrl: './users-page.scss',
@@ -34,7 +33,20 @@ export class UsersPageComponent {
   readonly error = signal(false);
   readonly searchTerm = signal('');
 
-  readonly displayedColumns = ['fullName', 'email', 'status', 'actions'];
+  readonly userColumns: TableColumn[] = [
+    { key: 'fullName', label: 'Nombre' },
+    { key: 'email', label: 'Email' },
+    { key: 'status', label: 'Estado' },
+  ];
+
+  readonly rowActions: TableAction[] = [
+    { icon: 'pencil', label: 'Cambiar Estado', action: 'status' },
+    { icon: 'eye', label: 'Ver Usuario', action: 'view' },
+  ];
+
+  readonly tableData = computed(() =>
+    this.users() as unknown as Record<string, unknown>[]
+  );
 
   constructor() {
     this.loadUsers();
@@ -80,11 +92,15 @@ export class UsersPageComponent {
     this.searchTerm.set('');
   }
 
+  onRowAction(event: RowActionEvent): void {
+    // Will be implemented with dialog/navigation wiring in future PR
+  }
+
   openCreateDialog(): void {
     // Will be implemented with MatDialog wiring in PR 4
   }
 
-  openStatusDialog(user: UserProfile): void {
+  openStatusDialog(_user: UserProfile): void {
     // Will be implemented when dialog is wired in PR 4
   }
 }
