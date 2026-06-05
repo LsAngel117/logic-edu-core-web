@@ -1,46 +1,49 @@
 <section class="dashboard">
-  <header class="welcome">
-    <h1 data-testid="welcome-message">Bienvenido, {{ userName() }}</h1>
-    <p data-testid="subtitle" class="subtitle">Panel de control</p>
+  <!-- Welcome Hero -->
+  <header class="dashboard__welcome" data-testid="dashboard-welcome">
+    <div class="dashboard__welcome-text">
+      <h2 class="dashboard__greeting">Bienvenido nuevamente, <span>{{ userName() }}</span></h2>
+      <p class="dashboard__subtext">Visualiza el estado general de LogicEdu Core.</p>
+    </div>
   </header>
 
-  <div class="stats">
-    @for (card of stats(); track card.label) {
-      <div class="stat-card" data-testid="stat-card">
-        <div class="stat-icon" data-testid="stat-icon">
-          @if (card.icon === 'users') {
-            <svg lucideUsers></svg>
-          } @else if (card.icon === 'building-2') {
-            <svg lucideBuilding2></svg>
-          } @else if (card.icon === 'git-branch') {
-            <svg lucideGitBranch></svg>
-          }
-        </div>
-        <div class="stat-info">
-          <span class="stat-value" data-testid="stat-value">{{ card.value }}</span>
-          <span class="stat-label" data-testid="stat-label">{{ card.label }}</span>
-          <span class="stat-desc" data-testid="stat-desc">{{ card.desc }}</span>
-        </div>
-      </div>
+  <!-- PageHeader -->
+  <app-page-header title="Dashboard" description="Resumen general de la plataforma" />
+
+  <!-- Stats Row -->
+  <div class="stats-grid">
+    @for (stat of stats(); track stat.label) {
+      <app-stat-card
+        [icon]="stat.icon"
+        [label]="stat.label"
+        [value]="stat.value"
+        [trend]="stat.trend"
+      />
     }
   </div>
 
-  <nav class="quick-links">
-    <a
-      class="quick-link"
-      data-testid="quick-link-users"
-      [routerLink]="['/users']"
-    >
-      <svg lucideUsers></svg>
-      <span>Usuarios</span>
-    </a>
-    <a
-      class="quick-link"
-      data-testid="quick-link-schools"
-      [routerLink]="['/schools']"
-    >
-      <svg lucideBuilding2></svg>
-      <span>Instituciones</span>
-    </a>
-  </nav>
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <app-chart-card title="Crecimiento de Usuarios" [periods]="['6M', '1A']">
+      <app-area-chart
+        [series]="userGrowthData().series"
+        [categories]="userGrowthData().categories"
+      />
+    </app-chart-card>
+
+    <app-chart-card title="Instituciones por Estado">
+      <app-donut-chart
+        [series]="institutionData().series"
+        [labels]="institutionData().labels"
+      />
+    </app-chart-card>
+  </div>
+
+  <!-- Recent Activity -->
+  <app-page-header title="Actividad Reciente" />
+  <app-data-table
+    [columns]="activityColumns"
+    [data]="recentActivity()"
+    [pageSize]="5"
+  />
 </section>
