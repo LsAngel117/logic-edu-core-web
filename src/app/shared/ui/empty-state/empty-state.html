@@ -1,0 +1,37 @@
+<div class="empty-state">
+  <div class="empty-state__icon" data-testid="empty-state-icon">
+    @if (icon() === 'inbox') {
+      <svg lucideInbox></svg>
+    } @else if (icon() === 'users') {
+      <svg lucideUsers></svg>
+    } @else if (icon() === 'building-2') {
+      <svg lucideBuilding2></svg>
+    } @else if (icon() === 'git-branch') {
+      <svg lucideGitBranch></svg>
+    } @else if (icon() === 'school') {
+      <svg lucideSchool></svg>
+    } @else if (icon() === 'book-open') {
+      <svg lucideBookOpen></svg>
+    }
+  </div>
+
+  <h3 class="empty-state__title" data-testid="empty-state-title">
+    {{ title() }}
+  </h3>
+
+  @if (description()) {
+    <p class="empty-state__description" data-testid="empty-state-description">
+      {{ description() }}
+    </p>
+  }
+
+  @if (actionLabel()) {
+    <button
+      class="empty-state__action"
+      data-testid="empty-state-action"
+      (click)="action.emit()"
+    >
+      {{ actionLabel() }}
+    </button>
+  }
+</div>
