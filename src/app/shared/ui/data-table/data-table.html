@@ -1,0 +1,151 @@
+<div class="data-table__wrapper">
+  <!-- Loading overlay -->
+  @if (loading()) {
+    <div class="data-table__loading" data-testid="data-table-loading">
+      <div class="data-table__spinner"></div>
+      <span>Loading...</span>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading() && data().length === 0) {
+    <div class="data-table__empty" data-testid="data-table-empty">
+      <div class="data-table__empty-icon">
+        <svg lucideInbox></svg>
+      </div>
+      <p class="data-table__empty-title">No data available</p>
+      <p class="data-table__empty-desc">There are no records to display at this time.</p>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading() && data().length > 0) {
+    <table class="data-table__table">
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th
+              [class.data-table__th--sortable]="col.sortable"
+              [class.data-table__th--active]="sortColumn() === col.key"
+              (click)="onSort(col.key)"
+            >
+              <span class="data-table__th-label">{{ col.label }}</span>
+              @if (col.sortable) {
+                <span class="data-table__sort-icon">
+                  @if (sortColumn() === col.key && sortDirection() === 'asc') {
+                    <svg lucideArrowUp class="data-table__sort-svg data-table__sort-svg--active"></svg>
+                  } @else if (sortColumn() === col.key && sortDirection() === 'desc') {
+                    <svg lucideArrowDown class="data-table__sort-svg data-table__sort-svg--active"></svg>
+                  } @else {
+                    <svg lucideArrowUp class="data-table__sort-svg"></svg>
+                  }
+                </span>
+              }
+            </th>
+          }
+          @if (actions().length > 0) {
+            <th class="data-table__th--actions">Actions</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of paginatedData(); track row['id'] ?? $index; let rowIndex = $index) {
+          <tr>
+            @for (col of columns(); track col.key) {
+              <td>
+                @if (col.key === 'status') {
+                  <span
+                    class="data-table__status"
+                    [class.data-table__status--active]="row[col.key] === 'active'"
+                    [class.data-table__status--inactive]="row[col.key] === 'inactive'"
+                  >{{ row[col.key] }}</span>
+                } @else {
+                  {{ row[col.key] }}
+                }
+              </td>
+            }
+            @if (actions().length > 0) {
+              <td class="data-table__td--actions">
+                <div class="data-table__actions">
+                  @for (action of actions(); track action.action) {
+                    <button
+                      class="data-table__action-btn"
+                      data-testid="action-btn"
+                      [attr.aria-label]="action.label"
+                      [title]="action.label"
+                      (click)="onRowActionClick(action.action, row)"
+                    >
+                      @if (action.icon === 'pencil') {
+                        <svg lucidePencil></svg>
+                      } @else if (action.icon === 'trash2') {
+                        <svg lucideTrash2></svg>
+                      } @else if (action.icon === 'eye') {
+                        <svg lucideEye></svg>
+                      }
+                    </button>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="data-table__pagination">
+        <span class="data-table__pagination-info" data-testid="pagination-info">
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </span>
+        <div class="data-table__pagination-controls">
+          <button
+            class="data-table__page-btn"
+            data-testid="pagination-prev"
+            [disabled]="currentPage() <= 1"
+            [attr.aria-label]="'Previous page'"
+            (click)="onPageChange(currentPage() - 1)"
+          >
+            <svg lucideChevronLeft></svg>
+          </button>
+          <button
+            class="data-table__page-btn"
+            data-testid="pagination-next"
+            [disabled]="currentPage() >= totalPages()"
+            [attr.aria-label]="'Next page'"
+            (click)="onPageChange(currentPage() + 1)"
+          >
+            <svg lucideChevronRight></svg>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Single page info (no controls needed) -->
+    @if (totalPages() <= 1) {
+      <div class="data-table__pagination">
+        <span class="data-table__pagination-info" data-testid="pagination-info">
+          Page 1 of 1
+        </span>
+        <div class="data-table__pagination-controls">
+          <button
+            class="data-table__page-btn"
+            data-testid="pagination-prev"
+            [disabled]="true"
+            [attr.aria-label]="'Previous page'"
+          >
+            <svg lucideChevronLeft></svg>
+          </button>
+          <button
+            class="data-table__page-btn"
+            data-testid="pagination-next"
+            [disabled]="true"
+            [attr.aria-label]="'Next page'"
+          >
+            <svg lucideChevronRight></svg>
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

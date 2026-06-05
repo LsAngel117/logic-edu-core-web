@@ -10,3 +10,5 @@ export { DashboardCard } from './dashboard-card/dashboard-card';
 export { EmptyState } from './empty-state/empty-state';
 export { AppDialog } from './app-dialog/app-dialog';
 export { ConfirmationDialog } from './confirmation-dialog/confirmation-dialog';
+export { DataTable } from './data-table/data-table';
+export { ChartCard } from './chart-card/chart-card';

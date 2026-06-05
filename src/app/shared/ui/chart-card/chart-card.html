@@ -1,0 +1,22 @@
+<div class="chart-card">
+  <header class="chart-card__header">
+    <h3 class="chart-card__title" data-testid="chart-card-title">{{ title() }}</h3>
+
+    @if (periods().length > 0) {
+      <div class="chart-card__period-selector" data-testid="period-selector">
+        @for (period of periods(); track period) {
+          <button
+            class="chart-card__chip"
+            data-testid="period-chip"
+            [class.chart-card__chip--active]="activePeriod() === period"
+            (click)="selectPeriod(period)"
+          >{{ period }}</button>
+        }
+      </div>
+    }
+  </header>
+
+  <div class="chart-card__content">
+    <ng-content />
+  </div>
+</div>
