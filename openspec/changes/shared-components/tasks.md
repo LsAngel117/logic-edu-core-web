@@ -39,8 +39,8 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Dialog Components (PR 2)
 
-- [ ] 3.1 Create `shared/ui/app-dialog/` — MatDialog-based, title `input<string>`, confirm `input<string>`, loading `input<boolean>` disables confirm + spinner; confirm/cancel outputs; spec.ts covers 4 scenarios
-- [ ] 3.2 Create `shared/ui/confirmation-dialog/` — composition over AppDialog with warning icon, message `input<string>`, danger confirm (#EF4444); spec.ts covers 3 scenarios
+- [x] 3.1 Create `shared/ui/app-dialog/` — signal-based modal (not MatDialog), title `input<string>`, confirmLabel `input<string>`, loading `input<boolean>` disables confirm + spinner; confirm/cancel outputs; 7 tests
+- [x] 3.2 Create `shared/ui/confirmation-dialog/` — independent modal with LucideTriangleAlert icon, message `input<string>`, danger confirm (#EF4444); 7 tests
 
 ## Phase 4: Complex Widgets (PR 3)
 

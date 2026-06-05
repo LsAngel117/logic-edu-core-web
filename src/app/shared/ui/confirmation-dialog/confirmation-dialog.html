@@ -1,0 +1,40 @@
+@if (visible()) {
+  <div class="confirmation-dialog__overlay" data-testid="confirmation-dialog-overlay" (click)="cancel.emit()">
+    <div class="confirmation-dialog__card" (click)="$event.stopPropagation()">
+      <div class="confirmation-dialog__icon" data-testid="confirmation-dialog-icon">
+        <svg lucideTriangleAlert></svg>
+      </div>
+
+      <h2 class="confirmation-dialog__title" data-testid="confirmation-dialog-title">
+        {{ title() }}
+      </h2>
+
+      <p class="confirmation-dialog__message" data-testid="confirmation-dialog-message">
+        {{ message() }}
+      </p>
+
+      <footer class="confirmation-dialog__footer">
+        <button
+          class="confirmation-dialog__button confirmation-dialog__button--danger"
+          data-testid="confirmation-dialog-confirm"
+          [disabled]="loading()"
+          (click)="confirm.emit()"
+        >
+          @if (loading()) {
+            Procesando...
+          } @else {
+            {{ confirmLabel() }}
+          }
+        </button>
+
+        <button
+          class="confirmation-dialog__button confirmation-dialog__button--cancel"
+          data-testid="confirmation-dialog-cancel"
+          (click)="cancel.emit()"
+        >
+          Cancelar
+        </button>
+      </footer>
+    </div>
+  </div>
+}
