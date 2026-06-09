@@ -30,6 +30,7 @@ describe('UsersPageComponent', () => {
       email: 'alice@logicedu.com',
       fullName: 'Alice Johnson',
       status: 'ACTIVE',
+      role: 'PLATFORM_ADMIN',
       createdAt: '2026-01-01T00:00:00Z',
     },
     {
@@ -38,7 +39,17 @@ describe('UsersPageComponent', () => {
       email: 'bob@logicedu.com',
       fullName: 'Bob Smith',
       status: 'INACTIVE',
+      role: 'TEACHER',
       createdAt: '2026-02-01T00:00:00Z',
+    },
+    {
+      id: 'u3',
+      username: 'carol',
+      email: 'carol@logicedu.com',
+      fullName: 'Carol Davis',
+      status: 'ACTIVE',
+      role: 'SCHOOL_ADMIN',
+      createdAt: '2026-03-01T00:00:00Z',
     },
   ];
 
@@ -52,18 +63,9 @@ describe('UsersPageComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should render loading spinner while loading', async () => {
-    setupComponent();
-    usersServiceMock.getAll.mockReturnValue(new Observable());
+  // --- Stat Cards ---
 
-    const fixture = await TestBed.createComponent(UsersPageComponent);
-    fixture.detectChanges();
-
-    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
-    expect(loadingEl).toBeTruthy();
-  });
-
-  it('should render users in data-table rows after loading', async () => {
+  it('should render 4 stat cards with correct values when users load', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -71,32 +73,38 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(2);
+    const statCards = fixture.nativeElement.querySelectorAll('app-stat-card');
+    expect(statCards.length).toBe(4);
 
-    const cells0 = rows[0].querySelectorAll('td');
-    expect(cells0[0].textContent).toContain('Alice Johnson');
-    expect(cells0[1].textContent).toContain('alice@logicedu.com');
+    const cardTexts = Array.from(statCards as Element[]).map(
+      (el) => el.textContent?.trim() ?? ''
+    );
 
-    const cells1 = rows[1].querySelectorAll('td');
-    expect(cells1[0].textContent).toContain('Bob Smith');
-    expect(cells1[1].textContent).toContain('bob@logicedu.com');
+    expect(cardTexts.some((t) => t.includes('Total Usuarios'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('3'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('Usuarios Activos'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('2'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('Usuarios Inactivos'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('1'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('Administradores'))).toBe(true);
   });
 
-  it('should show empty state when list is empty', async () => {
-    setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of([]));
+  // --- Loading ---
 
-    const fixture = await createFixture();
-    await fixture.whenStable();
+  it('should show loading state while data is loading', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(new Observable());
+
+    const fixture = await TestBed.createComponent(UsersPageComponent);
     fixture.detectChanges();
 
-    const title = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
-    expect(title).toBeTruthy();
-    expect(title.textContent).toContain('No hay usuarios');
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="users-loading"]');
+    expect(loadingEl).toBeTruthy();
   });
 
-  it('should show error message when loading fails', async () => {
+  // --- Error ---
+
+  it('should show error state when loading fails', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(throwError(() => new Error('Network error')));
 
@@ -104,64 +112,64 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const error = fixture.nativeElement.querySelector('.error-state');
-    expect(error).toBeTruthy();
-    expect(error.textContent).toContain('Failed to load users');
+    const errorEl = fixture.nativeElement.querySelector('[data-testid="users-error"]');
+    expect(errorEl).toBeTruthy();
+    expect(errorEl.textContent).toContain('Error al cargar usuarios');
   });
 
-  it('should render active status in table', async () => {
+  it('should have a retry button in error state', async () => {
     setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of([mockUsers[0]]));
+    usersServiceMock.getAll.mockReturnValue(throwError(() => new Error('Network error')));
 
     const fixture = await createFixture();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
-    const activeSpan = Array.from(statusSpans as Element[]).find(
-      (c) => c.textContent?.trim() === 'ACTIVE'
-    );
-    expect(activeSpan).toBeTruthy();
+    const retryBtn = fixture.nativeElement.querySelector('[data-testid="users-retry"]');
+    expect(retryBtn).toBeTruthy();
   });
 
-  it('should render inactive status in table', async () => {
-    setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of([mockUsers[1]]));
+  // --- Empty State ---
 
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
-    const inactiveSpan = Array.from(statusSpans as Element[]).find(
-      (c) => c.textContent?.trim() === 'INACTIVE'
-    );
-    expect(inactiveSpan).toBeTruthy();
-  });
-
-  it('should call service.getAll with search term after debounce', async () => {
-    vi.useFakeTimers();
+  it('should show empty state when no users exist', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of([]));
 
     const fixture = await createFixture();
-    usersServiceMock.getAll.mockClear();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    const searchInput = fixture.nativeElement.querySelector('input[type="search"]');
+    const emptyEl = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
+    expect(emptyEl).toBeTruthy();
+    expect(emptyEl.textContent).toContain('No hay usuarios registrados');
+  });
+
+  // --- Filters Card ---
+
+  it('should render filters card with role select, status select, and search input', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const filtersCard = fixture.nativeElement.querySelector('[data-testid="filters-card"]');
+    expect(filtersCard).toBeTruthy();
+
+    const roleSelect = filtersCard.querySelector('[data-testid="role-filter"]');
+    expect(roleSelect).toBeTruthy();
+
+    const statusSelect = filtersCard.querySelector('[data-testid="status-filter"]');
+    expect(statusSelect).toBeTruthy();
+
+    const searchInput = filtersCard.querySelector('[data-testid="users-search"]');
     expect(searchInput).toBeTruthy();
-
-    searchInput.value = 'alice';
-    searchInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    vi.advanceTimersByTime(300);
-
-    expect(usersServiceMock.getAll).toHaveBeenCalledWith('alice');
-
-    vi.useRealTimers();
   });
 
-  it('should hide loading and show table after data loads', async () => {
+  // --- Table ---
+
+  it('should render users table with avatar initials, name, email, role badge, and status badge', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -169,14 +177,31 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
-    expect(loadingEl).toBeNull();
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="user-row"]');
+    expect(rows.length).toBe(3);
 
-    const table = fixture.nativeElement.querySelector('table');
-    expect(table).toBeTruthy();
+    // First row: Alice - platform admin, active
+    const firstRow = rows[0];
+    expect(firstRow.textContent).toContain('Alice Johnson');
+    expect(firstRow.textContent).toContain('alice@logicedu.com');
+
+    // Avatar initials
+    const avatar = firstRow.querySelector('[data-testid="user-avatar"]');
+    expect(avatar).toBeTruthy();
+    expect(avatar.textContent?.trim()).toBe('AJ');
+
+    // Role badge
+    const roleBadge = firstRow.querySelector('[data-testid="role-badge"]');
+    expect(roleBadge).toBeTruthy();
+    expect(roleBadge.textContent?.trim()).toBe('PLATFORM_ADMIN');
+
+    // Status badge
+    const statusBadge = firstRow.querySelector('[data-testid="status-badge"]');
+    expect(statusBadge).toBeTruthy();
+    expect(statusBadge.textContent?.trim()).toBe('ACTIVE');
   });
 
-  it('should render action buttons for each user row', async () => {
+  it('should render action buttons for each row', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -184,19 +209,33 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(2);
-
-    const rowElements = Array.from(rows as Element[]);
-    for (const row of rowElements) {
-      const buttons = row.querySelectorAll('[data-testid="action-btn"]');
-      expect(buttons.length).toBeGreaterThanOrEqual(1);
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="user-row"]');
+    for (const row of Array.from(rows as Element[])) {
+      const actions = row.querySelectorAll('[data-testid="action-btn"]');
+      expect(actions.length).toBeGreaterThanOrEqual(2);
     }
   });
 
-  it('should render page header with title', async () => {
+  // --- Role-based status colors ---
+
+  it('should show INACTIVE status correctly', async () => {
     setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of([]));
+    usersServiceMock.getAll.mockReturnValue(of([mockUsers[1]])); // Bob INACTIVE
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const statusBadge = fixture.nativeElement.querySelector('[data-testid="status-badge"]');
+    expect(statusBadge).toBeTruthy();
+    expect(statusBadge.textContent?.trim()).toBe('INACTIVE');
+  });
+
+  // --- Page Header ---
+
+  it('should render page header with title and action button', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
     const fixture = await createFixture();
     await fixture.whenStable();
@@ -205,5 +244,72 @@ describe('UsersPageComponent', () => {
     const header = fixture.nativeElement.querySelector('app-page-header h1');
     expect(header).toBeTruthy();
     expect(header.textContent).toContain('Usuarios');
+
+    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
+    expect(addBtn).toBeTruthy();
+  });
+
+  // --- Create Dialog ---
+
+  it('should open create dialog when Nuevo Usuario is clicked', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
+    expect(addBtn).toBeTruthy();
+    addBtn.click();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]');
+    expect(dialog).toBeTruthy();
+  });
+
+  it('should close create dialog when cancel is clicked', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Open dialog
+    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
+    addBtn.click();
+    fixture.detectChanges();
+
+    // Close via cancel button
+    const cancelBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-cancel"]');
+    expect(cancelBtn).toBeTruthy();
+    cancelBtn.click();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]');
+    expect(dialog).toBeNull();
+  });
+
+  // --- Search ---
+
+  it('should filter users via search input in header', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const searchInput = fixture.nativeElement.querySelector('[data-testid="users-search"]');
+    expect(searchInput).toBeTruthy();
+
+    searchInput.value = 'Alice';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="user-row"]');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Alice Johnson');
   });
 });

@@ -4,6 +4,7 @@ export interface UserProfile {
   email: string;
   fullName: string;
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+  role?: string;
   createdAt: string;
 }
 

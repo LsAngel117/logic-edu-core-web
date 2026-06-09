@@ -1,58 +1,289 @@
 <div class="users-page">
+  <!-- ======= PAGE HEADER ======= -->
   <app-page-header
     title="Usuarios"
     description="Administra los usuarios registrados en la plataforma."
   >
-    <button mat-raised-button color="primary" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon> Nuevo Usuario
+    <button class="btn-primary" data-testid="create-user-btn-header" (click)="openCreateDialog()">
+      <svg lucideUserPlus class="btn-icon"></svg>
+      Nuevo Usuario
     </button>
   </app-page-header>
 
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Buscar usuarios</mat-label>
-    <input
-      matInput
-      type="search"
-      [value]="searchTerm()"
-      (input)="onSearchInput($event)"
-      placeholder="Buscar por nombre o email"
-    />
-    @if (searchTerm()) {
-    <button matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-    }
-  </mat-form-field>
-
+  <!-- ======= ERROR STATE ======= -->
   @if (error()) {
-  <div class="error-state">
-    <p>Failed to load users. Please try again.</p>
-    <button mat-stroked-button color="primary" (click)="loadUsers()">
-      Retry
+  <div class="error-card" data-testid="users-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
+    </div>
+    <h3>Error al cargar usuarios</h3>
+    <button class="btn-outline" data-testid="users-retry" (click)="loadUsers()">
+      Reintentar
     </button>
   </div>
-  } @else if (loading()) {
-  <app-data-table
-    [columns]="userColumns"
-    [data]="[]"
-    [actions]="rowActions"
-    [loading]="true"
-  />
-  } @else if (users().length === 0) {
+  }
+
+  <!-- ======= LOADING STATE ======= -->
+  @if (!error() && loading()) {
+  <div class="users-page__loading" data-testid="users-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando usuarios...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (!error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="users"
+      label="Total Usuarios"
+      [value]="totalUsers()"
+    />
+    <app-stat-card
+      icon="user-check"
+      label="Usuarios Activos"
+      [value]="activeUsers()"
+    />
+    <app-stat-card
+      icon="user-x"
+      label="Usuarios Inactivos"
+      [value]="inactiveUsers()"
+    />
+    <app-stat-card
+      icon="shield"
+      label="Administradores"
+      [value]="adminUsers()"
+    />
+  </div>
+
+  <!-- Filters Card -->
+  <div class="filters-card" data-testid="filters-card">
+    <div class="filters-card__grid">
+      <!-- Role Filter -->
+      <div class="filter-field">
+        <label class="filter-label">Rol</label>
+        <select
+          class="filter-select"
+          data-testid="role-filter"
+          [value]="roleFilter()"
+          (change)="setRoleFilter($any($event.target).value)"
+        >
+          <option value="Todos">Todos</option>
+          <option value="PLATFORM_ADMIN">Platform Admin</option>
+          <option value="SCHOOL_ADMIN">School Admin</option>
+          <option value="TEACHER">Teacher</option>
+          <option value="STUDENT">Student</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-field">
+        <label class="filter-label">Estado</label>
+        <select
+          class="filter-select"
+          data-testid="status-filter"
+          [value]="statusFilter()"
+          (change)="setStatusFilter($any($event.target).value)"
+        >
+          <option value="Todos">Todos</option>
+          <option value="ACTIVE">Activo</option>
+          <option value="INACTIVE">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-field filter-field--span-2">
+        <label class="filter-label">Buscar</label>
+        <div class="search-wrapper">
+          <svg lucideSearch class="search-icon"></svg>
+          <input
+            class="search-input"
+            type="search"
+            data-testid="users-search"
+            [value]="searchTerm()"
+            (input)="onSearchInput($event)"
+            placeholder="Buscar por nombre, email o username..."
+          />
+          @if (searchTerm()) {
+          <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+            &times;
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table Card -->
+  @if (filteredUsers().length > 0) {
+  <div class="table-card">
+    <div class="table-card__toolbar">
+      <span class="table-card__count">
+        Mostrando <strong>{{ filteredUsers().length }}</strong> registros
+      </span>
+    </div>
+
+    <div class="table-card__table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th class="users-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers(); track user.id) {
+          <tr class="user-row" data-testid="user-row">
+            <!-- User info with avatar -->
+            <td class="user-cell">
+              <div class="user-avatar" data-testid="user-avatar">
+                {{ getInitials(user.fullName) }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ user.fullName }}</span>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+            </td>
+
+            <!-- Role badge -->
+            <td>
+              <span
+                class="role-badge"
+                data-testid="role-badge"
+                [style.background-color]="roleColor(user.role)"
+              >
+                {{ user.role ?? 'STUDENT' }}
+              </span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class]="'status-badge ' + statusClass(user.status)"
+              >
+                {{ user.status }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="users-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Ver usuario"
+                (click)="viewUser(user)"
+              >
+                <svg lucideEye></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Editar usuario"
+                (click)="editUser(user)"
+              >
+                <svg lucidePencil></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(user)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @if (filteredUsers().length === 0) {
   <app-empty-state
     icon="users"
-    title="No hay usuarios"
-    description="No se encontraron usuarios registrados."
-    [actionLabel]="'Nuevo Usuario'"
-    (action)="openCreateDialog()"
-  />
-  } @else {
-  <app-data-table
-    [columns]="userColumns"
-    [data]="tableData()"
-    [actions]="rowActions"
-    [loading]="false"
-    (rowAction)="onRowAction($event)"
+    title="No hay usuarios registrados"
+    [description]="searchTerm() ? 'No se encontraron usuarios con los filtros actuales.' : 'Comienza agregando el primer usuario a la plataforma.'"
   />
   }
+
+  }
+
+  <!-- ======= CREATE USER DIALOG ======= -->
+  <app-dialog
+    title="Crear Usuario"
+    confirmLabel="Crear"
+    [loading]="createLoading()"
+    [(visible)]="createDialogVisible"
+    (confirm)="submitCreateUser()"
+    (cancel)="closeCreateDialog()"
+  >
+    <div class="dialog-form">
+      <div class="dialog-field">
+        <label class="dialog-label">Username</label>
+        <input
+          class="dialog-input"
+          type="text"
+          [value]="createForm().username"
+          (input)="updateCreateForm('username', $event)"
+          placeholder="nombre.usuario"
+        />
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-label">Email</label>
+        <input
+          class="dialog-input"
+          type="email"
+          [value]="createForm().email"
+          (input)="updateCreateForm('email', $event)"
+          placeholder="usuario@logicedu.com"
+        />
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-label">Nombre completo</label>
+        <input
+          class="dialog-input"
+          type="text"
+          [value]="createForm().fullName"
+          (input)="updateCreateForm('fullName', $event)"
+          placeholder="Nombre y apellido"
+        />
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-label">Contraseña</label>
+        <input
+          class="dialog-input"
+          type="password"
+          [value]="createForm().password"
+          (input)="updateCreateForm('password', $event)"
+          placeholder="Mínimo 8 caracteres"
+        />
+      </div>
+
+      @if (createError()) {
+      <div class="dialog-error">{{ createError() }}</div>
+      }
+    </div>
+  </app-dialog>
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
 </div>

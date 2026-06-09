@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { signal, computed } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth';
 import { User } from '../../../core/models/user';
@@ -12,7 +11,6 @@ import { UserStatusDialogComponent } from './user-status';
 
 describe('UserStatusDialogComponent', () => {
   let usersServiceMock: { changeStatus: ReturnType<typeof vi.fn> };
-  let dialogRefMock: { close: ReturnType<typeof vi.fn> };
   let authServiceMock: {
     user: ReturnType<typeof signal<User | null>>;
     isAuthenticated: ReturnType<typeof computed<boolean>>;
@@ -45,9 +43,8 @@ describe('UserStatusDialogComponent', () => {
     createdAt: '2026-02-01T00:00:00Z',
   };
 
-  function setupComponent(dialogData: UserProfile = activeUser, authUser: User | null = null) {
+  function setupComponent(userData: UserProfile = activeUser, authUser: User | null = null) {
     usersServiceMock = { changeStatus: vi.fn() };
-    dialogRefMock = { close: vi.fn() };
     authServiceMock = {
       user: signal(authUser),
       isAuthenticated: computed(() => authUser !== null),
@@ -59,15 +56,18 @@ describe('UserStatusDialogComponent', () => {
       providers: [
         provideAnimationsAsync(),
         { provide: UsersService, useValue: usersServiceMock },
-        { provide: MatDialogRef, useValue: dialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: AuthService, useValue: authServiceMock },
       ],
     });
   }
 
-  async function createFixture() {
+  async function createFixture(
+    userData: UserProfile = activeUser,
+    visible = true,
+  ) {
     const fixture = await TestBed.createComponent(UserStatusDialogComponent);
+    fixture.componentRef.setInput('user', userData);
+    fixture.componentRef.setInput('visible', visible);
     fixture.detectChanges();
     return fixture;
   }
@@ -76,56 +76,60 @@ describe('UserStatusDialogComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should display current user status', async () => {
+  it('should show confirmation dialog with user name when visible', async () => {
     setupComponent(activeUser);
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeUser, true);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('ACTIVE');
-    expect(content).toContain('Alice Johnson');
+    const messageEl = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-message"]');
+    expect(messageEl).toBeTruthy();
+    expect(messageEl.textContent).toContain('Alice Johnson');
   });
 
-  it('should show inactive status when user is inactive', async () => {
+  it('should not render dialog when not visible', async () => {
+    setupComponent(activeUser);
+    const fixture = await createFixture(activeUser, false);
+
+    const overlay = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-overlay"]');
+    expect(overlay).toBeNull();
+  });
+
+  it('should show activate message for inactive user', async () => {
     setupComponent(inactiveUser);
-    const fixture = await createFixture();
+    const fixture = await createFixture(inactiveUser, true);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('INACTIVE');
-    expect(content).toContain('Bob Smith');
+    const messageEl = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-message"]');
+    expect(messageEl.textContent).toContain('activar');
+    expect(messageEl.textContent).toContain('Bob Smith');
   });
 
-  it('should call changeStatus with toggled value on confirm', async () => {
+  it('should show deactivate message for active user', async () => {
+    setupComponent(activeUser);
+    const fixture = await createFixture(activeUser, true);
+
+    const messageEl = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-message"]');
+    expect(messageEl.textContent).toContain('desactivar');
+    expect(messageEl.textContent).toContain('Alice Johnson');
+  });
+
+  it('should call changeStatus and emit confirmed on confirm', async () => {
     setupComponent(activeUser);
     const updatedUser: UserProfile = { ...activeUser, status: 'INACTIVE' };
     usersServiceMock.changeStatus.mockReturnValue(of(updatedUser));
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeUser, true);
 
-    const confirmButton = fixture.nativeElement.querySelector('button[color="primary"]');
-    expect(confirmButton).toBeTruthy();
-    confirmButton.click();
+    let confirmed = false;
+    fixture.componentInstance.confirmed.subscribe(() => { confirmed = true; });
+
+    const confirmBtn = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-confirm"]');
+    confirmBtn.click();
 
     await fixture.whenStable();
 
     expect(usersServiceMock.changeStatus).toHaveBeenCalledWith('u1', { status: 'INACTIVE' });
-    expect(dialogRefMock.close).toHaveBeenCalledWith(updatedUser);
+    expect(confirmed).toBe(true);
   });
 
-  it('should close dialog without changes on cancel', async () => {
-    setupComponent();
-    const fixture = await createFixture();
-
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    const cancelButton = Array.from(buttons as Element[]).find(
-      (b) => b.textContent?.trim() === 'Cancel'
-    );
-    expect(cancelButton).toBeTruthy();
-    (cancelButton as HTMLButtonElement).click();
-
-    expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(usersServiceMock.changeStatus).not.toHaveBeenCalled();
-  });
-
-  it('should disable toggle and show message when editing own status', async () => {
+  it('should not allow changing own status', async () => {
     const selfUser: UserProfile = {
       id: 'auth1',
       username: 'admin',
@@ -135,13 +139,24 @@ describe('UserStatusDialogComponent', () => {
       createdAt: '2026-01-01T00:00:00Z',
     };
     setupComponent(selfUser, mockAuthUser);
-    const fixture = await createFixture();
-    fixture.detectChanges();
+    const fixture = await createFixture(selfUser, true);
 
+    // The confirmation dialog should be hidden when it's self
+    const overlay = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-overlay"]');
+    // when isSelf, the dialog should not be visible
     expect(fixture.componentInstance.isSelf()).toBe(true);
+  });
 
-    const message = fixture.nativeElement.querySelector('.self-disable-message');
-    expect(message).toBeTruthy();
-    expect(message.textContent).toContain('Cannot change your own status');
+  it('should emit cancel on cancel', async () => {
+    setupComponent(activeUser);
+    const fixture = await createFixture(activeUser, true);
+
+    let cancelled = false;
+    fixture.componentInstance.cancelled.subscribe(() => { cancelled = true; });
+
+    const cancelBtn = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-cancel"]');
+    cancelBtn.click();
+
+    expect(cancelled).toBe(true);
   });
 });

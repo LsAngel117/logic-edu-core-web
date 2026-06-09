@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
   LucideUsers,
+  LucideUserCheck,
+  LucideUserX,
+  LucideShield,
   LucideBuilding2,
   LucideGitBranch,
   LucideInbox,
@@ -15,6 +18,9 @@ import {
   standalone: true,
   imports: [
     LucideUsers,
+    LucideUserCheck,
+    LucideUserX,
+    LucideShield,
     LucideBuilding2,
     LucideGitBranch,
     LucideInbox,

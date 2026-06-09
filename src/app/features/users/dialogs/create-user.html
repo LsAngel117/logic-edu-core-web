@@ -1,64 +1,58 @@
-<h2 mat-dialog-title>Create User</h2>
+<app-dialog
+  title="Crear Usuario"
+  confirmLabel="Crear"
+  [loading]="loading()"
+  [(visible)]="visible"
+  (confirm)="onSubmit()"
+  (cancel)="onCancel()"
+>
+  <div class="dialog-form">
+    <div class="dialog-field">
+      <label class="dialog-label">Username</label>
+      <input
+        class="dialog-input"
+        type="text"
+        [value]="username()"
+        (input)="updateField('username', $event)"
+        placeholder="nombre.usuario"
+      />
+    </div>
 
-<mat-dialog-content>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-user-form">
-    <mat-form-field appearance="outline">
-      <mat-label>Username</mat-label>
-      <input matInput formControlName="username" />
-      @if (form.controls.username.touched && form.controls.username.hasError('required')) {
-      <mat-error>Username is required</mat-error>
-      }
-    </mat-form-field>
+    <div class="dialog-field">
+      <label class="dialog-label">Email</label>
+      <input
+        class="dialog-input"
+        type="email"
+        [value]="email()"
+        (input)="updateField('email', $event)"
+        placeholder="usuario@logicedu.com"
+      />
+    </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Email</mat-label>
-      <input matInput type="email" formControlName="email" />
-      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
-      <mat-error>Email is required</mat-error>
-      } @if (form.controls.email.touched && form.controls.email.hasError('email')) {
-      <mat-error>Invalid email format</mat-error>
-      }
-    </mat-form-field>
+    <div class="dialog-field">
+      <label class="dialog-label">Nombre completo</label>
+      <input
+        class="dialog-input"
+        type="text"
+        [value]="fullName()"
+        (input)="updateField('fullName', $event)"
+        placeholder="Nombre y apellido"
+      />
+    </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Full Name</mat-label>
-      <input matInput formControlName="fullName" />
-      @if (form.controls.fullName.touched && form.controls.fullName.hasError('required')) {
-      <mat-error>Full name is required</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Password</mat-label>
-      <input matInput type="password" formControlName="password" />
-      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
-      <mat-error>Password is required</mat-error>
-      } @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
-      <mat-error>Password must be at least 8 characters</mat-error>
-      }
-    </mat-form-field>
+    <div class="dialog-field">
+      <label class="dialog-label">Contraseña</label>
+      <input
+        class="dialog-input"
+        type="password"
+        [value]="password()"
+        (input)="updateField('password', $event)"
+        placeholder="Mínimo 8 caracteres"
+      />
+    </div>
 
     @if (errorMessage()) {
     <div class="dialog-error">{{ errorMessage() }}</div>
     }
-  </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="onCancel()" [disabled]="loading()">
-    Cancel
-  </button>
-  <button
-    mat-raised-button
-    color="primary"
-    type="submit"
-    [disabled]="loading()"
-    (click)="onSubmit()"
-  >
-    @if (loading()) {
-    <mat-spinner diameter="20" />
-    } @else {
-    Create
-    }
-  </button>
-</mat-dialog-actions>
+  </div>
+</app-dialog>

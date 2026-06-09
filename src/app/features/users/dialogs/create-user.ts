@@ -1,91 +1,109 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject, model, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
 import { CreateUserPayload } from '../models/user-profile';
+import { AppDialog } from '../../../shared/ui';
 
 @Component({
   selector: 'app-create-user',
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-  ],
+  standalone: true,
+  imports: [AppDialog],
   templateUrl: './create-user.html',
   styleUrl: './create-user.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateUserDialogComponent {
   private readonly usersService = inject(UsersService);
-  private readonly dialogRef = inject(MatDialogRef<CreateUserDialogComponent>);
-  private readonly fb = inject(FormBuilder);
 
+  readonly visible = model(false);
   readonly loading = signal(false);
   readonly errorMessage = signal('');
-  readonly form: FormGroup<{
-    username: FormControl<string>;
-    email: FormControl<string>;
-    fullName: FormControl<string>;
-    password: FormControl<string>;
-  }>;
 
-  constructor() {
-    this.form = this.fb.nonNullable.group({
-      username: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      fullName: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-    });
+  readonly username = signal('');
+  readonly email = signal('');
+  readonly fullName = signal('');
+  readonly password = signal('');
+
+  readonly created = output<void>();
+  readonly cancel = output<void>();
+
+  updateField(field: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    switch (field) {
+      case 'username':
+        this.username.set(input.value);
+        break;
+      case 'email':
+        this.email.set(input.value);
+        break;
+      case 'fullName':
+        this.fullName.set(input.value);
+        break;
+      case 'password':
+        this.password.set(input.value);
+        break;
+    }
   }
 
   async onSubmit(): Promise<void> {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    const u = this.username().trim();
+    const e = this.email().trim();
+    const n = this.fullName().trim();
+    const p = this.password();
+
+    if (!u || !e || !n || !p) {
+      this.errorMessage.set('Todos los campos son requeridos');
+      return;
+    }
+    if (!e.includes('@')) {
+      this.errorMessage.set('Formato de email inválido');
+      return;
+    }
+    if (p.length < 8) {
+      this.errorMessage.set('La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
     this.loading.set(true);
     this.errorMessage.set('');
 
-    const raw = this.form.getRawValue();
     const payload: CreateUserPayload = {
-      username: raw.username,
-      email: raw.email,
-      fullName: raw.fullName,
-      password: raw.password,
+      username: u,
+      email: e,
+      fullName: n,
+      password: p,
     };
 
     try {
-      const result = await firstValueFrom(this.usersService.create(payload));
-      this.dialogRef.close(result);
+      await firstValueFrom(this.usersService.create(payload));
+      this.visible.set(false);
+      this.created.emit();
+      this.resetForm();
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
       if (status === 409) {
-        this.errorMessage.set('Email or username already in use');
+        this.errorMessage.set('Email o nombre de usuario ya en uso');
       } else if (status === 403) {
-        this.errorMessage.set('Insufficient permissions');
+        this.errorMessage.set('Permisos insuficientes');
       } else {
-        this.errorMessage.set('An error occurred');
+        this.errorMessage.set('Ocurrió un error');
       }
+    } finally {
       this.loading.set(false);
     }
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.visible.set(false);
+    this.cancel.emit();
+    this.resetForm();
+  }
+
+  private resetForm(): void {
+    this.username.set('');
+    this.email.set('');
+    this.fullName.set('');
+    this.password.set('');
+    this.errorMessage.set('');
   }
 }

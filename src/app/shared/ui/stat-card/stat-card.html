@@ -2,6 +2,12 @@
   <div class="stat-card__icon" data-testid="stat-icon">
     @if (icon() === 'users') {
       <svg lucideUsers></svg>
+    } @else if (icon() === 'user-check') {
+      <svg lucideUserCheck></svg>
+    } @else if (icon() === 'user-x') {
+      <svg lucideUserX></svg>
+    } @else if (icon() === 'shield') {
+      <svg lucideShield></svg>
     } @else if (icon() === 'building-2') {
       <svg lucideBuilding2></svg>
     } @else if (icon() === 'git-branch') {

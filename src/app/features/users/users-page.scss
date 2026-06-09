@@ -1,21 +1,520 @@
+/* ================================================================
+   Users Page — Premium SaaS Design
+   ================================================================ */
+
+// Design tokens
+$primary: #2563eb;
+$primary-hover: #1d4ed8;
+$success: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+$radius-card: 16px;
+$radius-btn: 14px;
+$radius-input: 12px;
+$shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
+$spacing-unit: 8px;
+$font-family: 'Roboto', sans-serif;
+
+/* ---- Page Layout ---- */
 .users-page {
-  padding: 24px;
-  max-width: 1200px;
+  padding: $spacing-unit * 3;
+  max-width: 1280px;
   margin: 0 auto;
+  font-family: $font-family;
 }
 
-.search-field {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 16px;
-}
+/* ---- Primary Button ---- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-unit;
+  padding: $spacing-unit * 1.25 $spacing-unit * 2.5;
+  background: linear-gradient(135deg, $primary, #3b82f6);
+  color: #fff;
+  font-family: $font-family;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: $radius-btn;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
 
-.error-state {
-  text-align: center;
-  padding: 48px 0;
-  color: #d32f2f;
-
-  p {
-    margin-bottom: 16px;
+  &:hover {
+    box-shadow: $shadow-hover;
+    transform: translateY(-1px);
   }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- Error Card ---- */
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-unit * 6;
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  text-align: center;
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba($danger, 0.1);
+    color: $danger;
+    margin-bottom: $spacing-unit * 2;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  h3 {
+    margin: 0 0 $spacing-unit * 2;
+    color: $gray-800;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.btn-outline {
+  padding: $spacing-unit $spacing-unit * 2;
+  background: transparent;
+  color: $primary;
+  font-family: $font-family;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1.5px solid $primary;
+  border-radius: $radius-btn;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba($primary, 0.06);
+  }
+}
+
+/* ---- Loading State ---- */
+.users-page__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-unit * 2;
+  padding: $spacing-unit * 8;
+  color: $gray-500;
+  font-size: 15px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid $gray-200;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Stats Row ---- */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-unit * 2;
+  margin-bottom: $spacing-unit * 3;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Filters Card ---- */
+.filters-card {
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  padding: $spacing-unit * 3;
+  margin-bottom: $spacing-unit * 3;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-unit * 2;
+    align-items: end;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit;
+
+  &--span-2 {
+    @media (min-width: 1025px) {
+      grid-column: span 2;
+    }
+  }
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: $gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-select {
+  height: 44px;
+  padding: 0 $spacing-unit * 1.5;
+  font-family: $font-family;
+  font-size: 14px;
+  color: $gray-800;
+  background: $gray-50;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-input;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+}
+
+/* ---- Search ---- */
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: $gray-400;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 $spacing-unit * 5 0 $spacing-unit * 5;
+  font-family: $font-family;
+  font-size: 14px;
+  color: $gray-800;
+  background: $gray-50;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-input;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: $gray-400;
+  }
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+}
+
+.search-clear {
+  position: absolute;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: $gray-400;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: $gray-600;
+    background: $gray-100;
+  }
+}
+
+/* ---- Table Card ---- */
+.table-card {
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    border-bottom: 1px solid $gray-100;
+  }
+
+  &__count {
+    font-size: 13px;
+    color: $gray-500;
+
+    strong {
+      color: $gray-700;
+    }
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+/* ---- Users Table ---- */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: $gray-50;
+
+    th {
+      padding: $spacing-unit * 1.5 $spacing-unit * 3;
+      font-size: 12px;
+      font-weight: 600;
+      color: $gray-500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $gray-100;
+      transition: background 0.15s;
+
+      &:hover {
+        background: rgba($primary, 0.02);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  td {
+    padding: $spacing-unit * 1.5 $spacing-unit * 3;
+    vertical-align: middle;
+  }
+
+  &__th--actions,
+  &__td--actions {
+    text-align: center;
+    width: 140px;
+  }
+}
+
+/* ---- User Cell (avatar + info) ---- */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit * 1.5;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: $gray-800;
+}
+
+.user-email {
+  font-size: 12px;
+  color: $gray-500;
+}
+
+/* ---- Role Badge ---- */
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* ---- Status Badge ---- */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.status--active {
+    background: rgba($success, 0.12);
+    color: $success;
+  }
+
+  &.status--inactive {
+    background: rgba($danger, 0.12);
+    color: $danger;
+  }
+
+  &.status--blocked {
+    background: rgba($warning, 0.12);
+    color: $warning;
+  }
+
+  &.status--default {
+    background: $gray-100;
+    color: $gray-600;
+  }
+}
+
+/* ---- Action Buttons ---- */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: $gray-400;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: $primary;
+    background: rgba($primary, 0.08);
+  }
+}
+
+/* ---- Dialog Form ---- */
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2;
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit;
+}
+
+.dialog-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: $gray-600;
+}
+
+.dialog-input {
+  height: 44px;
+  padding: 0 $spacing-unit * 1.5;
+  font-family: $font-family;
+  font-size: 14px;
+  color: $gray-800;
+  background: $gray-50;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-input;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: $gray-400;
+  }
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+}
+
+.dialog-error {
+  padding: $spacing-unit * 1.5;
+  background: rgba($danger, 0.08);
+  color: $danger;
+  border-radius: $radius-input;
+  font-size: 13px;
+  font-weight: 500;
 }
