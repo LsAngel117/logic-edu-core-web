@@ -9,11 +9,14 @@ import {
   LucidePencil,
   LucidePower,
   LucideShield,
+  LucideChevronLeft,
+  LucideChevronRight,
 } from '@lucide/angular';
 import { UsersService } from './services/users';
 import { AuthService } from '../../core/services/auth';
-import { UserProfile, CreateUserPayload, ChangeStatusRequest } from './models/user-profile';
-import { PageHeader, StatCard, EmptyState, AppDialog, ConfirmationDialog } from '../../shared/ui';
+import { UserProfile, ChangeStatusRequest } from './models/user-profile';
+import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
+import { CreateUserDialogComponent } from './dialogs/create-user';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -21,6 +24,7 @@ import { PageHeader, StatCard, EmptyState, AppDialog, ConfirmationDialog } from 
 
 type RoleFilter = 'Todos' | 'PLATFORM_ADMIN' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT';
 type StatusFilter = 'Todos' | 'ACTIVE' | 'INACTIVE';
+type PageSize = 10 | 25 | 50;
 
 /* ------------------------------------------------------------------ */
 /*  Role → display helpers                                              */
@@ -52,14 +56,16 @@ const STATUS_CLASSES: Record<string, string> = {
     PageHeader,
     StatCard,
     EmptyState,
-    AppDialog,
     ConfirmationDialog,
+    CreateUserDialogComponent,
     LucideUserPlus,
     LucideSearch,
     LucideEye,
     LucidePencil,
     LucidePower,
     LucideShield,
+    LucideChevronLeft,
+    LucideChevronRight,
   ],
   templateUrl: './users-page.html',
   styleUrl: './users-page.scss',
@@ -79,20 +85,14 @@ export class UsersPageComponent {
   readonly statusFilter = signal<StatusFilter>('Todos');
   readonly searchTerm = signal('');
 
+  // Pagination
+  readonly currentPage = signal(1);
+  readonly pageSize = signal<PageSize>(10);
+
   // Dialog visibility
   readonly createDialogVisible = signal(false);
   readonly statusDialogVisible = signal(false);
   readonly selectedUser = signal<UserProfile | null>(null);
-
-  // Create dialog internal state
-  readonly createLoading = signal(false);
-  readonly createError = signal('');
-  readonly createForm = signal({
-    username: '',
-    email: '',
-    fullName: '',
-    password: '',
-  });
 
   /* ---- Computed: Stats ----------------------------------------------- */
   readonly totalUsers = computed(() => this.users().length);
@@ -128,6 +128,55 @@ export class UsersPageComponent {
     }
 
     return result;
+  });
+
+  /* ---- Computed: Pagination ------------------------------------------ */
+  readonly totalPages = computed(() => {
+    const total = this.filteredUsers().length;
+    const size = this.pageSize();
+    return Math.max(1, Math.ceil(total / size));
+  });
+
+  readonly paginatedUsers = computed(() => {
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const start = (page - 1) * size;
+    return this.filteredUsers().slice(start, start + size);
+  });
+
+  readonly showingFrom = computed(() => {
+    const total = this.filteredUsers().length;
+    if (total === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  readonly showingTo = computed(() => {
+    const total = this.filteredUsers().length;
+    if (total === 0) return 0;
+    return Math.min(this.currentPage() * this.pageSize(), total);
+  });
+
+  readonly isFirstPage = computed(() => this.currentPage() <= 1);
+  readonly isLastPage = computed(() => this.currentPage() >= this.totalPages());
+
+  /* ---- Page numbers for display ------------------------------------- */
+  readonly pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, current - Math.floor(maxVisible / 2));
+    let end = Math.min(total, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   });
 
   /* ---- Status dialog computed props ---------------------------------- */
@@ -182,6 +231,7 @@ export class UsersPageComponent {
     this.usersService.getAll(search).subscribe({
       next: (result: UserProfile[]) => {
         this.users.set(result);
+        this.currentPage.set(1); // Reset to first page on data load
         this.loading.set(false);
       },
       error: () => {
@@ -194,10 +244,12 @@ export class UsersPageComponent {
   /* ---- Filter handlers ----------------------------------------------- */
   setRoleFilter(value: string): void {
     this.roleFilter.set(value as RoleFilter);
+    this.currentPage.set(1);
   }
 
   setStatusFilter(value: string): void {
     this.statusFilter.set(value as StatusFilter);
+    this.currentPage.set(1);
   }
 
   onSearchInput(event: Event): void {
@@ -209,13 +261,34 @@ export class UsersPageComponent {
     this.searchTerm.set('');
   }
 
+  /* ---- Pagination handlers ------------------------------------------- */
+  setPageSize(value: string): void {
+    this.pageSize.set(Number(value) as PageSize);
+    this.currentPage.set(1);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage(): void {
+    if (!this.isLastPage()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (!this.isFirstPage()) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
   /* ---- Dialog actions ------------------------------------------------ */
 
-  // Create dialog
+  // Create dialog — uses standalone CreateUserDialogComponent
   openCreateDialog(): void {
-    this.createForm.set({ username: '', email: '', fullName: '', password: '' });
-    this.createError.set('');
-    this.createLoading.set(false);
     this.createDialogVisible.set(true);
   }
 
@@ -223,52 +296,8 @@ export class UsersPageComponent {
     this.createDialogVisible.set(false);
   }
 
-  updateCreateForm(field: string, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.createForm.update((f) => ({ ...f, [field]: input.value }));
-  }
-
-  async submitCreateUser(): Promise<void> {
-    const form = this.createForm();
-    if (!form.username || !form.email || !form.fullName || !form.password) {
-      this.createError.set('Todos los campos son requeridos');
-      return;
-    }
-    if (form.password.length < 8) {
-      this.createError.set('La contraseña debe tener al menos 8 caracteres');
-      return;
-    }
-    if (!form.email.includes('@')) {
-      this.createError.set('Formato de email inválido');
-      return;
-    }
-
-    this.createLoading.set(true);
-    this.createError.set('');
-
-    const payload: CreateUserPayload = {
-      username: form.username,
-      email: form.email,
-      fullName: form.fullName,
-      password: form.password,
-    };
-
-    try {
-      await firstValueFrom(this.usersService.create(payload));
-      this.createDialogVisible.set(false);
-      this.loadUsers();
-    } catch (err: unknown) {
-      const status = (err as { status?: number }).status;
-      if (status === 409) {
-        this.createError.set('Email o nombre de usuario ya en uso');
-      } else if (status === 403) {
-        this.createError.set('Permisos insuficientes');
-      } else {
-        this.createError.set('Ocurrió un error');
-      }
-    } finally {
-      this.createLoading.set(false);
-    }
+  onUserCreated(): void {
+    this.loadUsers();
   }
 
   // Status dialog

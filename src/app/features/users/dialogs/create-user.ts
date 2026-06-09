@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, model, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
 import { CreateUserPayload } from '../models/user-profile';
@@ -19,47 +19,62 @@ export class CreateUserDialogComponent {
   readonly loading = signal(false);
   readonly errorMessage = signal('');
 
-  readonly username = signal('');
+  // Form fields
   readonly email = signal('');
-  readonly fullName = signal('');
-  readonly password = signal('');
+  readonly rawPassword = signal('');
+  readonly firstGivenName = signal('');
+  readonly secondGivenName = signal('');
+  readonly firstFamilyName = signal('');
+  readonly secondFamilyName = signal('');
+  readonly sex = signal<'MALE' | 'FEMALE' | ''>('');
+  readonly birthDate = signal('');
+  readonly documentType = signal('');
+  readonly documentValue = signal('');
+  readonly role = signal('');
+  readonly scopeType = signal<'SCHOOL' | 'BRANCH' | 'ALL' | ''>('');
+  readonly scopeRefId = signal('');
 
   readonly created = output<void>();
   readonly cancel = output<void>();
 
-  updateField(field: string, event: Event): void {
+  // Show scopeRefId only when scopeType is SCHOOL or BRANCH
+  readonly showScopeRefId = computed(() => {
+    const st = this.scopeType();
+    return st === 'SCHOOL' || st === 'BRANCH';
+  });
+
+  updateTextField(field: string, event: Event): void {
     const input = event.target as HTMLInputElement;
-    switch (field) {
-      case 'username':
-        this.username.set(input.value);
-        break;
-      case 'email':
-        this.email.set(input.value);
-        break;
-      case 'fullName':
-        this.fullName.set(input.value);
-        break;
-      case 'password':
-        this.password.set(input.value);
-        break;
-    }
+    (this as unknown as Record<string, ReturnType<typeof signal>>)[field]?.set(input.value);
+  }
+
+  updateSelectField(field: string, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    (this as unknown as Record<string, ReturnType<typeof signal>>)[field]?.set(select.value);
   }
 
   async onSubmit(): Promise<void> {
-    const u = this.username().trim();
-    const e = this.email().trim();
-    const n = this.fullName().trim();
-    const p = this.password();
+    const em = this.email().trim();
+    const pwd = this.rawPassword();
+    const fgn = this.firstGivenName().trim();
+    const ffn = this.firstFamilyName().trim();
+    const sx = this.sex();
+    const bd = this.birthDate();
+    const dt = this.documentType();
+    const dv = this.documentValue().trim();
+    const rl = this.role();
+    const st = this.scopeType();
 
-    if (!u || !e || !n || !p) {
-      this.errorMessage.set('Todos los campos son requeridos');
+    // Required fields validation
+    if (!em || !pwd || !fgn || !ffn || !sx || !bd || !dt || !dv || !rl || !st) {
+      this.errorMessage.set('Todos los campos requeridos deben estar completos');
       return;
     }
-    if (!e.includes('@')) {
+    if (!em.includes('@')) {
       this.errorMessage.set('Formato de email inválido');
       return;
     }
-    if (p.length < 8) {
+    if (pwd.length < 8) {
       this.errorMessage.set('La contraseña debe tener al menos 8 caracteres');
       return;
     }
@@ -68,10 +83,19 @@ export class CreateUserDialogComponent {
     this.errorMessage.set('');
 
     const payload: CreateUserPayload = {
-      username: u,
-      email: e,
-      fullName: n,
-      password: p,
+      email: em,
+      rawPassword: pwd,
+      firstGivenName: fgn,
+      secondGivenName: this.secondGivenName().trim() || undefined,
+      firstFamilyName: ffn,
+      secondFamilyName: this.secondFamilyName().trim() || undefined,
+      sex: sx as 'MALE' | 'FEMALE',
+      birthDate: bd,
+      documentType: dt,
+      documentValue: dv,
+      role: rl,
+      scopeType: st as 'SCHOOL' | 'BRANCH' | 'ALL',
+      scopeRefId: this.scopeRefId().trim() || undefined,
     };
 
     try {
@@ -100,10 +124,19 @@ export class CreateUserDialogComponent {
   }
 
   private resetForm(): void {
-    this.username.set('');
     this.email.set('');
-    this.fullName.set('');
-    this.password.set('');
+    this.rawPassword.set('');
+    this.firstGivenName.set('');
+    this.secondGivenName.set('');
+    this.firstFamilyName.set('');
+    this.secondFamilyName.set('');
+    this.sex.set('');
+    this.birthDate.set('');
+    this.documentType.set('');
+    this.documentValue.set('');
+    this.role.set('');
+    this.scopeType.set('');
+    this.scopeRefId.set('');
     this.errorMessage.set('');
   }
 }

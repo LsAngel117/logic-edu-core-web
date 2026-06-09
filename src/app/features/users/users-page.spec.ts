@@ -8,10 +8,10 @@ import { UserProfile } from './models/user-profile';
 import { UsersPageComponent } from './users-page';
 
 describe('UsersPageComponent', () => {
-  let usersServiceMock: { getAll: ReturnType<typeof vi.fn> };
+  let usersServiceMock: { getAll: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
 
   function setupComponent() {
-    usersServiceMock = { getAll: vi.fn() };
+    usersServiceMock = { getAll: vi.fn(), create: vi.fn() };
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [UsersPageComponent],
@@ -144,9 +144,9 @@ describe('UsersPageComponent', () => {
     expect(emptyEl.textContent).toContain('No hay usuarios registrados');
   });
 
-  // --- Filters Card ---
+  // --- Filters inside table card (Fix 4) ---
 
-  it('should render filters card with role select, status select, and search input', async () => {
+  it('should render filters inside table card toolbar', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -154,17 +154,22 @@ describe('UsersPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const filtersCard = fixture.nativeElement.querySelector('[data-testid="filters-card"]');
-    expect(filtersCard).toBeTruthy();
+    // Filters are now inside the table card toolbar, not a separate card
+    const tableCard = fixture.nativeElement.querySelector('.table-card');
+    expect(tableCard).toBeTruthy();
 
-    const roleSelect = filtersCard.querySelector('[data-testid="role-filter"]');
+    const roleSelect = tableCard.querySelector('[data-testid="role-filter"]');
     expect(roleSelect).toBeTruthy();
 
-    const statusSelect = filtersCard.querySelector('[data-testid="status-filter"]');
+    const statusSelect = tableCard.querySelector('[data-testid="status-filter"]');
     expect(statusSelect).toBeTruthy();
 
-    const searchInput = filtersCard.querySelector('[data-testid="users-search"]');
+    const searchInput = tableCard.querySelector('[data-testid="users-search"]');
     expect(searchInput).toBeTruthy();
+
+    // The separate filters-card should NOT exist
+    const filtersCard = fixture.nativeElement.querySelector('[data-testid="filters-card"]');
+    expect(filtersCard).toBeNull();
   });
 
   // --- Table ---
@@ -231,69 +236,42 @@ describe('UsersPageComponent', () => {
     expect(statusBadge.textContent?.trim()).toBe('INACTIVE');
   });
 
-  // --- Page Header ---
+  // --- Role fallback (Fix 5) ---
 
-  it('should render page header with title and action button', async () => {
+  it('should display "—" when role is undefined', async () => {
     setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+    const userNoRole: UserProfile = {
+      id: 'u4',
+      username: 'dave',
+      email: 'dave@logicedu.com',
+      fullName: 'Dave NoRole',
+      status: 'ACTIVE',
+      role: undefined,
+      createdAt: '2026-04-01T00:00:00Z',
+    };
+    usersServiceMock.getAll.mockReturnValue(of([userNoRole]));
 
     const fixture = await createFixture();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const header = fixture.nativeElement.querySelector('app-page-header h1');
-    expect(header).toBeTruthy();
-    expect(header.textContent).toContain('Usuarios');
-
-    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
-    expect(addBtn).toBeTruthy();
+    const roleBadge = fixture.nativeElement.querySelector('[data-testid="role-badge"]');
+    expect(roleBadge).toBeTruthy();
+    expect(roleBadge.textContent?.trim()).toBe('—');
   });
 
-  // --- Create Dialog ---
-
-  it('should open create dialog when Nuevo Usuario is clicked', async () => {
+  it('should return gray color for undefined role', () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
-    expect(addBtn).toBeTruthy();
-    addBtn.click();
-    fixture.detectChanges();
-
-    const dialog = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]');
-    expect(dialog).toBeTruthy();
+    const fixture = TestBed.createComponent(UsersPageComponent);
+    const component = fixture.componentInstance;
+    expect(component.roleColor(undefined)).toBe('#6B7280');
   });
 
-  it('should close create dialog when cancel is clicked', async () => {
-    setupComponent();
-    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+  // --- Search (Fix 2: type="text" still works) ---
 
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    // Open dialog
-    const addBtn = fixture.nativeElement.querySelector('[data-testid="create-user-btn-header"]');
-    addBtn.click();
-    fixture.detectChanges();
-
-    // Close via cancel button
-    const cancelBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-cancel"]');
-    expect(cancelBtn).toBeTruthy();
-    cancelBtn.click();
-    fixture.detectChanges();
-
-    const dialog = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]');
-    expect(dialog).toBeNull();
-  });
-
-  // --- Search ---
-
-  it('should filter users via search input in header', async () => {
+  it('should filter users via search input', async () => {
     setupComponent();
     usersServiceMock.getAll.mockReturnValue(of(mockUsers));
 
@@ -311,5 +289,102 @@ describe('UsersPageComponent', () => {
     const rows = fixture.nativeElement.querySelectorAll('[data-testid="user-row"]');
     expect(rows.length).toBe(1);
     expect(rows[0].textContent).toContain('Alice Johnson');
+  });
+
+  // --- Page Header ---
+
+  it('should render page header with title', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector('app-page-header h1');
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain('Usuarios');
+  });
+
+  // --- Create Dialog (uses standalone CreateUserDialogComponent) ---
+
+  it('should render app-create-user component', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const createUserEl = fixture.nativeElement.querySelector('app-create-user');
+    expect(createUserEl).toBeTruthy();
+  });
+
+  // --- Pagination (Fix 3) ---
+
+  it('should render pagination controls below table', async () => {
+    setupComponent();
+    // Create 15 users to trigger pagination (pageSize default is 10)
+    const manyUsers: UserProfile[] = Array.from({ length: 15 }, (_, i) => ({
+      id: `u${i}`,
+      username: `user${i}`,
+      email: `user${i}@logicedu.com`,
+      fullName: `User ${i}`,
+      status: 'ACTIVE' as const,
+      role: 'STUDENT',
+      createdAt: '2026-01-01T00:00:00Z',
+    }));
+    usersServiceMock.getAll.mockReturnValue(of(manyUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const pagination = fixture.nativeElement.querySelector('[data-testid="pagination-controls"]');
+    expect(pagination).toBeTruthy();
+
+    // Should show page info
+    expect(pagination.textContent).toContain('Mostrando');
+    expect(pagination.textContent).toContain('10');
+    expect(pagination.textContent).toContain('15');
+
+    // Should have prev/next buttons
+    const prevBtn = pagination.querySelector('[data-testid="pagination-prev"]');
+    const nextBtn = pagination.querySelector('[data-testid="pagination-next"]');
+    expect(prevBtn).toBeTruthy();
+    expect(nextBtn).toBeTruthy();
+  });
+
+  it('should render records-per-page selector in toolbar', async () => {
+    setupComponent();
+    usersServiceMock.getAll.mockReturnValue(of(mockUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const pageSizeSelect = fixture.nativeElement.querySelector('[data-testid="page-size-select"]');
+    expect(pageSizeSelect).toBeTruthy();
+  });
+
+  it('should disable prev button on first page', async () => {
+    setupComponent();
+    const manyUsers: UserProfile[] = Array.from({ length: 15 }, (_, i) => ({
+      id: `u${i}`,
+      username: `user${i}`,
+      email: `user${i}@logicedu.com`,
+      fullName: `User ${i}`,
+      status: 'ACTIVE' as const,
+      role: 'STUDENT',
+      createdAt: '2026-01-01T00:00:00Z',
+    }));
+    usersServiceMock.getAll.mockReturnValue(of(manyUsers));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const prevBtn = fixture.nativeElement.querySelector('[data-testid="pagination-prev"]');
+    expect(prevBtn.disabled).toBe(true);
   });
 });

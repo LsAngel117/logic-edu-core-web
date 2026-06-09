@@ -39,6 +39,19 @@ const mockUsers: UserProfile[] = [
   },
 ];
 
+const mockCreatePayload: CreateUserPayload = {
+  email: 'charlie@logicedu.com',
+  rawPassword: 'secret123',
+  firstGivenName: 'Charlie',
+  firstFamilyName: 'Brown',
+  sex: 'MALE',
+  birthDate: '2000-05-15',
+  documentType: 'CC',
+  documentValue: '1234567890',
+  role: 'TEACHER',
+  scopeType: 'ALL',
+};
+
 describe('UsersService', () => {
   describe('getAll', () => {
     it('should GET /api/v1/users and return UserProfile[]', () => {
@@ -116,46 +129,57 @@ describe('UsersService', () => {
     it('should POST to /api/v1/users with correct payload', () => {
       const { service, httpMock } = setupService();
 
-      const payload: CreateUserPayload = {
-        username: 'charlie',
-        email: 'charlie@logicedu.com',
-        fullName: 'Charlie Brown',
-        password: 'secret123',
-      };
-
       const created: UserProfile = {
         id: 'u3',
-        username: payload.username,
-        email: payload.email,
-        fullName: payload.fullName,
+        username: 'charlie',
+        email: mockCreatePayload.email,
+        fullName: `${mockCreatePayload.firstGivenName} ${mockCreatePayload.firstFamilyName}`,
         status: 'ACTIVE',
         createdAt: '2026-03-01T00:00:00Z',
       };
 
       let result: UserProfile | undefined;
-      service.create(payload).subscribe((user: UserProfile) => (result = user));
+      service.create(mockCreatePayload).subscribe((user: UserProfile) => (result = user));
 
       const req = httpMock.expectOne('/api/v1/users');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(payload);
+      expect(req.request.body).toEqual(mockCreatePayload);
 
       req.flush(created);
 
       expect(result).toEqual(created);
     });
 
+    it('should include optional fields in payload', () => {
+      const { service, httpMock } = setupService();
+
+      const fullPayload: CreateUserPayload = {
+        ...mockCreatePayload,
+        secondGivenName: 'Andrés',
+        secondFamilyName: 'López',
+        scopeType: 'SCHOOL',
+        scopeRefId: 'school-abc',
+      };
+
+      let result: UserProfile | undefined;
+      service.create(fullPayload).subscribe((user: UserProfile) => (result = user));
+
+      const req = httpMock.expectOne('/api/v1/users');
+      expect(req.request.method).toBe('POST');
+
+      const body = req.request.body as CreateUserPayload;
+      expect(body.secondGivenName).toBe('Andrés');
+      expect(body.secondFamilyName).toBe('López');
+      expect(body.scopeRefId).toBe('school-abc');
+
+      req.flush({ id: 'u4', email: fullPayload.email, status: 'ACTIVE' });
+    });
+
     it('should propagate 409 conflict on duplicate email', () => {
       const { service, httpMock } = setupService();
 
-      const payload: CreateUserPayload = {
-        username: 'alice_dupe',
-        email: 'alice@logicedu.com',
-        fullName: 'Alice Dupe',
-        password: 'secret123',
-      };
-
       let errorStatus: number | undefined;
-      service.create(payload).subscribe({
+      service.create(mockCreatePayload).subscribe({
         error: (err: { status: number }) => (errorStatus = err.status),
       });
 

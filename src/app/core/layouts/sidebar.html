@@ -48,18 +48,12 @@
     }
   </nav>
 
-  <!-- User menu at bottom -->
-  <div class="sidebar-user" data-testid="sidebar-user">
-    <div class="user-avatar">
-      <svg lucideUser></svg>
+  <!-- Footer branding -->
+  @if (!collapsed()) {
+    <div class="sidebar-footer" data-testid="sidebar-footer">
+      <span class="footer-version">LogicEdu v1.0</span>
     </div>
-    @if (!collapsed()) {
-      <span class="user-name" data-testid="user-name">{{ userName() }}</span>
-      <button class="logout-btn" (click)="logout()" data-testid="logout-btn" title="Cerrar sesión">
-        <svg lucideLogOut></svg>
-      </button>
-    }
-  </div>
+  }
 
   <!-- Collapse toggle -->
   <button

@@ -48,8 +48,25 @@
     <button class="bell-btn" data-testid="topnav-bell">
       <svg lucideBell></svg>
     </button>
-    <div class="avatar">
-      <span class="avatar-text">PA</span>
+    <div class="avatar-dropdown" data-testid="user-menu">
+      <button class="avatar-btn" (click)="toggleMenu()">
+        <span class="avatar-text">{{ initials() }}</span>
+        <span class="user-name">{{ userName() }}</span>
+        <svg lucideChevronDown class="chevron"></svg>
+      </button>
+      @if (menuOpen()) {
+        <div class="dropdown-menu" data-testid="dropdown-menu">
+          <div class="dropdown-header">
+            <svg lucideUser></svg>
+            <span>{{ userName() }}</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout-item" (click)="logout()" data-testid="logout-btn">
+            <svg lucideLogOut></svg>
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+      }
     </div>
   </div>
 </header>

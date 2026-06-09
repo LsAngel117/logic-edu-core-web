@@ -9,10 +9,19 @@ export interface UserProfile {
 }
 
 export interface CreateUserPayload {
-  username: string;
   email: string;
-  fullName: string;
-  password: string;
+  rawPassword: string;
+  firstGivenName: string;
+  secondGivenName?: string;
+  firstFamilyName: string;
+  secondFamilyName?: string;
+  sex: 'MALE' | 'FEMALE';
+  birthDate: string;
+  documentType: string;
+  documentValue: string;
+  role: string;
+  scopeType: string;
+  scopeRefId?: string;
 }
 
 export interface ChangeStatusRequest {

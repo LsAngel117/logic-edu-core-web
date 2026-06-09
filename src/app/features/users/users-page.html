@@ -58,73 +58,93 @@
     />
   </div>
 
-  <!-- Filters Card -->
-  <div class="filters-card" data-testid="filters-card">
-    <div class="filters-card__grid">
-      <!-- Role Filter -->
-      <div class="filter-field">
-        <label class="filter-label">Rol</label>
-        <select
-          class="filter-select"
-          data-testid="role-filter"
-          [value]="roleFilter()"
-          (change)="setRoleFilter($any($event.target).value)"
-        >
-          <option value="Todos">Todos</option>
-          <option value="PLATFORM_ADMIN">Platform Admin</option>
-          <option value="SCHOOL_ADMIN">School Admin</option>
-          <option value="TEACHER">Teacher</option>
-          <option value="STUDENT">Student</option>
-        </select>
-      </div>
-
-      <!-- Status Filter -->
-      <div class="filter-field">
-        <label class="filter-label">Estado</label>
-        <select
-          class="filter-select"
-          data-testid="status-filter"
-          [value]="statusFilter()"
-          (change)="setStatusFilter($any($event.target).value)"
-        >
-          <option value="Todos">Todos</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="INACTIVE">Inactivo</option>
-        </select>
-      </div>
-
-      <!-- Search -->
-      <div class="filter-field filter-field--span-2">
-        <label class="filter-label">Buscar</label>
-        <div class="search-wrapper">
-          <svg lucideSearch class="search-icon"></svg>
-          <input
-            class="search-input"
-            type="search"
-            data-testid="users-search"
-            [value]="searchTerm()"
-            (input)="onSearchInput($event)"
-            placeholder="Buscar por nombre, email o username..."
-          />
-          @if (searchTerm()) {
-          <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar búsqueda">
-            &times;
-          </button>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Users Table Card -->
+  <!-- Users Table Card (Fix 4: filters integrated into card toolbar) -->
   @if (filteredUsers().length > 0) {
   <div class="table-card">
+    <!-- Toolbar: filters + page-size + new user button -->
     <div class="table-card__toolbar">
-      <span class="table-card__count">
-        Mostrando <strong>{{ filteredUsers().length }}</strong> registros
-      </span>
+      <div class="toolbar-filters">
+        <!-- Role Filter -->
+        <div class="filter-field">
+          <label class="filter-label">Rol</label>
+          <select
+            class="filter-select"
+            data-testid="role-filter"
+            [value]="roleFilter()"
+            (change)="setRoleFilter($any($event.target).value)"
+          >
+            <option value="Todos">Todos</option>
+            <option value="PLATFORM_ADMIN">Platform Admin</option>
+            <option value="SCHOOL_ADMIN">School Admin</option>
+            <option value="TEACHER">Teacher</option>
+            <option value="STUDENT">Student</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-field">
+          <label class="filter-label">Estado</label>
+          <select
+            class="filter-select"
+            data-testid="status-filter"
+            [value]="statusFilter()"
+            (change)="setStatusFilter($any($event.target).value)"
+          >
+            <option value="Todos">Todos</option>
+            <option value="ACTIVE">Activo</option>
+            <option value="INACTIVE">Inactivo</option>
+          </select>
+        </div>
+
+        <!-- Search (Fix 2: type="text" to prevent browser navigation) -->
+        <div class="filter-field filter-field--search">
+          <label class="filter-label">Buscar</label>
+          <div class="search-wrapper">
+            <svg lucideSearch class="search-icon"></svg>
+            <input
+              class="search-input"
+              type="text"
+              data-testid="users-search"
+              [value]="searchTerm()"
+              (input)="onSearchInput($event)"
+              placeholder="Buscar por nombre, email o username..."
+            />
+            @if (searchTerm()) {
+            <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+              &times;
+            </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <!-- Nuevo Usuario button in toolbar -->
+        <button class="btn-primary btn-primary--sm" data-testid="create-user-btn-toolbar" (click)="openCreateDialog()">
+          <svg lucideUserPlus class="btn-icon btn-icon--sm"></svg>
+          Nuevo
+        </button>
+      </div>
     </div>
 
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table -->
     <div class="table-card__table-wrapper">
       <table class="users-table">
         <thead>
@@ -136,7 +156,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (user of filteredUsers(); track user.id) {
+          @for (user of paginatedUsers(); track user.id) {
           <tr class="user-row" data-testid="user-row">
             <!-- User info with avatar -->
             <td class="user-cell">
@@ -149,14 +169,14 @@
               </div>
             </td>
 
-            <!-- Role badge -->
+            <!-- Role badge (Fix 5: show "—" when role undefined) -->
             <td>
               <span
                 class="role-badge"
                 data-testid="role-badge"
                 [style.background-color]="roleColor(user.role)"
               >
-                {{ user.role ?? 'STUDENT' }}
+                {{ user.role ?? '—' }}
               </span>
             </td>
 
@@ -203,6 +223,45 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination footer (Fix 3: below table) -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredUsers().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
+      </div>
+    </div>
   </div>
   }
 
@@ -217,65 +276,12 @@
 
   }
 
-  <!-- ======= CREATE USER DIALOG ======= -->
-  <app-dialog
-    title="Crear Usuario"
-    confirmLabel="Crear"
-    [loading]="createLoading()"
+  <!-- ======= CREATE USER DIALOG (Fix 6: standalone component) ======= -->
+  <app-create-user
     [(visible)]="createDialogVisible"
-    (confirm)="submitCreateUser()"
+    (created)="onUserCreated()"
     (cancel)="closeCreateDialog()"
-  >
-    <div class="dialog-form">
-      <div class="dialog-field">
-        <label class="dialog-label">Username</label>
-        <input
-          class="dialog-input"
-          type="text"
-          [value]="createForm().username"
-          (input)="updateCreateForm('username', $event)"
-          placeholder="nombre.usuario"
-        />
-      </div>
-
-      <div class="dialog-field">
-        <label class="dialog-label">Email</label>
-        <input
-          class="dialog-input"
-          type="email"
-          [value]="createForm().email"
-          (input)="updateCreateForm('email', $event)"
-          placeholder="usuario@logicedu.com"
-        />
-      </div>
-
-      <div class="dialog-field">
-        <label class="dialog-label">Nombre completo</label>
-        <input
-          class="dialog-input"
-          type="text"
-          [value]="createForm().fullName"
-          (input)="updateCreateForm('fullName', $event)"
-          placeholder="Nombre y apellido"
-        />
-      </div>
-
-      <div class="dialog-field">
-        <label class="dialog-label">Contraseña</label>
-        <input
-          class="dialog-input"
-          type="password"
-          [value]="createForm().password"
-          (input)="updateCreateForm('password', $event)"
-          placeholder="Mínimo 8 caracteres"
-        />
-      </div>
-
-      @if (createError()) {
-      <div class="dialog-error">{{ createError() }}</div>
-      }
-    </div>
-  </app-dialog>
+  />
 
   <!-- ======= STATUS DIALOG ======= -->
   <app-confirmation-dialog

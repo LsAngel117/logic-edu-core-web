@@ -7,49 +7,191 @@
   (cancel)="onCancel()"
 >
   <div class="dialog-form">
-    <div class="dialog-field">
-      <label class="dialog-label">Username</label>
-      <input
-        class="dialog-input"
-        type="text"
-        [value]="username()"
-        (input)="updateField('username', $event)"
-        placeholder="nombre.usuario"
-      />
+    <!-- Row 1: Email + Password -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Email *</label>
+        <input
+          class="dialog-input"
+          type="email"
+          data-testid="create-email"
+          [value]="email()"
+          (input)="updateTextField('email', $event)"
+          placeholder="usuario@institucion.edu.co"
+        />
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Contraseña *</label>
+        <input
+          class="dialog-input"
+          type="password"
+          data-testid="create-password"
+          [value]="rawPassword()"
+          (input)="updateTextField('rawPassword', $event)"
+          placeholder="Mínimo 8 caracteres"
+        />
+      </div>
     </div>
 
-    <div class="dialog-field">
-      <label class="dialog-label">Email</label>
-      <input
-        class="dialog-input"
-        type="email"
-        [value]="email()"
-        (input)="updateField('email', $event)"
-        placeholder="usuario@logicedu.com"
-      />
+    <!-- Row 2: Primer Nombre + Segundo Nombre -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Primer Nombre *</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-firstGivenName"
+          [value]="firstGivenName()"
+          (input)="updateTextField('firstGivenName', $event)"
+          placeholder="Juan"
+        />
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Segundo Nombre</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-secondGivenName"
+          [value]="secondGivenName()"
+          (input)="updateTextField('secondGivenName', $event)"
+          placeholder="Carlos (opcional)"
+        />
+      </div>
     </div>
 
-    <div class="dialog-field">
-      <label class="dialog-label">Nombre completo</label>
-      <input
-        class="dialog-input"
-        type="text"
-        [value]="fullName()"
-        (input)="updateField('fullName', $event)"
-        placeholder="Nombre y apellido"
-      />
+    <!-- Row 3: Primer Apellido + Segundo Apellido -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Primer Apellido *</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-firstFamilyName"
+          [value]="firstFamilyName()"
+          (input)="updateTextField('firstFamilyName', $event)"
+          placeholder="Pérez"
+        />
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Segundo Apellido</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-secondFamilyName"
+          [value]="secondFamilyName()"
+          (input)="updateTextField('secondFamilyName', $event)"
+          placeholder="Gómez (opcional)"
+        />
+      </div>
     </div>
 
-    <div class="dialog-field">
-      <label class="dialog-label">Contraseña</label>
-      <input
-        class="dialog-input"
-        type="password"
-        [value]="password()"
-        (input)="updateField('password', $event)"
-        placeholder="Mínimo 8 caracteres"
-      />
+    <!-- Row 4: Sexo + Fecha de Nacimiento -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Sexo *</label>
+        <select
+          class="dialog-select"
+          data-testid="create-sex"
+          [value]="sex()"
+          (change)="updateSelectField('sex', $event)"
+        >
+          <option value="" disabled>Seleccionar...</option>
+          <option value="MALE">Masculino</option>
+          <option value="FEMALE">Femenino</option>
+        </select>
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Fecha de Nacimiento *</label>
+        <input
+          class="dialog-input"
+          type="date"
+          data-testid="create-birthDate"
+          [value]="birthDate()"
+          (input)="updateTextField('birthDate', $event)"
+        />
+      </div>
     </div>
+
+    <!-- Row 5: Tipo Documento + Número Documento -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Tipo Documento *</label>
+        <select
+          class="dialog-select"
+          data-testid="create-documentType"
+          [value]="documentType()"
+          (change)="updateSelectField('documentType', $event)"
+        >
+          <option value="" disabled>Seleccionar...</option>
+          <option value="CC">CC — Cédula de Ciudadanía</option>
+          <option value="TI">TI — Tarjeta de Identidad</option>
+          <option value="CE">CE — Cédula de Extranjería</option>
+          <option value="PP">PP — Pasaporte</option>
+        </select>
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Número Documento *</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-documentValue"
+          [value]="documentValue()"
+          (input)="updateTextField('documentValue', $event)"
+          placeholder="1234567890"
+        />
+      </div>
+    </div>
+
+    <!-- Row 6: Rol + Tipo Alcance -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Rol *</label>
+        <select
+          class="dialog-select"
+          data-testid="create-role"
+          [value]="role()"
+          (change)="updateSelectField('role', $event)"
+        >
+          <option value="" disabled>Seleccionar...</option>
+          <option value="PLATFORM_ADMIN">Platform Admin</option>
+          <option value="SCHOOL_ADMIN">School Admin</option>
+          <option value="TEACHER">Teacher</option>
+          <option value="STUDENT">Student</option>
+        </select>
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Tipo Alcance *</label>
+        <select
+          class="dialog-select"
+          data-testid="create-scopeType"
+          [value]="scopeType()"
+          (change)="updateSelectField('scopeType', $event)"
+        >
+          <option value="" disabled>Seleccionar...</option>
+          <option value="SCHOOL">Colegio</option>
+          <option value="BRANCH">Sede</option>
+          <option value="ALL">Todos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Row 7: ID Alcance (conditional) -->
+    @if (showScopeRefId()) {
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">ID Alcance</label>
+        <input
+          class="dialog-input"
+          type="text"
+          data-testid="create-scopeRefId"
+          [value]="scopeRefId()"
+          (input)="updateTextField('scopeRefId', $event)"
+          placeholder="Identificador del colegio o sede"
+        />
+      </div>
+      <div class="dialog-field"></div>
+    </div>
+    }
 
     @if (errorMessage()) {
     <div class="dialog-error">{{ errorMessage() }}</div>

@@ -58,11 +58,22 @@ $font-family: 'Roboto', sans-serif;
   &:active {
     transform: translateY(0);
   }
+
+  &--sm {
+    padding: $spacing-unit $spacing-unit * 2;
+    font-size: 13px;
+    border-radius: 10px;
+  }
 }
 
 .btn-icon {
   width: 18px;
   height: 18px;
+
+  &--sm {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* ---- Error Card ---- */
@@ -161,71 +172,54 @@ $font-family: 'Roboto', sans-serif;
   }
 }
 
-/* ---- Filters Card ---- */
-.filters-card {
-  background: #fff;
-  border-radius: $radius-card;
-  box-shadow: $shadow-card;
-  padding: $spacing-unit * 3;
-  margin-bottom: $spacing-unit * 3;
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: $spacing-unit * 2;
-    align-items: end;
-
-    @media (max-width: 1024px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-
+/* ---- Filter Field ---- */
 .filter-field {
   display: flex;
   flex-direction: column;
   gap: $spacing-unit;
 
-  &--span-2 {
-    @media (min-width: 1025px) {
-      grid-column: span 2;
-    }
+  &--search {
+    min-width: 0;
+    flex: 1;
   }
 }
 
 .filter-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: $gray-600;
+  font-size: 12px;
+  font-weight: 600;
+  color: $gray-500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .filter-select {
-  height: 44px;
+  height: 38px;
   padding: 0 $spacing-unit * 1.5;
   font-family: $font-family;
-  font-size: 14px;
+  font-size: 13px;
   color: $gray-800;
   background: $gray-50;
   border: 1.5px solid $gray-200;
-  border-radius: $radius-input;
+  border-radius: 10px;
   outline: none;
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
+  background-position: right 10px center;
+  padding-right: 34px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
 
   &:focus {
     border-color: $primary;
     box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+
+  &--compact {
+    width: 64px;
+    padding-right: 28px;
+    background-position: right 6px center;
   }
 }
 
@@ -239,22 +233,22 @@ $font-family: 'Roboto', sans-serif;
 .search-icon {
   position: absolute;
   left: 12px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   color: $gray-400;
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  height: 44px;
-  padding: 0 $spacing-unit * 5 0 $spacing-unit * 5;
+  height: 38px;
+  padding: 0 $spacing-unit * 4.5 0 $spacing-unit * 4.5;
   font-family: $font-family;
-  font-size: 14px;
+  font-size: 13px;
   color: $gray-800;
   background: $gray-50;
   border: 1.5px solid $gray-200;
-  border-radius: $radius-input;
+  border-radius: 10px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 
@@ -274,11 +268,11 @@ $font-family: 'Roboto', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: none;
-  font-size: 20px;
+  font-size: 18px;
   color: $gray-400;
   cursor: pointer;
   border-radius: 50%;
@@ -299,24 +293,48 @@ $font-family: 'Roboto', sans-serif;
 
   &__toolbar {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     padding: $spacing-unit * 2 $spacing-unit * 3;
-    border-bottom: 1px solid $gray-100;
+    gap: $spacing-unit * 2;
+    flex-wrap: wrap;
   }
 
-  &__count {
-    font-size: 13px;
-    color: $gray-500;
-
-    strong {
-      color: $gray-700;
-    }
+  &__divider {
+    height: 1px;
+    background: $gray-100;
   }
 
   &__table-wrapper {
     overflow-x: auto;
   }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 1.5 $spacing-unit * 3;
+    border-top: 1px solid $gray-100;
+    flex-wrap: wrap;
+    gap: $spacing-unit;
+  }
+}
+
+/* ---- Toolbar internals ---- */
+.toolbar-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-unit * 2;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-unit * 1.5;
+  flex-shrink: 0;
 }
 
 /* ---- Users Table ---- */
@@ -469,52 +487,63 @@ $font-family: 'Roboto', sans-serif;
   }
 }
 
-/* ---- Dialog Form ---- */
-.dialog-form {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-unit * 2;
-}
-
-.dialog-field {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-unit;
-}
-
-.dialog-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: $gray-600;
-}
-
-.dialog-input {
-  height: 44px;
-  padding: 0 $spacing-unit * 1.5;
-  font-family: $font-family;
-  font-size: 14px;
-  color: $gray-800;
-  background: $gray-50;
-  border: 1.5px solid $gray-200;
-  border-radius: $radius-input;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-
-  &::placeholder {
-    color: $gray-400;
+/* ---- Pagination ---- */
+.pagination {
+  &__info {
+    font-size: 13px;
+    color: $gray-500;
   }
 
-  &:focus {
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
-}
 
-.dialog-error {
-  padding: $spacing-unit * 1.5;
-  background: rgba($danger, 0.08);
-  color: $danger;
-  border-radius: $radius-input;
-  font-size: 13px;
-  font-weight: 500;
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid $gray-200;
+    border-radius: 10px;
+    color: $gray-600;
+    font-family: $font-family;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover:not(:disabled) {
+      background: $gray-50;
+      border-color: $gray-300;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--num {
+      min-width: 36px;
+    }
+
+    &--active {
+      background: $primary;
+      color: #fff;
+      border-color: $primary;
+
+      &:hover {
+        background: $primary-hover;
+        border-color: $primary-hover;
+      }
+    }
+  }
 }
