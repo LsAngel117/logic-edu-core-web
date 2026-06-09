@@ -9,6 +9,7 @@ import {
   LucidePencil,
   LucidePower,
   LucideShield,
+  LucideDownload,
   LucideChevronLeft,
   LucideChevronRight,
 } from '@lucide/angular';
@@ -67,6 +68,13 @@ const STATUS_CLASSES: Record<string, string> = {
     CreateUserDialogComponent,
     LucideUserPlus,
     LucideSearch,
+    LucideEye,
+    LucidePencil,
+    LucidePower,
+    LucideShield,
+    LucideDownload,
+    LucideChevronLeft,
+    LucideChevronRight,
     LucideEye,
     LucidePencil,
     LucidePower,
@@ -259,13 +267,21 @@ export class UsersPageComponent {
     this.currentPage.set(1);
   }
 
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchTerm.set(input.value);
+    // Debounce to avoid re-renders on every keystroke
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.searchTerm.set(input.value);
+    }, 200);
   }
 
-  clearSearch(): void {
+  clearSearch(input: HTMLInputElement): void {
     this.searchTerm.set('');
+    input.value = '';
+    input.focus();
   }
 
   /* ---- Pagination handlers ------------------------------------------- */

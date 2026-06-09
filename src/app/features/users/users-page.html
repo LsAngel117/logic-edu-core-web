@@ -58,62 +58,65 @@
     />
   </div>
 
-  <!-- Users Table Card (Fix 4: filters integrated into card toolbar) -->
-  @if (filteredUsers().length > 0) {
+  <!-- Users Table Card -->
   <div class="table-card">
-    <!-- Toolbar: filters + page-size + new user button -->
+    <!-- Toolbar: "Filtros de búsqueda" label + filters row -->
     <div class="table-card__toolbar">
       <div class="toolbar-filters">
-        <!-- Role Filter -->
-        <div class="filter-field">
-          <label class="filter-label">Rol</label>
-          <select
-            class="filter-select"
-            data-testid="role-filter"
-            [value]="roleFilter()"
-            (change)="setRoleFilter($any($event.target).value)"
-          >
-            <option value="Todos">Todos</option>
-            <option value="PLATFORM_ADMIN">Platform Admin</option>
-            <option value="SCHOOL_ADMIN">School Admin</option>
-            <option value="TEACHER">Teacher</option>
-            <option value="STUDENT">Student</option>
-          </select>
-        </div>
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Role Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Rol</label>
+            <select
+              class="filter-select"
+              data-testid="role-filter"
+              [value]="roleFilter()"
+              (change)="setRoleFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="PLATFORM_ADMIN">Platform Admin</option>
+              <option value="SCHOOL_ADMIN">School Admin</option>
+              <option value="TEACHER">Teacher</option>
+              <option value="STUDENT">Student</option>
+            </select>
+          </div>
 
-        <!-- Status Filter -->
-        <div class="filter-field">
-          <label class="filter-label">Estado</label>
-          <select
-            class="filter-select"
-            data-testid="status-filter"
-            [value]="statusFilter()"
-            (change)="setStatusFilter($any($event.target).value)"
-          >
-            <option value="Todos">Todos</option>
-            <option value="ACTIVE">Activo</option>
-            <option value="INACTIVE">Inactivo</option>
-          </select>
-        </div>
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
+            </select>
+          </div>
 
-        <!-- Search (Fix 2: type="text" to prevent browser navigation) -->
-        <div class="filter-field filter-field--search">
-          <label class="filter-label">Buscar</label>
-          <div class="search-wrapper">
-            <svg lucideSearch class="search-icon"></svg>
-            <input
-              class="search-input"
-              type="text"
-              data-testid="users-search"
-              [value]="searchTerm()"
-              (input)="onSearchInput($event)"
-              placeholder="Buscar por nombre, email o username..."
-            />
-            @if (searchTerm()) {
-            <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar búsqueda">
-              &times;
-            </button>
-            }
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="users-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre, email o username..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -133,10 +136,16 @@
           </select>
         </div>
 
-        <!-- Nuevo Usuario button in toolbar -->
+        <!-- Export button (placeholder) -->
+        <button class="btn-outline btn-outline--sm">
+          <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+          Exportar
+        </button>
+
+        <!-- Nuevo Usuario button -->
         <button class="btn-primary btn-primary--sm" data-testid="create-user-btn-toolbar" (click)="openCreateDialog()">
           <svg lucideUserPlus class="btn-icon btn-icon--sm"></svg>
-          Nuevo
+          Nuevo Usuario
         </button>
       </div>
     </div>
@@ -144,7 +153,8 @@
     <!-- Divider -->
     <div class="table-card__divider"></div>
 
-    <!-- Table -->
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredUsers().length > 0) {
     <div class="table-card__table-wrapper">
       <table class="users-table">
         <thead>
@@ -270,15 +280,23 @@
         </button>
       </div>
     </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="users-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron usuarios con los filtros actuales.</p>
+    </div>
+    }
   </div>
   }
 
-  <!-- Empty State -->
-  @if (filteredUsers().length === 0) {
+  <!-- Empty State (no users at all) -->
+  @if (users().length === 0 && !loading() && !error()) {
   <app-empty-state
     icon="users"
     title="No hay usuarios registrados"
-    [description]="searchTerm() ? 'No se encontraron usuarios con los filtros actuales.' : 'Comienza agregando el primer usuario a la plataforma.'"
+    description="Comienza agregando el primer usuario a la plataforma."
   />
   }
 
