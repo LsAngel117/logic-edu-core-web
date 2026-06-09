@@ -37,6 +37,13 @@ const ROLE_COLORS: Record<string, string> = {
   STUDENT: '#F59E0B',
 };
 
+const ROLE_BG: Record<string, string> = {
+  PLATFORM_ADMIN: 'rgba(37, 99, 235, 0.1)',
+  SCHOOL_ADMIN: 'rgba(59, 130, 246, 0.1)',
+  TEACHER: 'rgba(16, 185, 129, 0.1)',
+  STUDENT: 'rgba(245, 158, 11, 0.1)',
+};
+
 const STATUS_CLASSES: Record<string, string> = {
   ACTIVE: 'status--active',
   INACTIVE: 'status--inactive',
@@ -348,6 +355,10 @@ export class UsersPageComponent {
 
   roleColor(role: string | undefined): string {
     return ROLE_COLORS[role ?? ''] ?? '#6B7280';
+  }
+
+  roleBg(role: string | undefined): string {
+    return ROLE_BG[role ?? ''] ?? 'rgba(107, 114, 128, 0.1)';
   }
 
   statusClass(status: string): string {

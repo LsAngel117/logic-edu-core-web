@@ -150,6 +150,7 @@
         <thead>
           <tr>
             <th>Usuario</th>
+            <th>Username</th>
             <th>Rol</th>
             <th>Estado</th>
             <th class="users-table__th--actions">Acciones</th>
@@ -169,14 +170,21 @@
               </div>
             </td>
 
-            <!-- Role badge (Fix 5: show "—" when role undefined) -->
+            <!-- Username -->
+            <td>
+              <span class="user-username">{{ user.username }}</span>
+            </td>
+
+            <!-- Role badge -->
             <td>
               <span
                 class="role-badge"
                 data-testid="role-badge"
-                [style.background-color]="roleColor(user.role)"
+                [style.background-color]="roleBg(user.role)"
+                [style.color]="roleColor(user.role)"
               >
-                {{ user.role ?? '—' }}
+                <svg lucideShield class="role-icon"></svg>
+                {{ user.role || 'Sin rol' }}
               </span>
             </td>
 

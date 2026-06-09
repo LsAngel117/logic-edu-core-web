@@ -423,13 +423,26 @@ $font-family: 'Roboto', sans-serif;
 
 /* ---- Role Badge ---- */
 .role-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
   white-space: nowrap;
+}
+
+.role-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.user-username {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* ---- Status Badge ---- */
