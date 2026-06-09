@@ -238,7 +238,7 @@ describe('UsersPageComponent', () => {
 
   // --- Role fallback (Fix 5) ---
 
-  it('should display "—" when role is undefined', async () => {
+  it('should display "Sin rol" when role is undefined', async () => {
     setupComponent();
     const userNoRole: UserProfile = {
       id: 'u4',
@@ -257,7 +257,7 @@ describe('UsersPageComponent', () => {
 
     const roleBadge = fixture.nativeElement.querySelector('[data-testid="role-badge"]');
     expect(roleBadge).toBeTruthy();
-    expect(roleBadge.textContent?.trim()).toBe('—');
+    expect(roleBadge.textContent?.trim()).toContain('Sin rol');
   });
 
   it('should return gray color for undefined role', () => {
@@ -284,6 +284,8 @@ describe('UsersPageComponent', () => {
 
     searchInput.value = 'Alice';
     searchInput.dispatchEvent(new Event('input'));
+    // Wait for debounce (200ms)
+    await new Promise((r) => setTimeout(r, 250));
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('[data-testid="user-row"]');
