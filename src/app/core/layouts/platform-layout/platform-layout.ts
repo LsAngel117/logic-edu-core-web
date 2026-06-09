@@ -34,10 +34,13 @@ export class PlatformLayout {
         return [
           { label: 'Usuarios', icon: 'users', route: '/users' },
           { label: 'Instituciones', icon: 'building-2', route: '/schools' },
-          { label: 'Membresías', icon: 'key', route: '/memberships' },
         ];
       default:
         return [];
     }
   });
+
+  toggleSidebar(): void {
+    this.collapsed.update((v) => !v);
+  }
 }

@@ -7,6 +7,8 @@
     <app-sidebar
       [navItems]="contextualNavItems()"
       [collapsed]="collapsed()"
+      [showBranding]="false"
+      (toggleCollapsed)="toggleSidebar()"
     />
     <main class="platform-content">
       <router-outlet />

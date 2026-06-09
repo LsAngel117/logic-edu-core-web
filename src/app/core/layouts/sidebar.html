@@ -3,15 +3,17 @@
   [class.collapsed]="collapsed()"
   data-testid="sidebar"
 >
-  <!-- Branding -->
-  <div class="branding">
-    <span class="brand-icon">
-      <svg lucideLayoutDashboard></svg>
-    </span>
-    @if (!collapsed()) {
-      <span class="brand-text">LogicEdu</span>
-    }
-  </div>
+  <!-- Branding — hidden in PlatformLayout -->
+  @if (showBranding()) {
+    <div class="branding">
+      <span class="brand-icon">
+        <svg lucideLayoutDashboard></svg>
+      </span>
+      @if (!collapsed()) {
+        <span class="brand-text">LogicEdu</span>
+      }
+    </div>
+  }
 
   <!-- Navigation items -->
   <nav class="nav-list">
@@ -46,12 +48,18 @@
     }
   </nav>
 
-  <!-- Footer branding -->
-  @if (!collapsed()) {
-    <div class="sidebar-footer" data-testid="sidebar-footer">
-      <span class="footer-version">LogicEdu v1.0</span>
+  <!-- User menu at bottom -->
+  <div class="sidebar-user" data-testid="sidebar-user">
+    <div class="user-avatar">
+      <svg lucideUser></svg>
     </div>
-  }
+    @if (!collapsed()) {
+      <span class="user-name" data-testid="user-name">{{ userName() }}</span>
+      <button class="logout-btn" (click)="logout()" data-testid="logout-btn" title="Cerrar sesión">
+        <svg lucideLogOut></svg>
+      </button>
+    }
+  </div>
 
   <!-- Collapse toggle -->
   <button
