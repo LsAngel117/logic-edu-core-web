@@ -34,7 +34,25 @@ export class AuthService {
   async login(email: string, password: string): Promise<void> {
     const body: LoginRequest = { email, rawPassword: password };
     const response = await firstValueFrom(this.http.post<{ token: string }>('/auth/login', body));
-    this.persist(response.token);
+    const user = this.decodeToken(response.token);
+    this.token.set(response.token);
+    this.user.set(user);
+    localStorage.setItem(TOKEN_KEY, response.token);
+
+    // Fetch real roles from memberships API (JWT may not include them)
+    const roles = await this.fetchRoles(user.id);
+    this.user.update((u) => u ? { ...u, roles } : null);
+  }
+
+  private async fetchRoles(userId: string): Promise<string[]> {
+    try {
+      const memberships = await firstValueFrom(
+        this.http.get<{ role: string; active: boolean }[]>(`/api/v1/memberships/users/${userId}`)
+      );
+      return memberships.filter((m) => m.active).map((m) => m.role);
+    } catch {
+      return [];
+    }
   }
 
   logout(): void {
@@ -43,7 +61,7 @@ export class AuthService {
     this.user.set(null);
   }
 
-  private restore(): void {
+  private async restore(): Promise<void> {
     const stored = localStorage.getItem(TOKEN_KEY);
     if (!stored) return;
 
@@ -51,16 +69,13 @@ export class AuthService {
       const user = this.decodeToken(stored);
       this.token.set(stored);
       this.user.set(user);
+
+      // Fetch real roles from memberships API
+      const roles = await this.fetchRoles(user.id);
+      this.user.update((u) => u ? { ...u, roles } : null);
     } catch {
       localStorage.removeItem(TOKEN_KEY);
     }
-  }
-
-  private persist(jwt: string): void {
-    localStorage.setItem(TOKEN_KEY, jwt);
-    const user = this.decodeToken(jwt);
-    this.token.set(jwt);
-    this.user.set(user);
   }
 
   private decodeToken(jwt: string): User {
