@@ -9,7 +9,11 @@ interface JwtPayload {
   sub: string;
   email: string;
   name: string;
-  roles: string[];
+  roles?: string[];
+  authorities?: string[];
+  scope?: string;
+  role?: string;
+  authority?: string;
   exp?: number;
   [key: string]: unknown;
 }
@@ -73,13 +77,31 @@ export class AuthService {
       throw new Error('JWT is expired');
     }
 
+    // Spring Security JWT may use 'authorities', 'scope', 'roles', or 'role' for the role claim
+    const roles = resolveRoles(payload);
+
     return {
       id: payload.sub,
       email: payload.email,
       username: payload.email,
       fullName: payload.name,
-      roles: payload.roles ?? [],
+      roles,
       token: jwt,
     };
   }
+}
+
+/** Resolves user roles from JWT claims — supports multiple Spring Security conventions. */
+function resolveRoles(payload: JwtPayload): string[] {
+  // Direct roles array
+  if (Array.isArray(payload.roles)) return payload.roles;
+  // Spring Security default: "authorities"
+  if (Array.isArray(payload.authorities)) return payload.authorities;
+  // Spring Security OAuth2: "scope" (space-separated)
+  if (typeof payload.scope === 'string') return payload.scope.split(' ');
+  // Single role string
+  if (typeof payload.role === 'string') return [payload.role];
+  // Single authority string
+  if (typeof payload.authority === 'string') return [payload.authority];
+  return [];
 }
