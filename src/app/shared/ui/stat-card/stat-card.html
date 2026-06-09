@@ -1,29 +1,33 @@
 <div class="stat-card">
-  <div class="stat-card__icon" data-testid="stat-icon">
+  <div
+    class="stat-card__icon"
+    data-testid="stat-icon"
+    [style.background-color]="iconBg()"
+  >
     @if (icon() === 'users') {
-      <svg lucideUsers></svg>
+      <svg lucideUsers [style.color]="iconColor()"></svg>
     } @else if (icon() === 'user-check') {
-      <svg lucideUserCheck></svg>
+      <svg lucideUserCheck [style.color]="iconColor()"></svg>
     } @else if (icon() === 'user-x') {
-      <svg lucideUserX></svg>
+      <svg lucideUserX [style.color]="iconColor()"></svg>
     } @else if (icon() === 'shield') {
-      <svg lucideShield></svg>
+      <svg lucideShield [style.color]="iconColor()"></svg>
     } @else if (icon() === 'building-2') {
-      <svg lucideBuilding2></svg>
+      <svg lucideBuilding2 [style.color]="iconColor()"></svg>
     } @else if (icon() === 'git-branch') {
-      <svg lucideGitBranch></svg>
+      <svg lucideGitBranch [style.color]="iconColor()"></svg>
     } @else if (icon() === 'inbox') {
-      <svg lucideInbox></svg>
+      <svg lucideInbox [style.color]="iconColor()"></svg>
     } @else if (icon() === 'school') {
-      <svg lucideSchool></svg>
+      <svg lucideSchool [style.color]="iconColor()"></svg>
     } @else if (icon() === 'book-open') {
-      <svg lucideBookOpen></svg>
+      <svg lucideBookOpen [style.color]="iconColor()"></svg>
     }
   </div>
 
-  <p class="stat-card__label" data-testid="stat-label">{{ label() }}</p>
-
   <p class="stat-card__value" data-testid="stat-value">{{ value() }}</p>
+
+  <p class="stat-card__label" data-testid="stat-label">{{ label() }}</p>
 
   @if (trend() !== undefined) {
     <div

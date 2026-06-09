@@ -38,4 +38,6 @@ export class StatCard {
   readonly label = input.required<string>();
   readonly value = input.required<number | string>();
   readonly trend = input<number>();
+  readonly iconColor = input('#2563eb');
+  readonly iconBg = input('rgba(37, 99, 235, 0.08)');
 }

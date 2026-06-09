@@ -40,21 +40,29 @@
       icon="users"
       label="Total Usuarios"
       [value]="totalUsers()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
     />
     <app-stat-card
       icon="user-check"
       label="Usuarios Activos"
       [value]="activeUsers()"
+      iconColor="#71dd37"
+      iconBg="rgba(113, 221, 55, 0.12)"
     />
     <app-stat-card
       icon="user-x"
       label="Usuarios Inactivos"
       [value]="inactiveUsers()"
+      iconColor="#ff3e1d"
+      iconBg="rgba(255, 62, 29, 0.08)"
     />
     <app-stat-card
       icon="shield"
       label="Administradores"
       [value]="adminUsers()"
+      iconColor="#f59e0b"
+      iconBg="rgba(245, 158, 11, 0.1)"
     />
   </div>
 
