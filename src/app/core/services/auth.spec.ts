@@ -111,13 +111,22 @@ describe('AuthService', () => {
       const req = httpMock.expectOne('/auth/login');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ email: 'test@logicedu.com', rawPassword: 'password123' });
-
       req.flush({ token: mockJwt });
+
+      // Let async fetchRoles() microtask run
+      await new Promise((r) => setTimeout(r, 0));
+
+      // Now flush the memberships request that fetchRoles() made
+      httpMock.expectOne(`/api/v1/memberships/users/${expectedUser.id}`).flush([
+        { role: 'teacher', active: true },
+      ]);
 
       await loginPromise;
 
+      // User should now have roles from memberships API
+      const expectedWithRoles = { ...expectedUser, roles: ['teacher'] };
       expect(localStorage.getItem(TEST_TOKEN_KEY)).toBe(mockJwt);
-      expect(service.user()).toEqual(expectedUser);
+      expect(service.user()).toEqual(expectedWithRoles);
       expect(service.token()).toBe(mockJwt);
       expect(service.isAuthenticated()).toBe(true);
     });
@@ -203,6 +212,10 @@ describe('AuthService', () => {
       // Login
       const loginPromise = service.login('test@logicedu.com', 'pass');
       httpMock.expectOne('/auth/login').flush({ token: mockJwt });
+      await new Promise((r) => setTimeout(r, 0));
+      httpMock.expectOne(`/api/v1/memberships/users/${expectedUser.id}`).flush([
+        { role: 'teacher', active: true },
+      ]);
       await loginPromise;
 
       expect(service.isAuthenticated()).toBe(true);
