@@ -11,6 +11,7 @@ interface JwtPayload {
   name: string;
   roles?: string[];
   authorities?: string[];
+  memberships?: { role: string }[];
   scope?: string;
   role?: string;
   authority?: string;
@@ -97,6 +98,10 @@ function resolveRoles(payload: JwtPayload): string[] {
   if (Array.isArray(payload.roles)) return payload.roles;
   // Spring Security default: "authorities"
   if (Array.isArray(payload.authorities)) return payload.authorities;
+  // Membership objects — extract role from each
+  if (Array.isArray(payload.memberships) && payload.memberships.length > 0) {
+    return payload.memberships.map((m) => m.role).filter(Boolean);
+  }
   // Spring Security OAuth2: "scope" (space-separated)
   if (typeof payload.scope === 'string') return payload.scope.split(' ');
   // Single role string
