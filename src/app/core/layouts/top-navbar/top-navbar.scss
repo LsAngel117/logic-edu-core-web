@@ -35,6 +35,26 @@
     color: #111827;
     white-space: nowrap;
   }
+
+  .brand {
+  font-family: Roboto, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: linear-gradient(
+    135deg,
+    #1462bb 0%,
+    #2775d4 25%,
+    #5287db 50%,
+    #2563eb 75%,
+    #22b1ee 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  }
+
 }
 
 .section-tabs {

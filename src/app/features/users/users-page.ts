@@ -61,7 +61,7 @@ const STATUS_CLASSES: Record<string, string> = {
   imports: [
     ReactiveFormsModule,
     RouterModule,
-    PageHeader,
+    /*PageHeader,*/
     StatCard,
     EmptyState,
     ConfirmationDialog,
