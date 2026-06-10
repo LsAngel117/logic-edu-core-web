@@ -9,7 +9,6 @@
   overflow: visible;
   transition: width 0.2s ease;
   flex-shrink: 0;
-  border-right: 1px solid #e5e7eb;
 
   &.collapsed {
     width: 64px !important;
@@ -60,7 +59,7 @@
 .sidebar-title {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: #e5e7eb;
   white-space: nowrap;
   transition: opacity 0.15s ease;
 }
@@ -91,7 +90,6 @@
     font-size: 1.125rem;
     font-weight: 600;
     color: #111827;
-    white-space: nowrap;
     transition: opacity 0.15s ease;
   }
 }
@@ -113,7 +111,6 @@
   padding: 0 12px;
   border-radius: 8px;
   color: #384551;
-  text-decoration: none;
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -126,12 +123,12 @@
   }
 
   &.active {
-    background: rgba(37, 99, 235, 0.08);
+    background: rgba(37, 99, 235, 0.12);
     color: #2563eb;
     border-left-color: #2563eb;
 
     .nav-icon {
-      color: #2563eb;
+    color: #2563eb;
     }
   }
 }
@@ -144,7 +141,6 @@
   min-width: 22px;
   height: 22px;
   color: #384551;
-  transition: color 0.15s ease;
 
   svg {
     width: 22px;
@@ -163,17 +159,18 @@
 .collapse-toggle {
   position: absolute;
   right: -14px;
-  top: 50%;
+  top: 3%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1.5px solid #d1d5db;
+  box-shadow: 0 0 0 6px #f3f4f6; 
+  border: 4px solid #3377f2;
   border-radius: 50%;
-  background: #ffffff;
-  color: #6b7280;
+  background: #3377f2;
+  color: #9ca3af;
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
@@ -181,14 +178,12 @@
   flex-shrink: 0;
 
   &:hover {
-    background: #f3f4f6;
-    color: #111827;
-    border-color: #9ca3af;
+    color: #ffffff;
   }
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -200,5 +195,64 @@
     font-size: 0.7rem;
     color: #9ca3af;
     font-weight: 400;
+  }
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+
+  .user-avatar {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: #60a5fa;
+    }
+  }
+
+  .user-name {
+    flex: 1;
+    font-size: 0.8rem;
+    color: #e5e7eb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+  color: #384551;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
