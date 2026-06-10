@@ -7,11 +7,10 @@ import {
   LucideBuilding2,
   LucideChevronLeft,
   LucideChevronRight,
-  LucideLogOut,
-  LucideUser,
 } from '@lucide/angular';
-import { AuthService } from '../../core/services/auth';
 import { NavItem } from './nav-items';
+
+type SidebarMode = 'expanded' | 'peek' | 'collapsed';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,24 +21,32 @@ import { NavItem } from './nav-items';
     LucideBuilding2,
     LucideChevronLeft,
     LucideChevronRight,
-    LucideLogOut,
-    LucideUser,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
-  readonly collapsed = input(false);
-  readonly toggleCollapsed = output<void>();
   readonly navItems = input<NavItem[]>([]);
   readonly showBranding = input(true);
+  readonly widthChange = output<number>();
 
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
 
   readonly activeRoute = signal(this.router.url);
-  readonly userName = computed(() => this.auth.user()?.fullName ?? 'Usuario');
+
+  /** expanded(260) → peek(hover 260/64) → collapsed(64) → expanded */
+  readonly mode = signal<SidebarMode>('expanded');
+
+  readonly isCollapsed = computed(() => this.mode() !== 'expanded');
+  readonly isPeek = computed(() => this.mode() === 'peek');
+  readonly isHovered = signal(false);
+
+  readonly sidebarWidth = computed(() => {
+    if (this.mode() === 'expanded') return 260;
+    if (this.mode() === 'peek' && this.isHovered()) return 260;
+    return 64;
+  });
 
   constructor() {
     this.router.events
@@ -54,11 +61,27 @@ export class Sidebar {
   };
 
   toggle(): void {
-    this.toggleCollapsed.emit();
+    const next: Record<SidebarMode, SidebarMode> = {
+      expanded: 'peek',
+      peek: 'collapsed',
+      collapsed: 'expanded',
+    };
+    this.mode.set(next[this.mode()]);
+    this.isHovered.set(false);
+    this.widthChange.emit(this.sidebarWidth());
   }
 
-  logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/auth/login']);
+  onMouseEnter(): void {
+    if (this.mode() === 'peek') {
+      this.isHovered.set(true);
+      this.widthChange.emit(260);
+    }
+  }
+
+  onMouseLeave(): void {
+    if (this.mode() === 'peek') {
+      this.isHovered.set(false);
+      this.widthChange.emit(64);
+    }
   }
 }

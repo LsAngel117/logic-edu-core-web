@@ -18,7 +18,7 @@ export class AppLayout {
   private readonly breakpoint = inject(BreakpointObserver);
   private readonly auth = inject(AuthService);
 
-  readonly collapsed = signal(false);
+  readonly sidebarWidth = signal(260);
   readonly isMobile = signal(false);
   readonly sidenavMode = signal<'side' | 'over'>('side');
   readonly sidenavOpened = signal(true);
@@ -35,19 +35,10 @@ export class AppLayout {
       if (mobile) {
         this.sidenavMode.set('over');
         this.sidenavOpened.set(false);
-        this.collapsed.set(false);
       } else {
         this.sidenavMode.set('side');
         this.sidenavOpened.set(true);
       }
     });
-  }
-
-  toggleSidebar(): void {
-    if (this.isMobile()) {
-      this.sidenavOpened.update((v) => !v);
-    } else {
-      this.collapsed.update((v) => !v);
-    }
   }
 }

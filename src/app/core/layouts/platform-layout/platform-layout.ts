@@ -15,7 +15,7 @@ import { NavItem } from '../nav-items';
 export class PlatformLayout {
   private readonly auth = inject(AuthService);
 
-  readonly collapsed = signal(false);
+  readonly sidebarWidth = signal(260);
   readonly activeSection = signal('dashboard');
 
   readonly sections = [
@@ -39,8 +39,4 @@ export class PlatformLayout {
         return [];
     }
   });
-
-  toggleSidebar(): void {
-    this.collapsed.update((v) => !v);
-  }
 }

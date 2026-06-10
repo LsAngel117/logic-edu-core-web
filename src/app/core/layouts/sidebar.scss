@@ -21,6 +21,30 @@
       visibility: hidden;
     }
   }
+
+  &.peek {
+    width: 64px !important;
+
+    .brand-text,
+    .nav-label,
+    .sidebar-title,
+    .sidebar-footer {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    &.hovered {
+      width: 260px !important;
+
+      .brand-text,
+      .nav-label,
+      .sidebar-title,
+      .sidebar-footer {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
 }
 
 /* ---- Top bar ---- */

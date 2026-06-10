@@ -6,9 +6,8 @@
   <div class="platform-body">
     <app-sidebar
       [navItems]="contextualNavItems()"
-      [collapsed]="collapsed()"
       [showBranding]="false"
-      (toggleCollapsed)="toggleSidebar()"
+      (widthChange)="sidebarWidth.set($event)"
     />
     <main class="platform-content">
       <router-outlet />

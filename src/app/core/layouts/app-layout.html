@@ -3,19 +3,17 @@
     [mode]="sidenavMode()"
     [opened]="sidenavOpened()"
     [disableClose]="!isMobile()"
-    [style.width.px]="collapsed() ? 64 : 260"
+    [style.width.px]="sidebarWidth()"
     class="layout-sidebar"
   >
     <app-sidebar
       [navItems]="navItems()"
-      [collapsed]="collapsed()"
-      (toggleCollapsed)="toggleSidebar()"
+      (widthChange)="sidebarWidth.set($event)"
     />
   </mat-drawer>
   <mat-drawer-content class="layout-content">
     <app-header
-      [collapsed]="collapsed()"
-      (toggleCollapsed)="toggleSidebar()"
+      [collapsed]="sidebarWidth() === 64"
     />
     <main class="content-area">
       <router-outlet />

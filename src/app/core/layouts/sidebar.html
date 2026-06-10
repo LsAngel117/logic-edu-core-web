@@ -1,6 +1,11 @@
 <aside
   class="sidebar"
-  [class.collapsed]="collapsed()"
+  [class.collapsed]="isCollapsed()"
+  [class.peek]="isPeek()"
+  [class.hovered]="isHovered()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  [style.width.px]="sidebarWidth()"
   data-testid="sidebar"
 >
   <!-- Top bar: branding + collapse toggle -->
@@ -10,7 +15,7 @@
         <span class="brand-icon">
           <svg lucideLayoutDashboard></svg>
         </span>
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <span class="brand-text">LogicEdu</span>
         }
       </div>
@@ -37,7 +42,7 @@
         class="nav-item"
         [class.active]="isActive(item.route)"
         [routerLink]="item.route"
-        [attr.title]="collapsed() ? item.label : null"
+        [attr.title]="isCollapsed() ? item.label : null"
         data-testid="nav-item"
       >
         <span class="nav-icon">
@@ -56,7 +61,7 @@
             }
           }
         </span>
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
         }
       </a>
