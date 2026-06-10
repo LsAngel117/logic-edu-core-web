@@ -1,11 +1,12 @@
 .sidebar {
+  position: relative;
   width: 260px;
   height: 100vh;
   background: #111827;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   transition: width 0.2s ease;
   flex-shrink: 0;
 
@@ -22,12 +23,11 @@
   }
 }
 
-/* ---- Top bar: branding + toggle ---- */
+/* ---- Top bar ---- */
 .sidebar-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 12px 0 16px;
+  padding: 0 16px;
   min-height: 56px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -134,29 +134,36 @@
   transition: opacity 0.15s ease;
 }
 
+/* ---- Collapse toggle — floating on right edge, vertically centered ---- */
 .collapse-toggle {
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: #1f2937;
   color: #9ca3af;
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
+  z-index: 10;
   flex-shrink: 0;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #374151;
     color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
   }
 }
 

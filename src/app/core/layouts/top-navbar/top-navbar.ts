@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, input, model, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   LucideSchool,
@@ -52,6 +52,18 @@ export class TopNavBar {
 
   toggleMenu(): void {
     this.menuOpen.update(v => !v);
+  }
+
+  closeMenu(): void {
+    this.menuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[data-testid="user-menu"]')) {
+      this.closeMenu();
+    }
   }
 
   logout(): void {
