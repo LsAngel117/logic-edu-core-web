@@ -15,9 +15,7 @@
         <span class="brand-icon">
           <svg lucideLayoutDashboard></svg>
         </span>
-        @if (!isCollapsed()) {
-          <span class="brand-text">LogicEdu</span>
-        }
+        <span class="brand-text">LogicEdu</span>
       </div>
     }
 
@@ -61,17 +59,13 @@
             }
           }
         </span>
-        @if (!isCollapsed()) {
-          <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
-        }
+        <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
       </a>
     }
   </nav>
 
   <!-- Footer branding -->
-  @if (!isCollapsed()) {
-    <div class="sidebar-footer" data-testid="sidebar-footer">
-      <span class="footer-version">LogicEdu v1.0</span>
-    </div>
-  }
+  <div class="sidebar-footer" data-testid="sidebar-footer">
+    <span class="footer-version">LogicEdu v1.0</span>
+  </div>
 </aside>
