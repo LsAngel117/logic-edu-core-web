@@ -3,6 +3,7 @@
     [mode]="sidenavMode()"
     [opened]="sidenavOpened()"
     [disableClose]="!isMobile()"
+    [style.width.px]="collapsed() ? 64 : 260"
     class="layout-sidebar"
   >
     <app-sidebar

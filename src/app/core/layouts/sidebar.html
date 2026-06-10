@@ -3,17 +3,37 @@
   [class.collapsed]="collapsed()"
   data-testid="sidebar"
 >
-  <!-- Branding — hidden in PlatformLayout -->
-  @if (showBranding()) {
-    <div class="branding">
-      <span class="brand-icon">
-        <svg lucideLayoutDashboard></svg>
-      </span>
+  <!-- Top bar: branding + collapse toggle -->
+  <div class="sidebar-top">
+    @if (showBranding()) {
+      <div class="branding">
+        <span class="brand-icon">
+          <svg lucideLayoutDashboard></svg>
+        </span>
+        @if (!collapsed()) {
+          <span class="brand-text">LogicEdu</span>
+        }
+      </div>
+    } @else {
+      <!-- Admin mode: just title text -->
       @if (!collapsed()) {
-        <span class="brand-text">LogicEdu</span>
+        <span class="sidebar-title">Dashboard</span>
       }
-    </div>
-  }
+    }
+
+    <button
+      class="collapse-toggle"
+      (click)="toggle()"
+      data-testid="collapse-toggle"
+      [attr.title]="collapsed() ? 'Expandir menú' : 'Colapsar menú'"
+    >
+      @if (collapsed()) {
+        <svg lucideChevronRight></svg>
+      } @else {
+        <svg lucideChevronLeft></svg>
+      }
+    </button>
+  </div>
 
   <!-- Navigation items -->
   <nav class="nav-list">
@@ -54,19 +74,4 @@
       <span class="footer-version">LogicEdu v1.0</span>
     </div>
   }
-
-  <!-- Collapse toggle -->
-  <button
-    class="collapse-toggle"
-    (click)="toggle()"
-    data-testid="collapse-toggle"
-  >
-    <span class="toggle-icon">
-      @if (collapsed()) {
-        <svg lucideChevronRight></svg>
-      } @else {
-        <svg lucideChevronLeft></svg>
-      }
-    </span>
-  </button>
 </aside>
