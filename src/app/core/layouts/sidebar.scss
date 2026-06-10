@@ -9,6 +9,7 @@
   overflow: visible;
   transition: width 0.2s ease;
   flex-shrink: 0;
+  box-shadow: 0 0 5px #e5e7eb;
 
   &.collapsed {
     width: 64px !important;
@@ -53,7 +54,7 @@
   align-items: center;
   padding: 0 16px;
   min-height: 56px;
-  border-bottom: 1px solid #e5e7eb;
+  /*border-bottom: 1px solid #e5e7eb;*/
 }
 
 .sidebar-title {
@@ -111,6 +112,7 @@
   padding: 0 12px;
   border-radius: 8px;
   color: #384551;
+  text-decoration: none;
   cursor: pointer;
   transition:
     background-color 0.15s ease,
