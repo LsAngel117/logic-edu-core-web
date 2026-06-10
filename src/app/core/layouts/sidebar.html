@@ -25,9 +25,9 @@
       class="collapse-toggle"
       (click)="toggle()"
       data-testid="collapse-toggle"
-      [attr.title]="collapsed() ? 'Expandir menú' : 'Colapsar menú'"
+      [attr.title]="isCollapsed() ? 'Expandir menú' : 'Colapsar menú'"
     >
-      @if (collapsed()) {
+      @if (isCollapsed()) {
         <svg lucideChevronRight></svg>
       } @else {
         <svg lucideChevronLeft></svg>
@@ -69,7 +69,7 @@
   </nav>
 
   <!-- Footer branding -->
-  @if (!collapsed()) {
+  @if (!isCollapsed()) {
     <div class="sidebar-footer" data-testid="sidebar-footer">
       <span class="footer-version">LogicEdu v1.0</span>
     </div>
