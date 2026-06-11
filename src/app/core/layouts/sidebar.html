@@ -35,32 +35,67 @@
 
   <!-- Navigation items -->
   <nav class="nav-list">
-    @for (item of navItems(); track item.route) {
-      <a
-        class="nav-item"
-        [class.active]="isActive(item.route)"
-        [routerLink]="item.route"
-        [attr.title]="isCollapsed() ? item.label : null"
-        data-testid="nav-item"
-      >
-        <span class="nav-icon">
-          @switch (item.icon) {
-            @case ('layout-dashboard') {
-              <svg lucideLayoutDashboard></svg>
+    @for (item of navItems(); track item.label) {
+      <!-- Parent item with children -->
+      @if (item.children && item.children.length > 0) {
+        <button
+          class="nav-item nav-parent"
+          [class.active]="isParentActive(item)"
+          (click)="toggleExpand(item.label)"
+          [attr.title]="isCollapsed() ? item.label : null"
+        >
+          <span class="nav-icon">
+            @switch (item.icon) {
+              @case ('layout-dashboard') { <svg lucideLayoutDashboard></svg> }
+              @case ('users') { <svg lucideUsers></svg> }
+              @case ('building-2') { <svg lucideBuilding2></svg> }
+              @default { <svg lucideLayoutDashboard></svg> }
             }
-            @case ('users') {
-              <svg lucideUsers></svg>
+          </span>
+          <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
+          <svg lucideChevronDown class="nav-chevron" [class.expanded]="expandedItems().has(item.label)"></svg>
+        </button>
+        @if (expandedItems().has(item.label)) {
+          <div class="nav-children">
+            @for (child of item.children; track child.label) {
+              <a
+                class="nav-item nav-child"
+                [class.active]="isActive(child.route ?? '')"
+                [routerLink]="child.route"
+                [attr.title]="isCollapsed() ? child.label : null"
+              >
+                <span class="nav-icon">
+                  @switch (child.icon) {
+                    @case ('git-branch') { <svg lucideGitBranch></svg> }
+                    @default { <svg lucideLayoutDashboard></svg> }
+                  }
+                </span>
+                <span class="nav-label">{{ child.label }}</span>
+              </a>
             }
-            @case ('building-2') {
-              <svg lucideBuilding2></svg>
+          </div>
+        }
+      } @else {
+        <!-- Regular item -->
+        <a
+          class="nav-item"
+          [class.active]="isActive(item.route ?? '')"
+          [routerLink]="item.route"
+          [attr.title]="isCollapsed() ? item.label : null"
+          data-testid="nav-item"
+        >
+          <span class="nav-icon">
+            @switch (item.icon) {
+              @case ('layout-dashboard') { <svg lucideLayoutDashboard></svg> }
+              @case ('users') { <svg lucideUsers></svg> }
+              @case ('building-2') { <svg lucideBuilding2></svg> }
+              @case ('git-branch') { <svg lucideGitBranch></svg> }
+              @default { <svg lucideLayoutDashboard></svg> }
             }
-            @default {
-              <svg lucideLayoutDashboard></svg>
-            }
-          }
-        </span>
-        <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
-      </a>
+          </span>
+          <span class="nav-label" data-testid="nav-label">{{ item.label }}</span>
+        </a>
+      }
     }
   </nav>
 

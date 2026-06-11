@@ -1,8 +1,9 @@
 export interface NavItem {
   label: string;
   icon: string;
-  route: string;
+  route?: string;
   roles?: string[];
+  children?: NavItem[];
 }
 
 /** Base items visible to all authenticated users. */
@@ -13,13 +14,23 @@ const BASE_ITEMS: NavItem[] = [
 /** Admin items — platform-level management. */
 const ADMIN_ITEMS: NavItem[] = [
   { label: 'Usuarios', icon: 'users', route: '/users' },
-  { label: 'Instituciones', icon: 'building-2', route: '/schools' },
+  {
+    label: 'Instituciones',
+    icon: 'building-2',
+    route: '/schools',
+    children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
+  },
 ];
 
 /** School admin items — institution-level management. */
 const SCHOOL_ITEMS: NavItem[] = [
   { label: 'Usuarios', icon: 'users', route: '/users' },
-  { label: 'Instituciones', icon: 'building-2', route: '/schools' },
+  {
+    label: 'Instituciones',
+    icon: 'building-2',
+    route: '/schools',
+    children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
+  },
 ];
 
 /** Teacher items — classroom-level tools. */

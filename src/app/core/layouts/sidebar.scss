@@ -157,6 +157,55 @@
   transition: opacity 0.15s ease;
 }
 
+/* ---- Parent expand chevron ---- */
+.nav-chevron {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  color: inherit;
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}
+
+.nav-parent {
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: inherit;
+}
+
+/* ---- Children submenu ---- */
+.nav-children {
+  padding-left: 8px;
+  border-left: 2px solid #e5e7eb;
+  margin: 2px 0 2px 20px;
+}
+
+.nav-child {
+  height: 40px;
+  font-size: 0.8rem;
+  color: #6b7280;
+
+  &:hover {
+    color: #111827;
+  }
+
+  &.active {
+    color: #2563eb;
+    background: transparent;
+    border-left-color: transparent;
+
+    .nav-icon {
+      color: #2563eb;
+    }
+  }
+}
+
 /* ---- Collapse toggle — floating on right edge, vertically centered ---- */
 .collapse-toggle {
   position: absolute;

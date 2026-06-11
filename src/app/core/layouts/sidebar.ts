@@ -5,8 +5,10 @@ import {
   LucideLayoutDashboard,
   LucideUsers,
   LucideBuilding2,
+  LucideGitBranch,
   LucideChevronLeft,
   LucideChevronRight,
+  LucideChevronDown,
 } from '@lucide/angular';
 import { NavItem } from './nav-items';
 
@@ -19,8 +21,10 @@ type SidebarMode = 'expanded' | 'peek' | 'collapsed';
     LucideLayoutDashboard,
     LucideUsers,
     LucideBuilding2,
+    LucideGitBranch,
     LucideChevronLeft,
     LucideChevronRight,
+    LucideChevronDown,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar.html',
@@ -34,6 +38,26 @@ export class Sidebar {
   private readonly router = inject(Router);
 
   readonly activeRoute = signal(this.router.url);
+
+  /** Tracks which parent nav items are expanded (showing children). */
+  readonly expandedItems = signal<Set<string>>(new Set());
+
+  readonly isParentActive = (item: NavItem): boolean => {
+    if (!item.children) return false;
+    return item.children.some((c) => this.isActive(c.route ?? ''));
+  };
+
+  toggleExpand(label: string): void {
+    this.expandedItems.update((set) => {
+      const next = new Set(set);
+      if (next.has(label)) {
+        next.delete(label);
+      } else {
+        next.add(label);
+      }
+      return next;
+    });
+  }
 
   /** expanded(260) → peek(hover 260/64) → collapsed(64) → expanded */
   readonly mode = signal<SidebarMode>('expanded');
