@@ -155,6 +155,7 @@
                 class="search-input"
                 type="text"
                 data-testid="users-search"
+                [value]="searchTerm()"
                 (input)="onSearchInput($event)"
                 placeholder="Buscar por nombre, email o username..."
               />

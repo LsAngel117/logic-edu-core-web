@@ -294,22 +294,15 @@ export class UsersPageComponent {
     this.currentPage.set(1);
   }
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
-
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (this.searchTimer) clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => {
-      this.searchTerm.set(input.value);
-      this.loadUsers(input.value || undefined);
-    }, 300);
+    this.searchTerm.set(input.value);
   }
 
   clearSearch(input: HTMLInputElement): void {
     this.searchTerm.set('');
     input.value = '';
     input.focus();
-    this.loadUsers();
   }
 
   /* ---- Pagination handlers ------------------------------------------- */
