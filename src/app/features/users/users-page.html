@@ -166,11 +166,29 @@
               }
             </div>
           </div>
-          <!-- Export button (placeholder) -->
-          <button class="btn-outline btn-outline--sm">
-            <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
-            Exportar
-          </button>
+          <!-- Export dropdown -->
+          <div class="export-dropdown">
+            <button class="btn-outline btn-outline--sm" (click)="toggleExportMenu()">
+              <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+              Exportar
+            </button>
+            @if (exportMenuOpen()) {
+            <div class="export-menu">
+              <button class="export-item" (click)="exportData('csv')">
+                <svg lucideFileText class="export-item-icon"></svg>
+                CSV
+              </button>
+              <button class="export-item" (click)="exportData('excel')">
+                <svg lucideFileSpreadsheet class="export-item-icon"></svg>
+                Excel
+              </button>
+              <button class="export-item" (click)="exportData('pdf')">
+                <svg lucideFileType class="export-item-icon"></svg>
+                PDF
+              </button>
+            </div>
+            }
+          </div>
 
           <!-- Nuevo Usuario button -->
           <button class="btn-primary btn-primary--sm" data-testid="create-user-btn-toolbar" (click)="openCreateDialog()">

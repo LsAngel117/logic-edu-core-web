@@ -11,6 +11,9 @@ import {
   LucidePower,
   LucideShield,
   LucideDownload,
+  LucideFileText,
+  LucideFileSpreadsheet,
+  LucideFileType,
   LucideChevronLeft,
   LucideChevronRight,
 } from '@lucide/angular';
@@ -75,6 +78,9 @@ const STATUS_CLASSES: Record<string, string> = {
     LucidePower,
     LucideShield,
     LucideDownload,
+    LucideFileText,
+    LucideFileSpreadsheet,
+    LucideFileType,
     LucideChevronLeft,
     LucideChevronRight,
     LucideEye,
@@ -103,6 +109,7 @@ export class UsersPageComponent {
   readonly statusFilter = signal<StatusFilter>('Todos');
   readonly institutionFilter = signal('');
   readonly searchTerm = signal('');
+  readonly exportMenuOpen = signal(false);
 
   // Pagination
   readonly currentPage = signal(1);
@@ -292,6 +299,16 @@ export class UsersPageComponent {
   setInstitutionFilter(value: string): void {
     this.institutionFilter.set(value);
     this.currentPage.set(1);
+  }
+
+  toggleExportMenu(): void {
+    this.exportMenuOpen.update((v) => !v);
+  }
+
+  exportData(format: string): void {
+    this.exportMenuOpen.set(false);
+    // TODO: implement actual export
+    console.log(`Exporting as ${format}`);
   }
 
   onSearchInput(event: Event): void {
