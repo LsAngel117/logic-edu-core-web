@@ -5,6 +5,7 @@ export interface UserProfile {
   fullName: string;
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
+  institution?: string;
   createdAt: string;
 }
 

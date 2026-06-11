@@ -98,6 +98,7 @@ export class UsersPageComponent {
 
   readonly roleFilter = signal<RoleFilter>('Todos');
   readonly statusFilter = signal<StatusFilter>('Todos');
+  readonly institutionFilter = signal('');
   readonly searchTerm = signal('');
 
   // Pagination
@@ -130,6 +131,11 @@ export class UsersPageComponent {
     const status = this.statusFilter();
     if (status !== 'Todos') {
       result = result.filter((u) => u.status === status);
+    }
+
+    const institution = this.institutionFilter().toLowerCase().trim();
+    if (institution) {
+      result = result.filter((u) => (u.institution ?? '').toLowerCase().includes(institution));
     }
 
     const search = this.searchTerm().toLowerCase().trim();
@@ -264,6 +270,11 @@ export class UsersPageComponent {
 
   setStatusFilter(value: string): void {
     this.statusFilter.set(value as StatusFilter);
+    this.currentPage.set(1);
+  }
+
+  setInstitutionFilter(value: string): void {
+    this.institutionFilter.set(value);
     this.currentPage.set(1);
   }
 

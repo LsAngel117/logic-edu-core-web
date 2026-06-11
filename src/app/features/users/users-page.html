@@ -108,6 +108,22 @@
             </select>
           </div>
 
+          <!-- Institution Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Institución</label>
+            <div class="search-wrapper">
+              <svg lucideBuilding2 class="search-icon"></svg>
+              <input
+                class="search-input"
+                type="text"
+                data-testid="institution-filter"
+                [value]="institutionFilter()"
+                (input)="setInstitutionFilter($any($event.target).value)"
+                placeholder="Filtrar por institución..."
+              />
+            </div>
+          </div>
+
           <!-- Search -->
           <div class="filter-field filter-field--search">
             <label class="filter-label">Buscar</label>
@@ -152,17 +168,19 @@
           </select>
         </div>
 
-        <!-- Export button (placeholder) -->
-        <button class="btn-outline btn-outline--sm">
-          <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
-          Exportar
-        </button>
+        <div class="toolbar-actions-right">
+          <!-- Export button (placeholder) -->
+          <button class="btn-outline btn-outline--sm">
+            <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+            Exportar
+          </button>
 
-        <!-- Nuevo Usuario button -->
-        <button class="btn-primary btn-primary--sm" data-testid="create-user-btn-toolbar" (click)="openCreateDialog()">
-          <svg lucideUserPlus class="btn-icon btn-icon--sm"></svg>
-          Nuevo Usuario
-        </button>
+          <!-- Nuevo Usuario button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-user-btn-toolbar" (click)="openCreateDialog()">
+            <svg lucideUserPlus class="btn-icon btn-icon--sm"></svg>
+            Nuevo Usuario
+          </button>
+        </div>
       </div>
     </div>
 
@@ -179,6 +197,7 @@
             <th>Username</th>
             <th>Rol</th>
             <th>Estado</th>
+            <th>Institución</th>
             <th class="users-table__th--actions">Acciones</th>
           </tr>
         </thead>
@@ -223,6 +242,11 @@
               >
                 {{ user.status }}
               </span>
+            </td>
+
+            <!-- Institution -->
+            <td>
+              <span class="user-institution">{{ user.institution || '—' }}</span>
             </td>
 
             <!-- Actions -->
