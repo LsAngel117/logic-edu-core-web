@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {
   LucideUserPlus,
   LucideSearch,
@@ -14,6 +15,7 @@ import {
   LucideChevronRight,
 } from '@lucide/angular';
 import { UsersService } from './services/users';
+import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
 import { UserProfile, ChangeStatusRequest } from './models/user-profile';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
@@ -89,6 +91,7 @@ const STATUS_CLASSES: Record<string, string> = {
 export class UsersPageComponent {
   /* ---- Dependencies -------------------------------------------------- */
   private readonly usersService = inject(UsersService);
+  private readonly membershipsService = inject(MembershipsService);
   private readonly authService = inject(AuthService);
 
   /* ---- State --------------------------------------------------------- */
@@ -252,13 +255,39 @@ export class UsersPageComponent {
     this.usersService.getAll(search).subscribe({
       next: (result: UserProfile[]) => {
         this.users.set(result);
-        this.currentPage.set(1); // Reset to first page on data load
+        this.currentPage.set(1);
         this.loading.set(false);
+        // Fetch roles from memberships for each user
+        this.loadRoles(result);
       },
       error: () => {
         this.error.set(true);
         this.loading.set(false);
       },
+    });
+  }
+
+  private loadRoles(users: UserProfile[]): void {
+    if (users.length === 0) return;
+
+    const requests = users.map((user) =>
+      this.membershipsService.getByUser(user.id).pipe(
+        map((memberships) => ({
+          userId: user.id,
+          roles: memberships.filter((m) => m.active).map((m) => m.role),
+        })),
+        catchError(() => of({ userId: user.id, roles: [] as string[] })),
+      ),
+    );
+
+    forkJoin(requests).subscribe((results) => {
+      const roleMap = new Map(results.map((r) => [r.userId, r.roles]));
+      this.users.update((current) =>
+        current.map((u) => ({
+          ...u,
+          role: roleMap.get(u.id)?.[0] ?? u.role,
+        })),
+      );
     });
   }
 

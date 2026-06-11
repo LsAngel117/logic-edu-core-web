@@ -208,7 +208,7 @@ $font-family: 'Roboto', sans-serif;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 35vh;
+  padding-right: 25vh;
   transition: border-color 0.2s, box-shadow 0.2s;
   white-space: nowrap;
 
@@ -588,6 +588,16 @@ $font-family: 'Roboto', sans-serif;
   flex-wrap: wrap;
   gap: 12px;
   align-items: flex-end;
+
+  .filter-field {
+    flex: 1;
+    min-width: 140px;
+
+    &--search {
+      flex: 2;
+      min-width: 200px;
+    }
+  }
 }
 
 .table-card__empty {

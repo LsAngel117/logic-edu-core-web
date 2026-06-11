@@ -123,28 +123,6 @@
               />
             </div>
           </div>
-
-          <!-- Search -->
-          <div class="filter-field filter-field--search">
-            <label class="filter-label">Buscar</label>
-            <div class="search-wrapper">
-              <svg lucideSearch class="search-icon"></svg>
-              <input
-                #searchInput
-                class="search-input"
-                type="text"
-                data-testid="users-search"
-                [value]="searchTerm()"
-                (input)="onSearchInput($event)"
-                placeholder="Buscar por nombre, email o username..."
-              />
-              @if (searchTerm()) {
-              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
-                &times;
-              </button>
-              }
-            </div>
-          </div>
         </div>
       </div>
     </div>  
@@ -169,6 +147,26 @@
         </div>
 
         <div class="toolbar-actions-right">
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="users-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre, email o username..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
           <!-- Export button (placeholder) -->
           <button class="btn-outline btn-outline--sm">
             <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
