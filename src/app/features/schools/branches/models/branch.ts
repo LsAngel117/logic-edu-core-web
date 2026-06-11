@@ -29,6 +29,10 @@ export interface CreateBranchRequest {
   country?: string;
 }
 
+export interface BranchRow extends BranchResponse {
+  schoolName?: string;
+}
+
 export interface UpdateBranchRequest {
   name: string;
   code: string;

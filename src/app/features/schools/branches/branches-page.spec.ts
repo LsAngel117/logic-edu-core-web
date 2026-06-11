@@ -12,7 +12,7 @@ import { BranchesPage } from './branches-page';
 
 describe('BranchesPage', () => {
   let branchesServiceMock: { getBySchool: ReturnType<typeof vi.fn> };
-  let schoolsServiceMock: { getById: ReturnType<typeof vi.fn> };
+  let schoolsServiceMock: { getById: ReturnType<typeof vi.fn>; getAll: ReturnType<typeof vi.fn> };
 
   const mockSchool: School = {
     id: 's1',
@@ -77,7 +77,7 @@ describe('BranchesPage', () => {
 
   function setupComponent(schoolId: string = 's1') {
     branchesServiceMock = { getBySchool: vi.fn() };
-    schoolsServiceMock = { getById: vi.fn() };
+    schoolsServiceMock = { getById: vi.fn(), getAll: vi.fn().mockReturnValue(of([])) };
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

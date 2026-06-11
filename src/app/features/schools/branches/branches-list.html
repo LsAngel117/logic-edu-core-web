@@ -1,67 +1,371 @@
-<div class="branches-page">
-  <app-page-header title="Sedes" description="Administra todas las sedes registradas en la plataforma." />
+<div class="branches-list-page">
 
-  @if (loading()) {
-    <div class="loading-state">Cargando sedes...</div>
-  } @else if (error()) {
-    <app-empty-state icon="git-branch" title="Error al cargar" description="No se pudieron cargar las sedes." />
-  } @else if (branches().length === 0) {
-    <app-empty-state icon="git-branch" title="No hay sedes registradas" description="Comienza creando sedes desde una institución." />
-  } @else {
-    <div class="stats-row">
-      <app-stat-card icon="git-branch" label="Total Sedes" [value]="totalBranches()"
-        iconColor="#2563eb" iconBg="rgba(37,99,235,0.08)" />
-      <app-stat-card icon="git-branch" label="Activas" [value]="activeBranches()"
-        iconColor="#10b981" iconBg="rgba(16,185,129,0.08)" />
-      <app-stat-card icon="git-branch" label="Inactivas" [value]="inactiveBranches()"
-        iconColor="#ef4444" iconBg="rgba(239,68,68,0.08)" />
+  <!-- ======= PAGE HEADER ======= -->
+  <app-page-header
+    title="Sedes"
+    description="Administra todas las sedes registradas en la plataforma."
+    data-testid="page-header"
+  >
+    <button class="btn-primary" data-testid="create-branch-btn-header" (click)="createDialogVisible.set(true)">
+      <svg lucidePlus class="btn-icon"></svg>
+      Nueva Sede
+    </button>
+  </app-page-header>
+
+  <!-- ======= ERROR STATE ======= -->
+  @if (error()) {
+  <div class="error-card" data-testid="branches-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
     </div>
+    <h3>Error al cargar sedes</h3>
+    <button class="btn-outline" data-testid="branches-retry" (click)="loadData()">
+      Reintentar
+    </button>
+  </div>
+  }
 
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="search-wrapper">
-          <svg lucideSearch class="search-icon"></svg>
-          <input class="search-input" type="text" placeholder="Buscar sede..." [value]="searchTerm()" (input)="onSearch($event)" />
+  <!-- ======= LOADING STATE ======= -->
+  @if (!error() && loading()) {
+  <div class="branches-list-page__loading" data-testid="branches-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando sedes...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (!error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="git-branch"
+      label="Total Sedes"
+      [value]="totalBranches()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
+    />
+    <app-stat-card
+      icon="trending-up"
+      label="Sedes Activas"
+      [value]="activeBranches()"
+      iconColor="#71dd37"
+      iconBg="rgba(113, 221, 55, 0.12)"
+    />
+    <app-stat-card
+      icon="trending-down"
+      label="Sedes Inactivas"
+      [value]="inactiveBranches()"
+      iconColor="#ff3e1d"
+      iconBg="rgba(255, 62, 29, 0.08)"
+    />
+  </div>
+
+  <!-- Branches Table Card -->
+  <div class="table-card">
+    <!-- Toolbar: "Filtros de búsqueda" label + filters row -->
+    <div class="table-card__toolbar">
+      <div class="toolbar-filters">
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="branches-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre, código o institución..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
         </div>
       </div>
-      <table>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <div class="table-card__toolbar">
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions-right">
+          <!-- Export dropdown -->
+          <div class="export-dropdown">
+            <button class="btn-outline btn-outline--sm" (click)="toggleExportMenu()">
+              <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+              Exportar
+            </button>
+            @if (exportMenuOpen()) {
+            <div class="export-menu">
+              <button class="export-item" (click)="exportData('csv')">
+                <svg lucideFileText class="export-item-icon"></svg>
+                CSV
+              </button>
+              <button class="export-item" (click)="exportData('excel')">
+                <svg lucideFileSpreadsheet class="export-item-icon"></svg>
+                Excel
+              </button>
+              <button class="export-item" (click)="exportData('pdf')">
+                <svg lucideFileType class="export-item-icon"></svg>
+                PDF
+              </button>
+            </div>
+            }
+          </div>
+
+          <!-- Nueva Sede button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-branch-btn-toolbar" (click)="createDialogVisible.set(true)">
+            <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
+            Nueva Sede
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredBranches().length > 0) {
+    <div class="table-card__table-wrapper">
+      <table class="branches-table">
         <thead>
           <tr>
-            <th class="sortable" (click)="sortBy('name')">Nombre @if (sortColumn() === 'name') { @if (sortDirection()==='asc') { <svg lucideArrowUp class="sort-icon"></svg> } @else { <svg lucideArrowDown class="sort-icon"></svg> } }</th>
-            <th class="sortable" (click)="sortBy('code')">Código</th>
-            <th class="sortable" (click)="sortBy('schoolName')">Institución</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th class="sortable" (click)="sortBy('name')">
+              Nombre
+              @if (sortColumn() === 'name') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('code')">
+              Código
+              @if (sortColumn() === 'code') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('schoolName')">
+              Institución
+              @if (sortColumn() === 'schoolName') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('type')">
+              Tipo
+              @if (sortColumn() === 'type') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Estado
+              @if (sortColumn() === 'status') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="branches-table__th--actions">Acciones</th>
           </tr>
         </thead>
         <tbody>
           @for (branch of paginatedBranches(); track branch.id) {
-            <tr>
-              <td>{{ branch.name }}</td>
-              <td>{{ branch.code }}</td>
-              <td>{{ branch.schoolName }}</td>
-              <td><span class="type-badge" [class]="getTypeClass(branch.type)">{{ branch.type }}</span></td>
-              <td><span class="status-badge" [class]="getStatusClass(branch.status)">{{ branch.status }}</span></td>
-              <td>
-                <a class="action-btn" [routerLink]="['/schools', branch.schoolId, 'branches']" title="Ver sedes de esta institución">
-                  <svg lucideEye></svg>
-                </a>
-              </td>
-            </tr>
+          <tr class="branch-row" data-testid="branch-row">
+            <!-- Branch info with avatar -->
+            <td class="branch-cell">
+              <div class="branch-avatar" data-testid="branch-avatar">
+                {{ getInitials(branch.name) }}
+              </div>
+              <div class="branch-info">
+                <span class="branch-name">{{ branch.name }}</span>
+              </div>
+            </td>
+
+            <!-- Code -->
+            <td>
+              <span class="branch-code">{{ branch.code }}</span>
+            </td>
+
+            <!-- Institution (schoolName) -->
+            <td>
+              <span class="branch-institution">{{ branch.schoolName || '—' }}</span>
+            </td>
+
+            <!-- Type badge -->
+            <td>
+              <span
+                class="type-badge"
+                data-testid="type-badge"
+                [style.background-color]="typeBg(branch.type)"
+                [style.color]="typeColor(branch.type)"
+              >
+                {{ branch.type }}
+              </span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class]="'status-badge ' + statusClass(branch.status)"
+              >
+                {{ branch.status }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="branches-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Ver sede"
+                (click)="viewBranch(branch)"
+              >
+                <svg lucideEye></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(branch)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
           }
         </tbody>
       </table>
-      <div class="pagination">
-        <span>Mostrando {{ (currentPage()-1)*pageSize()+1 }}–{{ showingTo() }} de {{ filteredBranches().length }}</span>
-        <div class="pagination-controls">
-          <button class="page-btn" [disabled]="currentPage()===1" (click)="prevPage()"><svg lucideChevronLeft></svg></button>
-          @for (p of [].constructor(totalPages()); track $index) {
-            <button class="page-btn" [class.active]="$index+1===currentPage()" (click)="goToPage($index+1)">{{ $index+1 }}</button>
-          }
-          <button class="page-btn" [disabled]="currentPage()===totalPages()" (click)="nextPage()"><svg lucideChevronRight></svg></button>
-        </div>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredBranches().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
       </div>
     </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="branches-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron sedes con los filtros actuales.</p>
+    </div>
+    }
+  </div>
+
+  <!-- Empty State (no branches at all) -->
+  @if (branches().length === 0 && !loading() && !error()) {
+  <app-empty-state
+    icon="git-branch"
+    title="No hay sedes registradas"
+    description="Comienza agregando la primera sede a la plataforma."
+  />
   }
+
+  }
+
+  <!-- ======= CREATE BRANCH DIALOG ======= -->
+  <app-create-branch
+    [(visible)]="createDialogVisible"
+    (created)="onBranchCreated()"
+  />
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
 </div>

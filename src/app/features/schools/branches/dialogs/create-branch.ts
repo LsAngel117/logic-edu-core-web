@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, input, model, output, signa
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { BranchesService } from '../services/branches';
+import { SchoolsService } from '../../services/schools';
 import { CreateBranchRequest } from '../models/branch';
+import { School } from '../../models/school';
 import { AppDialog } from '../../../../shared/ui/app-dialog/app-dialog';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
@@ -22,6 +24,17 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
       (cancel)="visible.set(false)"
     >
       <form [formGroup]="form" class="dialog-form">
+        <!-- School Selector -->
+        <div class="form-field">
+          <label>Institución <span class="required">*</span></label>
+          <select formControlName="schoolId" class="form-select">
+            <option value="" disabled>Selecciona una institución</option>
+            @for (school of schools(); track school.id) {
+              <option [value]="school.id">{{ school.name }}</option>
+            }
+          </select>
+        </div>
+
         <div class="form-row">
           <div class="form-field">
             <label>Nombre <span class="required">*</span></label>
@@ -30,6 +43,16 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
           <div class="form-field">
             <label>Código <span class="required">*</span></label>
             <input type="text" formControlName="code" placeholder="Ej: SED-001" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nombre Corto <span class="required">*</span></label>
+            <input type="text" formControlName="shortName" placeholder="Sigla o abreviatura" />
+          </div>
+          <div class="form-field">
+            <label>Teléfono</label>
+            <input type="text" formControlName="phone" placeholder="+57 601 2345678" />
           </div>
         </div>
         <div class="form-row">
@@ -99,16 +122,19 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
 })
 export class CreateBranchDialogComponent {
   private readonly branchesService = inject(BranchesService);
+  private readonly schoolsService = inject(SchoolsService);
   private readonly fb = inject(FormBuilder);
 
   readonly visible = model(false);
-  readonly schoolId = input.required<string>();
+  readonly schoolId = input<string>('');
   readonly created = output<any>();
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
+  readonly schools = signal<School[]>([]);
 
   readonly form = this.fb.nonNullable.group({
+    schoolId: ['', Validators.required],
     name: ['', Validators.required],
     code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
     shortName: ['', Validators.required],
@@ -120,6 +146,17 @@ export class CreateBranchDialogComponent {
     city: [''],
     country: [''],
   });
+
+  constructor() {
+    this.schoolsService.getAll().subscribe((schools) => {
+      this.schools.set(schools);
+      // Pre-select schoolId if provided via input
+      const preset = this.schoolId();
+      if (preset && schools.some((s) => s.id === preset)) {
+        this.form.controls.schoolId.setValue(preset);
+      }
+    });
+  }
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
@@ -141,7 +178,7 @@ export class CreateBranchDialogComponent {
     };
 
     try {
-      const result = await firstValueFrom(this.branchesService.create(this.schoolId(), payload));
+      const result = await firstValueFrom(this.branchesService.create(raw.schoolId, payload));
       this.visible.set(false);
       this.created.emit(result);
     } catch (err: unknown) {
