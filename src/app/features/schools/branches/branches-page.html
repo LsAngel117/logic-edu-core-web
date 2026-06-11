@@ -339,7 +339,7 @@
 
   <!-- ======= STATUS DIALOG ======= -->
   <app-create-branch
-    [schoolId]="schoolId"
+    [schoolId]="schoolId()"
     [(visible)]="createDialogVisible"
     (created)="onBranchCreated()"
   />
