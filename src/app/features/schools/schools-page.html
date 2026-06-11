@@ -6,7 +6,7 @@
     description="Administra las instituciones educativas registradas."
     data-testid="page-header"
   >
-    <button class="btn-primary" data-testid="create-school-btn-header" (click)="openCreateDialog()">
+    <button class="btn-primary" data-testid="create-school-btn-header" (click)="createDialogVisible.set(true)">
       <svg lucidePlus class="btn-icon"></svg>
       Nueva Institución
     </button>
@@ -160,7 +160,7 @@
           </div>
 
           <!-- Nueva Institución button -->
-          <button class="btn-primary btn-primary--sm" data-testid="create-school-btn-toolbar" (click)="openCreateDialog()">
+          <button class="btn-primary btn-primary--sm" data-testid="create-school-btn-toolbar" (click)="createDialogVisible.set(true)">
             <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
             Nueva Institución
           </button>
@@ -353,6 +353,11 @@
   }
 
   <!-- ======= STATUS DIALOG ======= -->
+  <app-create-school
+    [(visible)]="createDialogVisible"
+    (created)="onSchoolCreated()"
+  />
+
   <app-confirmation-dialog
     [title]="statusDialogTitle()"
     [message]="statusDialogMessage()"

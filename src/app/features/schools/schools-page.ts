@@ -21,6 +21,7 @@ import {
 import { SchoolsService } from './services/schools';
 import { School } from './models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
+import { CreateSchoolDialogComponent } from './dialogs/create-school';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -66,6 +67,7 @@ const STATUS_CLASSES: Record<string, string> = {
     LucideChevronRight,
     LucideArrowUp,
     LucideArrowDown,
+    CreateSchoolDialogComponent,
   ],
   templateUrl: './schools-page.html',
   styleUrl: './schools-page.scss',
@@ -296,18 +298,8 @@ export class SchoolsPageComponent {
 
   /* ---- Dialog actions ------------------------------------------------ */
 
-  // Create dialog
-  async openCreateDialog(): Promise<void> {
-    const { CreateSchoolDialogComponent } = await import('./dialogs/create-school');
-    // Material dialog fallback — will be replaced with app-dialog in future
-    const { MatDialog } = await import('@angular/material/dialog');
-    const dialog = inject(MatDialog);
-    const dialogRef = dialog.open(CreateSchoolDialogComponent, { width: '480px' });
-    dialogRef.afterClosed().subscribe((result: School | undefined) => {
-      if (result) {
-        this.loadSchools();
-      }
-    });
+  onSchoolCreated(): void {
+    this.loadSchools();
   }
 
   async openEditDialog(school: School): Promise<void> {
