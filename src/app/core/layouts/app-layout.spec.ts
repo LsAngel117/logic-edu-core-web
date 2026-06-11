@@ -75,28 +75,12 @@ describe('AppLayout', () => {
     expect(outletEl).toBeTruthy();
   });
 
-  it('should start with collapsed = false by default', async () => {
+  it('should start with sidenav open by default', async () => {
     setupComponent(MOCK_USER);
     const fixture = await createFixture();
 
     const instance = fixture.componentInstance as unknown as AppLayout;
-    expect(instance.collapsed()).toBe(false);
-  });
-
-  it('should toggle collapsed signal when toggleSidebar() is called', async () => {
-    setupComponent(MOCK_USER);
-    const fixture = await createFixture();
-
-    const instance = fixture.componentInstance as unknown as AppLayout;
-    expect(instance.collapsed()).toBe(false);
-
-    instance.toggleSidebar();
-    fixture.detectChanges();
-    expect(instance.collapsed()).toBe(true);
-
-    instance.toggleSidebar();
-    fixture.detectChanges();
-    expect(instance.collapsed()).toBe(false);
+    expect(instance.sidenavOpened()).toBe(true);
   });
 
   it('should compute navItems from NAV_ITEMS filtered by user roles', async () => {

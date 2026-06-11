@@ -1,77 +1,349 @@
 <div class="branches-page">
+
+  <!-- ======= BREADCRUMB ======= -->
   <div class="breadcrumb">
-    <a routerLink="/schools" class="back-link">
-      <mat-icon>arrow_back</mat-icon> Volver a Instituciones
+    <a routerLink="/schools" class="back-link" data-testid="branches-back-link">
+      <svg lucideArrowLeft class="back-icon"></svg>
+      Volver a Instituciones
     </a>
-    @if (school()) {
-    <span class="breadcrumb-text"> / {{ school()!.name }} / Sedes</span>
-    }
   </div>
 
+  <!-- ======= PAGE HEADER ======= -->
   <app-page-header
     [title]="pageTitle()"
     description="Administra las sedes de esta institución."
+    data-testid="page-header"
   >
-    <button mat-raised-button color="primary" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon> Nueva Sede
+    <button class="btn-primary" data-testid="create-branch-btn-header" (click)="openCreateDialog()">
+      <svg lucidePlus class="btn-icon"></svg>
+      Nueva Sede
     </button>
   </app-page-header>
 
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Buscar sedes</mat-label>
-    <input
-      matInput
-      type="search"
-      [value]="searchTerm()"
-      (input)="onSearchInput($event)"
-      placeholder="Buscar por nombre o código"
-    />
-    @if (searchTerm()) {
-    <button matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-    }
-  </mat-form-field>
-
-  <mat-button-toggle-group
-    [value]="statusFilter()"
-    (change)="setStatusFilter($event.value)"
-    class="status-filter"
-  >
-    <mat-button-toggle value="all">Todas</mat-button-toggle>
-    <mat-button-toggle value="ACTIVE">Activas</mat-button-toggle>
-    <mat-button-toggle value="INACTIVE">Inactivas</mat-button-toggle>
-  </mat-button-toggle-group>
-
+  <!-- ======= ERROR STATE ======= -->
   @if (error()) {
-  <div class="error-state">
-    <p>Failed to load branches. Please try again.</p>
-    <button mat-stroked-button color="primary" (click)="loadData()">
-      Retry
+  <div class="error-card" data-testid="branches-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
+    </div>
+    <h3>Error al cargar sedes</h3>
+    <button class="btn-outline" data-testid="branches-retry" (click)="loadData()">
+      Reintentar
     </button>
   </div>
-  } @else if (loading()) {
-  <app-data-table
-    [columns]="branchColumns"
-    [data]="[]"
-    [actions]="rowActions"
-    [loading]="true"
-  />
-  } @else if (branches().length === 0) {
+  }
+
+  <!-- ======= LOADING STATE ======= -->
+  @if (!error() && loading()) {
+  <div class="branches-page__loading" data-testid="branches-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando sedes...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (!error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="git-branch"
+      label="Total Sedes"
+      [value]="totalBranches()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
+    />
+    <app-stat-card
+      icon="trending-up"
+      label="Sedes Activas"
+      [value]="activeBranches()"
+      iconColor="#71dd37"
+      iconBg="rgba(113, 221, 55, 0.12)"
+    />
+    <app-stat-card
+      icon="trending-down"
+      label="Sedes Inactivas"
+      [value]="inactiveBranches()"
+      iconColor="#ff3e1d"
+      iconBg="rgba(255, 62, 29, 0.08)"
+    />
+  </div>
+
+  <!-- Branches Table Card -->
+  <div class="table-card">
+    <!-- Toolbar: filters row -->
+    <div class="table-card__toolbar">
+      <div class="toolbar-filters">
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="branches-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre o código..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <div class="table-card__toolbar">
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions-right">
+          <!-- Nueva Sede button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-branch-btn-toolbar" (click)="openCreateDialog()">
+            <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
+            Nueva Sede
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredBranches().length > 0) {
+    <div class="table-card__table-wrapper">
+      <table class="branches-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('name')">
+              Nombre
+              @if (sortColumn() === 'name') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('code')">
+              Código
+              @if (sortColumn() === 'code') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('address')">
+              Dirección
+              @if (sortColumn() === 'address') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('type')">
+              Tipo
+              @if (sortColumn() === 'type') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Estado
+              @if (sortColumn() === 'status') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="branches-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (branch of paginatedBranches(); track branch.id) {
+          <tr class="branch-row" data-testid="branch-row">
+            <!-- Branch info with avatar -->
+            <td class="branch-cell">
+              <div class="branch-avatar" data-testid="branch-avatar">
+                {{ getInitials(branch.name) }}
+              </div>
+              <div class="branch-info">
+                <span class="branch-name">{{ branch.name }}</span>
+              </div>
+            </td>
+
+            <!-- Code -->
+            <td>
+              <span class="branch-code">{{ branch.code }}</span>
+            </td>
+
+            <!-- Address -->
+            <td>
+              <span class="branch-address">{{ branch.address || '—' }}</span>
+            </td>
+
+            <!-- Type badge -->
+            <td>
+              <span
+                class="type-badge"
+                data-testid="type-badge"
+                [style.background-color]="typeBg(branch.type)"
+                [style.color]="typeColor(branch.type)"
+              >
+                {{ branch.type }}
+              </span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class]="'status-badge ' + statusClass(branch.status)"
+              >
+                {{ branch.status }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="branches-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Editar sede"
+                (click)="openEditDialog(branch)"
+              >
+                <svg lucidePencil></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(branch)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredBranches().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="branches-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron sedes con los filtros actuales.</p>
+    </div>
+    }
+  </div>
+
+  <!-- Empty State (no branches at all) -->
+  @if (branches().length === 0 && !loading() && !error()) {
   <app-empty-state
     icon="git-branch"
     title="No hay sedes"
     description="No se encontraron sedes para esta institución."
-    [actionLabel]="'Nueva Sede'"
-    (action)="openCreateDialog()"
-  />
-  } @else {
-  <app-data-table
-    [columns]="branchColumns"
-    [data]="tableData()"
-    [actions]="rowActions"
-    [loading]="false"
-    (rowAction)="onRowAction($event)"
   />
   }
+
+  }
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
 </div>

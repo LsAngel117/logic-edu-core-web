@@ -1,68 +1,364 @@
 <div class="schools-page">
+
+  <!-- ======= PAGE HEADER ======= -->
   <app-page-header
     title="Instituciones"
     description="Administra las instituciones educativas registradas."
+    data-testid="page-header"
   >
-    <button mat-raised-button color="primary" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon> Nueva Institución
+    <button class="btn-primary" data-testid="create-school-btn-header" (click)="openCreateDialog()">
+      <svg lucidePlus class="btn-icon"></svg>
+      Nueva Institución
     </button>
   </app-page-header>
 
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Buscar instituciones</mat-label>
-    <input
-      matInput
-      type="search"
-      [value]="searchTerm()"
-      (input)="onSearchInput($event)"
-      placeholder="Buscar por nombre o código"
-    />
-    @if (searchTerm()) {
-    <button matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-    }
-  </mat-form-field>
-
-  <mat-button-toggle-group
-    [value]="statusFilter()"
-    (change)="setStatusFilter($event.value)"
-    class="status-filter"
-  >
-    <mat-button-toggle value="all">Todas</mat-button-toggle>
-    <mat-button-toggle value="ACTIVE">Activas</mat-button-toggle>
-    <mat-button-toggle value="INACTIVE">Inactivas</mat-button-toggle>
-  </mat-button-toggle-group>
-
+  <!-- ======= ERROR STATE ======= -->
   @if (error()) {
-  <div class="error-state">
-    <p>Failed to load schools. Please try again.</p>
-    <button mat-stroked-button color="primary" (click)="loadSchools()">
-      Retry
+  <div class="error-card" data-testid="schools-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
+    </div>
+    <h3>Error al cargar instituciones</h3>
+    <button class="btn-outline" data-testid="schools-retry" (click)="loadSchools()">
+      Reintentar
     </button>
   </div>
-  } @else if (loading()) {
-  <app-data-table
-    [columns]="schoolColumns"
-    [data]="[]"
-    [actions]="rowActions"
-    [loading]="true"
-  />
-  } @else if (schools().length === 0) {
+  }
+
+  <!-- ======= LOADING STATE ======= -->
+  @if (!error() && loading()) {
+  <div class="schools-page__loading" data-testid="schools-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando instituciones...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (!error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="school"
+      label="Total Instituciones"
+      [value]="totalSchools()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
+    />
+    <app-stat-card
+      icon="building-2"
+      label="Instituciones Activas"
+      [value]="activeSchools()"
+      iconColor="#71dd37"
+      iconBg="rgba(113, 221, 55, 0.12)"
+    />
+    <app-stat-card
+      icon="trending-down"
+      label="Instituciones Inactivas"
+      [value]="inactiveSchools()"
+      iconColor="#ff3e1d"
+      iconBg="rgba(255, 62, 29, 0.08)"
+    />
+    <app-stat-card
+      icon="git-branch"
+      label="Sedes"
+      [value]="branchesCount()"
+      iconColor="#8b5cf6"
+      iconBg="rgba(139, 92, 246, 0.1)"
+    />
+  </div>
+
+  <!-- Schools Table Card -->
+  <div class="table-card">
+    <!-- Toolbar: "Filtros de búsqueda" label + filters row -->
+    <div class="table-card__toolbar">
+      <div class="toolbar-filters">
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="schools-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre o código..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <div class="table-card__toolbar">
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions-right">
+          <!-- Export dropdown -->
+          <div class="export-dropdown">
+            <button class="btn-outline btn-outline--sm" (click)="toggleExportMenu()">
+              <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+              Exportar
+            </button>
+            @if (exportMenuOpen()) {
+            <div class="export-menu">
+              <button class="export-item" (click)="exportData('csv')">
+                <svg lucideFileText class="export-item-icon"></svg>
+                CSV
+              </button>
+              <button class="export-item" (click)="exportData('excel')">
+                <svg lucideFileSpreadsheet class="export-item-icon"></svg>
+                Excel
+              </button>
+              <button class="export-item" (click)="exportData('pdf')">
+                <svg lucideFileType class="export-item-icon"></svg>
+                PDF
+              </button>
+            </div>
+            }
+          </div>
+
+          <!-- Nueva Institución button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-school-btn-toolbar" (click)="openCreateDialog()">
+            <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
+            Nueva Institución
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredSchools().length > 0) {
+    <div class="table-card__table-wrapper">
+      <table class="schools-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('name')">
+              Nombre
+              @if (sortColumn() === 'name') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('code')">
+              Código
+              @if (sortColumn() === 'code') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('shortName')">
+              Nombre Corto
+              @if (sortColumn() === 'shortName') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Estado
+              @if (sortColumn() === 'status') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th>Sedes</th>
+            <th class="schools-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (school of paginatedSchools(); track school.id) {
+          <tr class="school-row" data-testid="school-row">
+            <!-- School info with avatar -->
+            <td class="school-cell">
+              <div class="school-avatar" data-testid="school-avatar">
+                {{ getInitials(school.name) }}
+              </div>
+              <div class="school-info">
+                <span class="school-name">{{ school.name }}</span>
+              </div>
+            </td>
+
+            <!-- Code -->
+            <td>
+              <span class="school-code">{{ school.code }}</span>
+            </td>
+
+            <!-- Short Name -->
+            <td>
+              <span class="school-shortname">{{ school.shortName }}</span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class]="'status-badge ' + statusClass(school.status)"
+              >
+                {{ school.status }}
+              </span>
+            </td>
+
+            <!-- Branches count -->
+            <td>
+              <span class="school-branches-count">{{ branchesCount() }}</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="schools-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Ver sedes"
+                (click)="viewBranches(school)"
+              >
+                <svg lucideEye></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Editar institución"
+                (click)="openEditDialog(school)"
+              >
+                <svg lucidePencil></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(school)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredSchools().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="schools-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron instituciones con los filtros actuales.</p>
+    </div>
+    }
+  </div>
+
+  <!-- Empty State (no schools at all) -->
+  @if (schools().length === 0 && !loading() && !error()) {
   <app-empty-state
     icon="school"
-    title="No hay instituciones"
-    description="No se encontraron instituciones educativas registradas."
-    [actionLabel]="'Nueva Institución'"
-    (action)="openCreateDialog()"
-  />
-  } @else {
-  <app-data-table
-    [columns]="schoolColumns"
-    [data]="tableData()"
-    [actions]="rowActions"
-    [loading]="false"
-    (rowAction)="onRowAction($event)"
+    title="No hay instituciones registradas"
+    description="Comienza agregando la primera institución a la plataforma."
   />
   }
+
+  }
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
 </div>

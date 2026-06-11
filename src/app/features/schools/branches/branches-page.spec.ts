@@ -58,6 +58,21 @@ describe('BranchesPage', () => {
       createdAt: '2026-02-01T00:00:00Z',
       updatedAt: '2026-02-01T00:00:00Z',
     },
+    {
+      id: 'b3',
+      schoolId: 's1',
+      name: 'Virtual Campus',
+      code: 'VC-003',
+      shortName: 'Virtual',
+      description: '',
+      email: '',
+      phone: '',
+      address: '',
+      type: 'VIRTUAL',
+      status: 'ACTIVE',
+      createdAt: '2026-03-01T00:00:00Z',
+      updatedAt: '2026-03-01T00:00:00Z',
+    },
   ];
 
   function setupComponent(schoolId: string = 's1') {
@@ -92,7 +107,35 @@ describe('BranchesPage', () => {
     vi.clearAllMocks();
   });
 
-  it('should render loading state while loading', async () => {
+  // --- Stat Cards ---
+
+  it('should render 3 stat cards with correct values when branches load', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const statCards = fixture.nativeElement.querySelectorAll('app-stat-card');
+    expect(statCards.length).toBe(3);
+
+    const cardTexts = Array.from(statCards as Element[]).map(
+      (el) => el.textContent?.trim() ?? ''
+    );
+
+    expect(cardTexts.some((t) => t.includes('Total Sedes'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('3'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('Sedes Activas'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('2'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('Sedes Inactivas'))).toBe(true);
+    expect(cardTexts.some((t) => t.includes('1'))).toBe(true);
+  });
+
+  // --- Loading ---
+
+  it('should show loading state while data is loading', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(new Observable());
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -100,55 +143,13 @@ describe('BranchesPage', () => {
     const fixture = await TestBed.createComponent(BranchesPage);
     fixture.detectChanges();
 
-    const loadingEl = fixture.nativeElement.querySelector('[data-testid="data-table-loading"]');
+    const loadingEl = fixture.nativeElement.querySelector('[data-testid="branches-loading"]');
     expect(loadingEl).toBeTruthy();
   });
 
-  it('should render branches in data-table rows after loading', async () => {
-    setupComponent();
-    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
-    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+  // --- Error ---
 
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(2);
-
-    const cells0 = rows[0].querySelectorAll('td');
-    expect(cells0[0].textContent).toContain('Main Campus');
-    expect(cells0[1].textContent).toContain('MC-001');
-  });
-
-  it('should display school name in the page', async () => {
-    setupComponent();
-    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
-    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
-
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('North Academy');
-  });
-
-  it('should show empty state when list is empty', async () => {
-    setupComponent();
-    branchesServiceMock.getBySchool.mockReturnValue(of([]));
-    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
-
-    const fixture = await createFixture();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const title = fixture.nativeElement.querySelector('[data-testid="empty-state-title"]');
-    expect(title).toBeTruthy();
-    expect(title.textContent).toContain('No hay sedes');
-  });
-
-  it('should show error message when loading fails', async () => {
+  it('should show error state when loading fails', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(throwError(() => new Error('Network error')));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -157,12 +158,27 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const error = fixture.nativeElement.querySelector('.error-state');
-    expect(error).toBeTruthy();
-    expect(error.textContent).toContain('Failed to load branches');
+    const errorEl = fixture.nativeElement.querySelector('[data-testid="branches-error"]');
+    expect(errorEl).toBeTruthy();
+    expect(errorEl.textContent).toContain('Error al cargar sedes');
   });
 
-  it('should filter branches client-side by search input', async () => {
+  it('should have a retry button in error state', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(throwError(() => new Error('Network error')));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const retryBtn = fixture.nativeElement.querySelector('[data-testid="branches-retry"]');
+    expect(retryBtn).toBeTruthy();
+  });
+
+  // --- Breadcrumb ---
+
+  it('should display back link to return to schools', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -171,17 +187,77 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const searchInput = fixture.nativeElement.querySelector('input[type="search"]');
-    expect(searchInput).toBeTruthy();
+    const backLink = fixture.nativeElement.querySelector('[data-testid="branches-back-link"]');
+    expect(backLink).toBeTruthy();
+    expect(backLink.textContent).toContain('Volver a Instituciones');
+  });
 
-    searchInput.value = 'Main';
-    searchInput.dispatchEvent(new Event('input'));
+  // --- Dynamic Page Header ---
+
+  it('should render page header with school name and "Sedes"', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(1);
-    const cells0 = rows[0].querySelectorAll('td');
-    expect(cells0[0].textContent).toContain('Main Campus');
+    const header = fixture.nativeElement.querySelector('[data-testid="page-header"]');
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain('North Academy');
+    expect(header.textContent).toContain('Sedes');
+  });
+
+  // --- Filters inside table card ---
+
+  it('should render filters inside table card toolbar', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const tableCard = fixture.nativeElement.querySelector('.table-card');
+    expect(tableCard).toBeTruthy();
+
+    const searchInput = tableCard.querySelector('[data-testid="branches-search"]');
+    expect(searchInput).toBeTruthy();
+
+    const statusSelect = tableCard.querySelector('[data-testid="status-filter"]');
+    expect(statusSelect).toBeTruthy();
+  });
+
+  // --- Table ---
+
+  it('should render branches table with name, code, address, type badge, and status badge', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    expect(rows.length).toBe(3);
+
+    const firstRow = rows[0];
+    expect(firstRow.textContent).toContain('Main Campus');
+    expect(firstRow.textContent).toContain('MC-001');
+    expect(firstRow.textContent).toContain('123 Campus Dr');
+
+    // Type badge
+    const typeBadge = firstRow.querySelector('[data-testid="type-badge"]');
+    expect(typeBadge).toBeTruthy();
+    expect(typeBadge.textContent?.trim()).toBe('MAIN');
+
+    // Status badge
+    const statusBadge = firstRow.querySelector('[data-testid="status-badge"]');
+    expect(statusBadge).toBeTruthy();
+    expect(statusBadge.textContent?.trim()).toBe('ACTIVE');
   });
 
   it('should render action buttons for each branch row', async () => {
@@ -193,50 +269,48 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(2);
-
-    const rowElements = Array.from(rows as Element[]);
-    for (const row of rowElements) {
-      const buttons = row.querySelectorAll('[data-testid="action-btn"]');
-      expect(buttons.length).toBeGreaterThanOrEqual(1);
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    for (const row of Array.from(rows as Element[])) {
+      const actions = row.querySelectorAll('[data-testid="action-btn"]');
+      expect(actions.length).toBeGreaterThanOrEqual(2);
     }
   });
 
-  it('should display back button to return to schools', async () => {
+  // --- Type badges ---
+
+  it('should show VIRTUAL type badge correctly', async () => {
     setupComponent();
-    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    branchesServiceMock.getBySchool.mockReturnValue(of([mockBranches[2]]));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
 
     const fixture = await createFixture();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const backLink = fixture.nativeElement.querySelector('a.back-link');
-    expect(backLink).toBeTruthy();
+    const typeBadge = fixture.nativeElement.querySelector('[data-testid="type-badge"]');
+    expect(typeBadge).toBeTruthy();
+    expect(typeBadge.textContent?.trim()).toBe('VIRTUAL');
   });
 
-  it('should render status for branches in table', async () => {
+  // --- Status badge ---
+
+  it('should show INACTIVE status badge correctly', async () => {
     setupComponent();
-    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    branchesServiceMock.getBySchool.mockReturnValue(of([mockBranches[1]]));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
 
     const fixture = await createFixture();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const statusSpans = fixture.nativeElement.querySelectorAll('.data-table__status');
-    const activeSpan = Array.from(statusSpans as Element[]).find(
-      (c) => c.textContent?.trim() === 'ACTIVE'
-    );
-    const inactiveSpan = Array.from(statusSpans as Element[]).find(
-      (c) => c.textContent?.trim() === 'INACTIVE'
-    );
-    expect(activeSpan).toBeTruthy();
-    expect(inactiveSpan).toBeTruthy();
+    const statusBadge = fixture.nativeElement.querySelector('[data-testid="status-badge"]');
+    expect(statusBadge).toBeTruthy();
+    expect(statusBadge.textContent?.trim()).toBe('INACTIVE');
   });
 
-  it('should render page header with school name', async () => {
+  // --- Search (client-side) ---
+
+  it('should filter branches client-side by name search', async () => {
     setupComponent();
     branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
     schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
@@ -245,9 +319,123 @@ describe('BranchesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const header = fixture.nativeElement.querySelector('app-page-header h1');
-    expect(header).toBeTruthy();
-    expect(header.textContent).toContain('North Academy');
-    expect(header.textContent).toContain('Sedes');
+    const searchInput = fixture.nativeElement.querySelector('[data-testid="branches-search"]');
+    expect(searchInput).toBeTruthy();
+
+    searchInput.value = 'Main';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Main Campus');
+  });
+
+  it('should filter branches client-side by code search', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const searchInput = fixture.nativeElement.querySelector('[data-testid="branches-search"]');
+    searchInput.value = 'DA';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Downtown');
+  });
+
+  // --- No results ---
+
+  it('should show "Sin resultados" inside table card when filter matches nothing', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const searchInput = fixture.nativeElement.querySelector('[data-testid="branches-search"]');
+    searchInput.value = 'ZZZ_NoMatch';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const noResults = fixture.nativeElement.querySelector('[data-testid="branches-no-results"]');
+    expect(noResults).toBeTruthy();
+    expect(noResults.textContent).toContain('Sin resultados');
+  });
+
+  // --- Confirmation Dialog ---
+
+  it('should render app-confirmation-dialog for deactivate', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const confirmDialog = fixture.nativeElement.querySelector('app-confirmation-dialog');
+    expect(confirmDialog).toBeTruthy();
+  });
+
+  // --- Sort ---
+
+  it('should have sortable column headers', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const sortableHeaders = fixture.nativeElement.querySelectorAll('th.sortable');
+    expect(sortableHeaders.length).toBeGreaterThanOrEqual(3);
+  });
+
+  // --- Triangulation: Status filter ---
+
+  it('should filter branches by ACTIVE status', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const statusSelect = fixture.nativeElement.querySelector('[data-testid="status-filter"]');
+    statusSelect.value = 'ACTIVE';
+    statusSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    expect(rows.length).toBe(2);
+  });
+
+  it('should filter branches by INACTIVE status', async () => {
+    setupComponent();
+    branchesServiceMock.getBySchool.mockReturnValue(of(mockBranches));
+    schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+    const fixture = await createFixture();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const statusSelect = fixture.nativeElement.querySelector('[data-testid="status-filter"]');
+    statusSelect.value = 'INACTIVE';
+    statusSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="branch-row"]');
+    expect(rows.length).toBe(1);
   });
 });

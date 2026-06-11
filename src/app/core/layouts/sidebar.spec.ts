@@ -115,7 +115,11 @@ describe('Sidebar', () => {
       setupComponent();
       const fixture = await TestBed.createComponent(Sidebar);
       fixture.componentRef.setInput('navItems', FULL_NAV_ITEMS);
-      fixture.componentRef.setInput('collapsed', true);
+      fixture.detectChanges();
+
+      // Simulate collapsed mode via internal signal
+      const instance = fixture.componentInstance as unknown as Sidebar;
+      instance.mode.set('collapsed');
       fixture.detectChanges();
 
       const sidebarEl = fixture.nativeElement.querySelector('[data-testid="sidebar"]');
@@ -132,14 +136,14 @@ describe('Sidebar', () => {
       expect(toggleBtn).toBeTruthy();
     });
 
-    it('should emit toggleCollapsed when toggle button is clicked', async () => {
+    it('should emit widthChange when toggle button is clicked', async () => {
       setupComponent();
       const fixture = await TestBed.createComponent(Sidebar);
       fixture.componentRef.setInput('navItems', FULL_NAV_ITEMS);
       fixture.detectChanges();
 
       let emitted = false;
-      (fixture.componentInstance as unknown as Sidebar).toggleCollapsed.subscribe(() => {
+      (fixture.componentInstance as unknown as Sidebar).widthChange.subscribe(() => {
         emitted = true;
       });
 
@@ -182,7 +186,11 @@ describe('Sidebar', () => {
       setupComponent();
       const fixture = await TestBed.createComponent(Sidebar);
       fixture.componentRef.setInput('navItems', FULL_NAV_ITEMS);
-      fixture.componentRef.setInput('collapsed', true);
+      fixture.detectChanges();
+
+      // Simulate collapsed mode
+      const instance = fixture.componentInstance as unknown as Sidebar;
+      instance.mode.set('collapsed');
       fixture.detectChanges();
 
       const navItem = fixture.nativeElement.querySelector('[data-testid="nav-item"]');
