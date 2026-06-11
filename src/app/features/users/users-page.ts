@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom, forkJoin, of } from 'rxjs';
@@ -232,19 +232,6 @@ export class UsersPageComponent {
   /* ---- Lifecycle ----------------------------------------------------- */
   constructor() {
     this.loadUsers();
-
-    // Debounced search via API
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-    effect((onCleanup) => {
-      const term = this.searchTerm();
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        this.loadUsers(term || undefined);
-      }, 300);
-      onCleanup(() => {
-        if (debounceTimer) clearTimeout(debounceTimer);
-      });
-    });
   }
 
   /* ---- Data loading -------------------------------------------------- */
@@ -311,17 +298,18 @@ export class UsersPageComponent {
 
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    // Debounce to avoid re-renders on every keystroke
     if (this.searchTimer) clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => {
       this.searchTerm.set(input.value);
-    }, 200);
+      this.loadUsers(input.value || undefined);
+    }, 300);
   }
 
   clearSearch(input: HTMLInputElement): void {
     this.searchTerm.set('');
     input.value = '';
     input.focus();
+    this.loadUsers();
   }
 
   /* ---- Pagination handlers ------------------------------------------- */

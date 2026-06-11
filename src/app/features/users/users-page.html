@@ -117,7 +117,6 @@
                 class="search-input"
                 type="text"
                 data-testid="institution-filter"
-                [value]="institutionFilter()"
                 (input)="setInstitutionFilter($any($event.target).value)"
                 placeholder="Filtrar por institución..."
               />
@@ -156,7 +155,6 @@
                 class="search-input"
                 type="text"
                 data-testid="users-search"
-                [value]="searchTerm()"
                 (input)="onSearchInput($event)"
                 placeholder="Buscar por nombre, email o username..."
               />
