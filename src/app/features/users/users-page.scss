@@ -368,6 +368,16 @@ $font-family: 'Roboto', sans-serif;
       letter-spacing: 0.5px;
       text-align: left;
       white-space: nowrap;
+
+      &.sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s;
+
+        &:hover {
+          color: #2563eb;
+        }
+      }
     }
   }
 

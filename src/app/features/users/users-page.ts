@@ -16,6 +16,8 @@ import {
   LucideFileType,
   LucideChevronLeft,
   LucideChevronRight,
+  LucideArrowUp,
+  LucideArrowDown,
 } from '@lucide/angular';
 import { UsersService } from './services/users';
 import { MembershipsService } from './memberships/services/memberships';
@@ -89,6 +91,8 @@ const STATUS_CLASSES: Record<string, string> = {
     LucideShield,
     LucideChevronLeft,
     LucideChevronRight,
+    LucideArrowUp,
+    LucideArrowDown,
   ],
   templateUrl: './users-page.html',
   styleUrl: './users-page.scss',
@@ -110,6 +114,8 @@ export class UsersPageComponent {
   readonly institutionFilter = signal('');
   readonly searchTerm = signal('');
   readonly exportMenuOpen = signal(false);
+  readonly sortColumn = signal<string | null>(null);
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   // Pagination
   readonly currentPage = signal(1);
@@ -158,8 +164,28 @@ export class UsersPageComponent {
       );
     }
 
+    // Sort
+    const col = this.sortColumn();
+    if (col) {
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      result = [...result].sort((a, b) => {
+        const va = (a as Record<string, unknown>)[col] ?? '';
+        const vb = (b as Record<string, unknown>)[col] ?? '';
+        return String(va).localeCompare(String(vb)) * dir;
+      });
+    }
+
     return result;
   });
+
+  sortBy(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.update((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
 
   /* ---- Computed: Pagination ------------------------------------------ */
   readonly totalPages = computed(() => {

@@ -208,11 +208,56 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th>Usuario</th>
-            <th>Username</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Institución</th>
+            <th class="sortable" (click)="sortBy('fullName')">
+              Usuario
+              @if (sortColumn() === 'fullName') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('username')">
+              Username
+              @if (sortColumn() === 'username') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('role')">
+              Rol
+              @if (sortColumn() === 'role') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Estado
+              @if (sortColumn() === 'status') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('institution')">
+              Institución
+              @if (sortColumn() === 'institution') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
             <th class="users-table__th--actions">Acciones</th>
           </tr>
         </thead>
