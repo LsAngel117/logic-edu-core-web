@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom, forkJoin, of } from 'rxjs';
@@ -303,6 +303,14 @@ export class UsersPageComponent {
 
   toggleExportMenu(): void {
     this.exportMenuOpen.update((v) => !v);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.export-dropdown')) {
+      this.exportMenuOpen.set(false);
+    }
   }
 
   exportData(format: string): void {
