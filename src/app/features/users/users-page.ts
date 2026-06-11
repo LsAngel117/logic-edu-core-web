@@ -169,8 +169,8 @@ export class UsersPageComponent {
     if (col) {
       const dir = this.sortDirection() === 'asc' ? 1 : -1;
       result = [...result].sort((a, b) => {
-        const va = (a as Record<string, unknown>)[col] ?? '';
-        const vb = (b as Record<string, unknown>)[col] ?? '';
+        const va = (a as unknown as Record<string, unknown>)[col] ?? '';
+        const vb = (b as unknown as Record<string, unknown>)[col] ?? '';
         return String(va).localeCompare(String(vb)) * dir;
       });
     }
