@@ -14,7 +14,7 @@
     description="Administra las sedes de esta institución."
     data-testid="page-header"
   >
-    <button class="btn-primary" data-testid="create-branch-btn-header" (click)="openCreateDialog()">
+    <button class="btn-primary" data-testid="create-branch-btn-header" (click)="createDialogVisible.set(true)">
       <svg lucidePlus class="btn-icon"></svg>
       Nueva Sede
     </button>
@@ -137,7 +137,7 @@
 
         <div class="toolbar-actions-right">
           <!-- Nueva Sede button -->
-          <button class="btn-primary btn-primary--sm" data-testid="create-branch-btn-toolbar" (click)="openCreateDialog()">
+          <button class="btn-primary btn-primary--sm" data-testid="create-branch-btn-toolbar" (click)="createDialogVisible.set(true)">
             <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
             Nueva Sede
           </button>
@@ -338,6 +338,12 @@
   }
 
   <!-- ======= STATUS DIALOG ======= -->
+  <app-create-branch
+    [schoolId]="schoolId"
+    [(visible)]="createDialogVisible"
+    (created)="onBranchCreated()"
+  />
+
   <app-confirmation-dialog
     [title]="statusDialogTitle()"
     [message]="statusDialogMessage()"

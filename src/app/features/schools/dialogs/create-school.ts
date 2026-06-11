@@ -51,6 +51,16 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
           <label>Dirección <span class="required">*</span></label>
           <input type="text" formControlName="address" placeholder="Dirección física" />
         </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Ciudad</label>
+            <input type="text" formControlName="city" placeholder="Ej: Medellín" />
+          </div>
+          <div class="form-field">
+            <label>País</label>
+            <input type="text" formControlName="country" placeholder="Ej: Colombia" />
+          </div>
+        </div>
         <div class="form-field">
           <label>Descripción</label>
           <textarea formControlName="description" placeholder="Descripción de la institución (opcional)" rows="2"></textarea>
@@ -130,6 +140,8 @@ export class CreateSchoolDialogComponent {
     email: [''],
     phone: [''],
     address: ['', Validators.required],
+    city: [''],
+    country: [''],
   });
 
   async onSubmit(): Promise<void> {
@@ -150,6 +162,8 @@ export class CreateSchoolDialogComponent {
       email: raw.email || undefined,
       phone: raw.phone || undefined,
       address: raw.address,
+      city: raw.city || undefined,
+      country: raw.country || undefined,
     };
 
     try {

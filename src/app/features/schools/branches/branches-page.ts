@@ -19,6 +19,7 @@ import { SchoolsService } from '../services/schools';
 import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
+import { CreateBranchDialogComponent } from './dialogs/create-branch';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -72,6 +73,7 @@ const STATUS_CLASSES: Record<string, string> = {
     LucideChevronRight,
     LucideArrowUp,
     LucideArrowDown,
+    CreateBranchDialogComponent,
   ],
   templateUrl: './branches-page.html',
   styleUrl: './branches-page.scss',
@@ -224,13 +226,14 @@ export class BranchesPage {
   });
 
   /* ---- Route data ---------------------------------------------------- */
-  private schoolId: string | null = null;
+  readonly schoolId = signal('');
 
   /* ---- Lifecycle ----------------------------------------------------- */
   constructor() {
     this.route.params.subscribe((params) => {
-      this.schoolId = params['schoolId'] as string;
-      if (this.schoolId) {
+      const id = params['schoolId'] as string;
+      this.schoolId.set(id);
+      if (id) {
         this.loadData();
       }
     });
@@ -238,12 +241,11 @@ export class BranchesPage {
 
   /* ---- Data loading -------------------------------------------------- */
   loadData(): void {
-    if (!this.schoolId) return;
-
+    if (!this.schoolId()) return;
     this.loading.set(true);
     this.error.set(false);
 
-    this.schoolsService.getById(this.schoolId).subscribe({
+    this.schoolsService.getById(this.schoolId()).subscribe({
       next: (school: School) => {
         this.school.set(school);
       },
@@ -253,7 +255,7 @@ export class BranchesPage {
       },
     });
 
-    this.branchesService.getBySchool(this.schoolId).subscribe({
+    this.branchesService.getBySchool(this.schoolId()).subscribe({
       next: (result: BranchResponse[]) => {
         this.branches.set(result);
         this.currentPage.set(1);
@@ -309,19 +311,10 @@ export class BranchesPage {
 
   /* ---- Dialog actions ------------------------------------------------ */
 
-  async openCreateDialog(): Promise<void> {
-    const { CreateBranchDialogComponent } = await import('./dialogs/create-branch');
-    const { MatDialog } = await import('@angular/material/dialog');
-    const dialog = inject(MatDialog);
-    const dialogRef = dialog.open(CreateBranchDialogComponent, {
-      width: '480px',
-      data: this.schoolId,
-    });
-    dialogRef.afterClosed().subscribe((result: BranchResponse | undefined) => {
-      if (result) {
-        this.loadData();
-      }
-    });
+  readonly createDialogVisible = signal(false);
+
+  onBranchCreated(): void {
+    this.loadData();
   }
 
   async openEditDialog(branch: BranchResponse): Promise<void> {
@@ -352,10 +345,10 @@ export class BranchesPage {
 
   async confirmStatusChange(): Promise<void> {
     const branch = this.selectedBranch();
-    if (!branch || !this.schoolId) return;
+    if (!branch || !this.schoolId()) return;
 
     try {
-      await firstValueFrom(this.branchesService.updateStatus(this.schoolId, branch.id));
+      await firstValueFrom(this.branchesService.updateStatus(this.schoolId(), branch.id));
       this.statusDialogVisible.set(false);
       this.selectedBranch.set(null);
       this.loadData();

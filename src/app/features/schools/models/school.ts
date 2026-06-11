@@ -7,6 +7,8 @@ export interface School {
   email: string;
   phone: string;
   address: string;
+  city?: string;
+  country?: string;
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
 }
@@ -19,6 +21,8 @@ export interface CreateSchoolPayload {
   email?: string;
   phone?: string;
   address: string;
+  city?: string;
+  country?: string;
 }
 
 export interface UpdateSchoolPayload {

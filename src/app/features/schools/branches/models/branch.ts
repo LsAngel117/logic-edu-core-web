@@ -8,6 +8,8 @@ export interface BranchResponse {
   email: string;
   phone: string;
   address: string;
+  city?: string;
+  country?: string;
   type: 'MAIN' | 'SECONDARY' | 'VIRTUAL';
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
@@ -22,6 +24,8 @@ export interface CreateBranchRequest {
   email?: string;
   phone?: string;
   address?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface UpdateBranchRequest {
@@ -32,4 +36,6 @@ export interface UpdateBranchRequest {
   email?: string;
   phone?: string;
   address?: string;
+  city?: string;
+  country?: string;
 }
