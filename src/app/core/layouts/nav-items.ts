@@ -20,7 +20,6 @@ const ADMIN_ITEMS: NavItem[] = [
     route: '/schools',
     children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
   },
-  { label: 'Sedes', icon: 'git-branch', route: '/schools' },
 ];
 
 /** School admin items — institution-level management. */
@@ -32,7 +31,6 @@ const SCHOOL_ITEMS: NavItem[] = [
     route: '/schools',
     children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
   },
-  { label: 'Sedes', icon: 'git-branch', route: '/schools' },
 ];
 
 /** Teacher items — classroom-level tools. */
