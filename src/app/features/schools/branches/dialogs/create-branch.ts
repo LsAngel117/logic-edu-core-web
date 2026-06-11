@@ -112,7 +112,7 @@ export class CreateBranchDialogComponent {
     name: ['', Validators.required],
     code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
     shortName: ['', Validators.required],
-    type: ['MAIN' as const, Validators.required],
+    type: ['MAIN' as 'MAIN' | 'SECONDARY' | 'VIRTUAL' | 'TEMPORARY', Validators.required],
     description: [''],
     email: [''],
     phone: [''],
