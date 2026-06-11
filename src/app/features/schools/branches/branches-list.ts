@@ -112,6 +112,7 @@ export class BranchesListComponent {
   readonly totalBranches = computed(() => this.branches().length);
   readonly activeBranches = computed(() => this.branches().filter(b => b.status === 'ACTIVE').length);
   readonly inactiveBranches = computed(() => this.branches().filter(b => b.status === 'INACTIVE').length);
+  readonly showingTo = computed(() => Math.min(this.currentPage() * this.pageSize(), this.filteredBranches().length));
 
   constructor() { this.loadData(); }
 

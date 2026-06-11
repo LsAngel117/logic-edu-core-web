@@ -27,7 +27,7 @@
       <table>
         <thead>
           <tr>
-            <th class="sortable" (click)="sortBy('name')">Nombre @if (sortColumn() === 'name') { <svg [lucide]="sortDirection()==='asc' ? 'arrow-up' : 'arrow-down'" class="sort-icon"></svg> }</th>
+            <th class="sortable" (click)="sortBy('name')">Nombre @if (sortColumn() === 'name') { @if (sortDirection()==='asc') { <svg lucideArrowUp class="sort-icon"></svg> } @else { <svg lucideArrowDown class="sort-icon"></svg> } }</th>
             <th class="sortable" (click)="sortBy('code')">Código</th>
             <th class="sortable" (click)="sortBy('schoolName')">Institución</th>
             <th>Tipo</th>
@@ -53,7 +53,7 @@
         </tbody>
       </table>
       <div class="pagination">
-        <span>Mostrando {{ (currentPage()-1)*pageSize()+1 }}–{{ Math.min(currentPage()*pageSize(), filteredBranches().length) }} de {{ filteredBranches().length }}</span>
+        <span>Mostrando {{ (currentPage()-1)*pageSize()+1 }}–{{ showingTo() }} de {{ filteredBranches().length }}</span>
         <div class="pagination-controls">
           <button class="page-btn" [disabled]="currentPage()===1" (click)="prevPage()"><svg lucideChevronLeft></svg></button>
           @for (p of [].constructor(totalPages()); track $index) {
