@@ -33,12 +33,8 @@ export class PlatformLayout {
       case 'administration':
         return [
           { label: 'Usuarios', icon: 'users', route: '/users' },
-          {
-            label: 'Instituciones',
-            icon: 'building-2',
-            route: '/schools',
-            children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
-          },
+          { label: 'Instituciones', icon: 'building-2', route: '/schools' },
+          { label: 'Sedes', icon: 'git-branch', route: '/branches' },
         ];
       default:
         return [];

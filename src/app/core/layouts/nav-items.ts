@@ -14,23 +14,15 @@ const BASE_ITEMS: NavItem[] = [
 /** Admin items — platform-level management. */
 const ADMIN_ITEMS: NavItem[] = [
   { label: 'Usuarios', icon: 'users', route: '/users' },
-  {
-    label: 'Instituciones',
-    icon: 'building-2',
-    route: '/schools',
-    children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
-  },
+  { label: 'Instituciones', icon: 'building-2', route: '/schools' },
+  { label: 'Sedes', icon: 'git-branch', route: '/branches' },
 ];
 
 /** School admin items — institution-level management. */
 const SCHOOL_ITEMS: NavItem[] = [
   { label: 'Usuarios', icon: 'users', route: '/users' },
-  {
-    label: 'Instituciones',
-    icon: 'building-2',
-    route: '/schools',
-    children: [{ label: 'Sedes', icon: 'git-branch', route: '/schools' }],
-  },
+  { label: 'Instituciones', icon: 'building-2', route: '/schools' },
+  { label: 'Sedes', icon: 'git-branch', route: '/branches' },
 ];
 
 /** Teacher items — classroom-level tools. */

@@ -27,6 +27,10 @@ export const routes: Routes = [
         path: 'schools',
         loadChildren: () => import('./features/schools/routes'),
       },
+      {
+        path: 'branches',
+        loadComponent: () => import('./features/schools/branches/branches-list').then(m => m.BranchesListComponent),
+      },
     ],
   },
 ];

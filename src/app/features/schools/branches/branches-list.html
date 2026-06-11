@@ -1,0 +1,67 @@
+<div class="branches-page">
+  <app-page-header title="Sedes" description="Administra todas las sedes registradas en la plataforma." />
+
+  @if (loading()) {
+    <div class="loading-state">Cargando sedes...</div>
+  } @else if (error()) {
+    <app-empty-state icon="git-branch" title="Error al cargar" description="No se pudieron cargar las sedes." />
+  } @else if (branches().length === 0) {
+    <app-empty-state icon="git-branch" title="No hay sedes registradas" description="Comienza creando sedes desde una institución." />
+  } @else {
+    <div class="stats-row">
+      <app-stat-card icon="git-branch" label="Total Sedes" [value]="totalBranches()"
+        iconColor="#2563eb" iconBg="rgba(37,99,235,0.08)" />
+      <app-stat-card icon="git-branch" label="Activas" [value]="activeBranches()"
+        iconColor="#10b981" iconBg="rgba(16,185,129,0.08)" />
+      <app-stat-card icon="git-branch" label="Inactivas" [value]="inactiveBranches()"
+        iconColor="#ef4444" iconBg="rgba(239,68,68,0.08)" />
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-wrapper">
+          <svg lucideSearch class="search-icon"></svg>
+          <input class="search-input" type="text" placeholder="Buscar sede..." [value]="searchTerm()" (input)="onSearch($event)" />
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('name')">Nombre @if (sortColumn() === 'name') { <svg [lucide]="sortDirection()==='asc' ? 'arrow-up' : 'arrow-down'" class="sort-icon"></svg> }</th>
+            <th class="sortable" (click)="sortBy('code')">Código</th>
+            <th class="sortable" (click)="sortBy('schoolName')">Institución</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (branch of paginatedBranches(); track branch.id) {
+            <tr>
+              <td>{{ branch.name }}</td>
+              <td>{{ branch.code }}</td>
+              <td>{{ branch.schoolName }}</td>
+              <td><span class="type-badge" [class]="getTypeClass(branch.type)">{{ branch.type }}</span></td>
+              <td><span class="status-badge" [class]="getStatusClass(branch.status)">{{ branch.status }}</span></td>
+              <td>
+                <a class="action-btn" [routerLink]="['/schools', branch.schoolId, 'branches']" title="Ver sedes de esta institución">
+                  <svg lucideEye></svg>
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>Mostrando {{ (currentPage()-1)*pageSize()+1 }}–{{ Math.min(currentPage()*pageSize(), filteredBranches().length) }} de {{ filteredBranches().length }}</span>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="currentPage()===1" (click)="prevPage()"><svg lucideChevronLeft></svg></button>
+          @for (p of [].constructor(totalPages()); track $index) {
+            <button class="page-btn" [class.active]="$index+1===currentPage()" (click)="goToPage($index+1)">{{ $index+1 }}</button>
+          }
+          <button class="page-btn" [disabled]="currentPage()===totalPages()" (click)="nextPage()"><svg lucideChevronRight></svg></button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
