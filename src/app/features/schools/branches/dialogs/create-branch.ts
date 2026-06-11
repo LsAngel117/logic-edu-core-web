@@ -34,32 +34,36 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
         </div>
         <div class="form-row">
           <div class="form-field">
-            <label>Nombre Corto <span class="required">*</span></label>
-            <input type="text" formControlName="shortName" placeholder="Sigla o abreviatura" />
+            <label>Tipo <span class="required">*</span></label>
+            <select formControlName="type" class="form-select">
+              <option value="MAIN">Principal</option>
+              <option value="SECONDARY">Secundaria</option>
+              <option value="VIRTUAL">Virtual</option>
+              <option value="TEMPORARY">Temporal</option>
+            </select>
           </div>
           <div class="form-field">
-            <label>Teléfono</label>
-            <input type="text" formControlName="phone" placeholder="+57 601 3456789" />
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="sede@institucion.edu.co" />
           </div>
         </div>
-        <div class="form-field">
-          <label>Email</label>
-          <input type="email" formControlName="email" placeholder="sede@institucion.edu.co" />
-        </div>
-        <div class="form-field">
-          <label>Dirección <span class="required">*</span></label>
-          <input type="text" formControlName="address" placeholder="Dirección física" />
-        </div>
-        <div class="form-row">
+
+        @if (form.controls.type.value !== 'VIRTUAL') {
           <div class="form-field">
-            <label>Ciudad</label>
-            <input type="text" formControlName="city" placeholder="Ej: Medellín" />
+            <label>Dirección <span class="required">*</span></label>
+            <input type="text" formControlName="address" placeholder="Dirección física" />
           </div>
-          <div class="form-field">
-            <label>País</label>
-            <input type="text" formControlName="country" placeholder="Ej: Colombia" />
+          <div class="form-row">
+            <div class="form-field">
+              <label>Ciudad</label>
+              <input type="text" formControlName="city" placeholder="Ej: Medellín" />
+            </div>
+            <div class="form-field">
+              <label>País</label>
+              <input type="text" formControlName="country" placeholder="Ej: Colombia" />
+            </div>
           </div>
-        </div>
+        }
         <div class="form-field">
           <label>Descripción</label>
           <textarea formControlName="description" placeholder="Descripción de la sede (opcional)" rows="2"></textarea>
@@ -82,8 +86,13 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     .form-field textarea { height: auto; padding: 8px 12px; resize: vertical; }
-    .form-field input:focus, .form-field textarea:focus {
+    .form-field input:focus, .form-field textarea:focus, .form-field select:focus {
       border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .form-select {
+      height: 40px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 14px; color: #111827; outline: none;
+      background: #fff; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
     }
     .field-error { background: #fef2f2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
   `,
@@ -103,6 +112,7 @@ export class CreateBranchDialogComponent {
     name: ['', Validators.required],
     code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
     shortName: ['', Validators.required],
+    type: ['MAIN' as const, Validators.required],
     description: [''],
     email: [''],
     phone: [''],
@@ -118,11 +128,16 @@ export class CreateBranchDialogComponent {
     this.errorMessage.set('');
 
     const raw = this.form.getRawValue();
+    const isVirtual = raw.type === 'VIRTUAL';
     const payload: CreateBranchRequest = {
       name: raw.name, code: raw.code, shortName: raw.shortName,
-      description: raw.description || undefined, email: raw.email || undefined,
-      phone: raw.phone || undefined, address: raw.address,
-      city: raw.city || undefined, country: raw.country || undefined,
+      type: raw.type,
+      description: raw.description || undefined,
+      email: raw.email || undefined,
+      phone: raw.phone || undefined,
+      address: isVirtual ? undefined : (raw.address || undefined),
+      city: isVirtual ? undefined : (raw.city || undefined),
+      country: isVirtual ? undefined : (raw.country || undefined),
     };
 
     try {

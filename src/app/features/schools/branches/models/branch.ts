@@ -10,7 +10,7 @@ export interface BranchResponse {
   address: string;
   city?: string;
   country?: string;
-  type: 'MAIN' | 'SECONDARY' | 'VIRTUAL';
+  type: 'MAIN' | 'SECONDARY' | 'VIRTUAL' | 'TEMPORARY';
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
@@ -23,6 +23,7 @@ export interface CreateBranchRequest {
   description?: string;
   email?: string;
   phone?: string;
+  type?: 'MAIN' | 'SECONDARY' | 'VIRTUAL' | 'TEMPORARY';
   address?: string;
   city?: string;
   country?: string;
