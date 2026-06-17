@@ -7,8 +7,14 @@ import { SchoolsService } from '../../../schools/services/schools';
 import { BranchesService } from '../../../schools/branches/services/branches';
 import { AssignMembershipRequest } from '../models/membership';
 
-const ROLES = ['PLATFORM_ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] as const;
-const SCOPE_TYPES = ['PLATFORM', 'SCHOOL', 'BRANCH', 'ACADEMY', 'COURSE'] as const;
+/** Each role has an intrinsic scope type (backend domain rule). */
+const ROLE_SCOPE: Record<string, string> = {
+  PLATFORM_ADMIN: 'PLATFORM',
+  SCHOOL_ADMIN: 'SCHOOL',
+  BRANCH_ADMIN: 'BRANCH',
+  TEACHER: 'COURSE',
+  STUDENT: 'COURSE',
+};
 
 @Component({
   selector: 'app-add-membership',
@@ -18,6 +24,7 @@ const SCOPE_TYPES = ['PLATFORM', 'SCHOOL', 'BRANCH', 'ACADEMY', 'COURSE'] as con
     <app-dialog title="Agregar Membresía" confirmLabel="Agregar" cancelLabel="Cancelar"
       [loading]="loading()" [(visible)]="visible" (confirm)="onSubmit()" (cancel)="visible.set(false)">
       <form [formGroup]="form" class="dialog-form">
+        <!-- Role selector -->
         <div class="form-field">
           <label>Rol <span class="required">*</span></label>
           <select formControlName="role" class="form-select">
@@ -25,21 +32,14 @@ const SCOPE_TYPES = ['PLATFORM', 'SCHOOL', 'BRANCH', 'ACADEMY', 'COURSE'] as con
             @for (r of roles; track r) { <option [value]="r">{{ r }}</option> }
           </select>
         </div>
-        <div class="form-field">
-          <label>Alcance <span class="required">*</span></label>
-          <select formControlName="scopeType" class="form-select">
-            <option value="" disabled>Seleccionar alcance</option>
-            @for (s of scopeTypes; track s) { <option [value]="s">{{ s }}</option> }
-          </select>
-        </div>
 
-        <!-- PLATFORM: no ref needed -->
-        @if (form.controls.scopeType.value === 'PLATFORM') {
-          <p class="scope-hint">El alcance PLATFORM no requiere referencia.</p>
+        <!-- Scope hint (derived from role) -->
+        @if (scopeType(); as s) {
+          <p class="scope-hint">Alcance: <strong>{{ s }}</strong>{{ s === 'PLATFORM' ? ' (sin restricción)' : '' }}</p>
         }
 
-        <!-- SCHOOL: select a school -->
-        @if (form.controls.scopeType.value === 'SCHOOL') {
+        <!-- SCHOOL_ADMIN: select school -->
+        @if (scopeType() === 'SCHOOL') {
           <div class="form-field">
             <label>Institución <span class="required">*</span></label>
             <select formControlName="scopeRefId" class="form-select">
@@ -49,8 +49,8 @@ const SCOPE_TYPES = ['PLATFORM', 'SCHOOL', 'BRANCH', 'ACADEMY', 'COURSE'] as con
           </div>
         }
 
-        <!-- BRANCH: select a branch -->
-        @if (form.controls.scopeType.value === 'BRANCH') {
+        <!-- BRANCH_ADMIN: select branch -->
+        @if (scopeType() === 'BRANCH') {
           <div class="form-field">
             <label>Sede <span class="required">*</span></label>
             <select formControlName="scopeRefId" class="form-select">
@@ -60,11 +60,11 @@ const SCOPE_TYPES = ['PLATFORM', 'SCHOOL', 'BRANCH', 'ACADEMY', 'COURSE'] as con
           </div>
         }
 
-        <!-- ACADEMY or COURSE: text input -->
-        @if (form.controls.scopeType.value === 'ACADEMY' || form.controls.scopeType.value === 'COURSE') {
+        <!-- TEACHER/STUDENT (COURSE): text input for group ID -->
+        @if (scopeType() === 'COURSE') {
           <div class="form-field">
-            <label>ID de Referencia <span class="required">*</span></label>
-            <input type="text" formControlName="scopeRefId" placeholder="Identificador" />
+            <label>ID del Grupo <span class="required">*</span></label>
+            <input type="text" formControlName="scopeRefId" placeholder="Identificador del grupo" />
           </div>
         }
 
@@ -90,8 +90,7 @@ export class AddMembershipDialogComponent {
   private readonly branchesService = inject(BranchesService);
   private readonly fb = inject(FormBuilder);
 
-  readonly roles = ROLES;
-  readonly scopeTypes = SCOPE_TYPES;
+  readonly roles = Object.keys(ROLE_SCOPE);
   readonly loading = signal(false);
   readonly errorMessage = signal('');
 
@@ -104,35 +103,37 @@ export class AddMembershipDialogComponent {
 
   readonly form = this.fb.nonNullable.group({
     role: ['', Validators.required],
-    scopeType: ['', Validators.required],
     scopeRefId: [''],
   });
 
-  readonly needsRef = computed(() => {
-    const t = this.form.controls.scopeType.value;
-    return t !== 'PLATFORM' && t !== '';
+  /** Scope type is derived from role — no independent selector needed */
+  readonly scopeType = computed(() => {
+    const r = this.form.controls.role.value;
+    return ROLE_SCOPE[r] ?? '';
   });
 
+  readonly needsRef = computed(() => this.scopeType() !== 'PLATFORM' && this.scopeType() !== '');
+
   constructor() {
-    // Pre-fetch schools and branches
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
-    // Fetch all branches across all schools
+    // Fetch branches across schools
     this.schoolsService.getAll().subscribe((schools) => {
       schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
-        const current = this.branches();
-        list.forEach((b: any) => current.push({ id: b.id, name: b.name }));
-        this.branches.set([...current]);
+        const cur = this.branches();
+        list.forEach((b: any) => cur.push({ id: b.id, name: b.name }));
+        this.branches.set([...cur]);
       }));
     });
   }
 
   async onSubmit(): Promise<void> {
-    const st = this.form.controls.scopeType.value;
+    const role = this.form.controls.role.value;
     const ref = this.form.controls.scopeRefId.value;
+    const scope = this.scopeType();
 
-    if (!this.form.controls.role.value || !st) { this.form.markAllAsTouched(); return; }
+    if (!role) { this.form.markAllAsTouched(); return; }
     if (this.needsRef() && !ref) {
-      this.errorMessage.set('La referencia de alcance es requerida');
+      this.errorMessage.set('La referencia es requerida para este alcance');
       return;
     }
 
@@ -141,9 +142,9 @@ export class AddMembershipDialogComponent {
 
     const payload: AssignMembershipRequest = {
       userId: this.userId(),
-      role: this.form.controls.role.value,
-      scopeType: st,
-      scopeRefId: st === 'PLATFORM' ? '' : ref,
+      role,
+      scopeType: scope,
+      scopeRefId: scope === 'PLATFORM' ? '' : ref,
     };
 
     try {
