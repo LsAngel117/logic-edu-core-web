@@ -105,7 +105,7 @@
       }
       <button class="btn-outline" (click)="openPasswordDialog()">
         <svg lucideKeyRound class="btn-icon"></svg>
-        Reset Password
+        Restablecer contraseña
       </button>
     </div>
   </div>
@@ -302,7 +302,7 @@
                   </span>
                 </td>
                 <td class="membresias-table__td--actions">
-                  <button class="action-btn" title="Editar membresía">
+                  <button class="action-btn" title="Editar membresía" (click)="openAddMembership()">
                     <svg lucidePencil></svg>
                   </button>
                   <button class="action-btn action-btn--danger" title="Eliminar membresía" (click)="openRemoveMembership(m)">
