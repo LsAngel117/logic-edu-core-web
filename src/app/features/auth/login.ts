@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LucideSchool, LucideLock, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular';
+import { LucideLock, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { AuthService } from '../../core/services/auth';
 
 @Component({
@@ -10,7 +10,6 @@ import { AuthService } from '../../core/services/auth';
   imports: [
     ReactiveFormsModule,
     MatProgressSpinnerModule,
-    LucideSchool,
     LucideLock,
     LucideMail,
     LucideEye,

@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, input, model, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  LucideSchool,
   LucideSettings,
   LucideWrench,
   LucideBarChart3,
@@ -17,7 +16,6 @@ import { AuthService } from '../../../core/services/auth';
 @Component({
   selector: 'app-top-navbar',
   imports: [
-    LucideSchool,
     LucideSettings,
     LucideWrench,
     LucideBarChart3,
