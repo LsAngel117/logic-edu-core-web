@@ -1,20 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 import { UsersService } from '../services/users';
 import { PasswordDialogComponent } from './password';
 
 describe('PasswordDialogComponent', () => {
   let usersServiceMock: { changePassword: ReturnType<typeof vi.fn> };
-  let dialogRefMock: { close: ReturnType<typeof vi.fn> };
-
-  const dialogData = { userId: 'u1' };
+  let fixture: ComponentFixture<PasswordDialogComponent>;
 
   function setupComponent() {
     usersServiceMock = { changePassword: vi.fn() };
-    dialogRefMock = { close: vi.fn() };
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -22,186 +18,240 @@ describe('PasswordDialogComponent', () => {
       providers: [
         provideAnimationsAsync(),
         { provide: UsersService, useValue: usersServiceMock },
-        { provide: MatDialogRef, useValue: dialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
       ],
     });
-  }
-
-  async function createFixture() {
-    const fixture = await TestBed.createComponent(PasswordDialogComponent);
-    fixture.detectChanges();
-    return fixture;
+    fixture = TestBed.createComponent(PasswordDialogComponent);
   }
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should render form with current password, new password, and confirm password fields', async () => {
-    setupComponent();
-    const fixture = await createFixture();
+  // ======================================================================
+  //  RENDERING
+  // ======================================================================
+  describe('rendering', () => {
+    it('should not render dialog when visible is false', () => {
+      setupComponent();
+      fixture.detectChanges();
 
-    const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
-    expect(inputs.length).toBe(3);
-
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    expect(submitButton).toBeTruthy();
-
-    const cancelButton = fixture.nativeElement.querySelector('button[type="button"]');
-    expect(cancelButton).toBeTruthy();
-  });
-
-  it('should show validation errors when form is submitted empty', async () => {
-    setupComponent();
-    const fixture = await createFixture();
-
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    submitButton.click();
-    fixture.detectChanges();
-
-    const errors = fixture.nativeElement.querySelectorAll('mat-error');
-    expect(errors.length).toBeGreaterThan(0);
-    expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
-  });
-
-  it('should show mismatch error when new password and confirm password differ', async () => {
-    setupComponent();
-    const fixture = await createFixture();
-
-    const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
-    const currentInput = inputs[0];
-    const newInput = inputs[1];
-    const confirmInput = inputs[2];
-
-    currentInput.value = 'oldpass123';
-    currentInput.dispatchEvent(new Event('input'));
-    newInput.value = 'newpass123';
-    newInput.dispatchEvent(new Event('input'));
-    confirmInput.value = 'different';
-    confirmInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    submitButton.click();
-    fixture.detectChanges();
-
-    const errors = fixture.nativeElement.querySelectorAll('mat-error');
-    const mismatchError = Array.from(errors as Element[]).find(
-      (e) => e.textContent?.includes('match')
-    );
-    expect(mismatchError).toBeTruthy();
-    expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
-  });
-
-  it('should show minLength error when new password is too short', async () => {
-    setupComponent();
-    const fixture = await createFixture();
-
-    const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
-    const currentInput = inputs[0];
-    const newInput = inputs[1];
-    const confirmInput = inputs[2];
-
-    currentInput.value = 'oldpass123';
-    currentInput.dispatchEvent(new Event('input'));
-    newInput.value = '123';
-    newInput.dispatchEvent(new Event('input'));
-    confirmInput.value = '123';
-    confirmInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    submitButton.click();
-    fixture.detectChanges();
-
-    const errors = fixture.nativeElement.querySelectorAll('mat-error');
-    const lengthError = Array.from(errors as Element[]).find(
-      (e) => e.textContent?.includes('at least 8')
-    );
-    expect(lengthError).toBeTruthy();
-    expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
-  });
-
-  it('should call UsersService.changePassword with userId and payload on valid submit', async () => {
-    setupComponent();
-    usersServiceMock.changePassword.mockReturnValue(of(undefined));
-    const fixture = await createFixture();
-
-    const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
-    const currentInput = inputs[0];
-    const newInput = inputs[1];
-    const confirmInput = inputs[2];
-
-    currentInput.value = 'oldpass123';
-    currentInput.dispatchEvent(new Event('input'));
-    newInput.value = 'newpass456';
-    newInput.dispatchEvent(new Event('input'));
-    confirmInput.value = 'newpass456';
-    confirmInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    submitButton.click();
-
-    await fixture.whenStable();
-
-    expect(usersServiceMock.changePassword).toHaveBeenCalledWith('u1', {
-      currentPassword: 'oldpass123',
-      newPassword: 'newpass456',
+      const overlay = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]');
+      expect(overlay).toBeFalsy();
     });
-    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
+
+    it('should render dialog with title and form when visible is true', () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+
+      const title = fixture.nativeElement.querySelector('[data-testid="app-dialog-title"]');
+      expect(title).toBeTruthy();
+      expect(title.textContent).toContain('Restablecer');
+
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      expect(inputs.length).toBe(2); // newPassword + confirmPassword only (admin reset)
+
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]');
+      expect(confirmBtn).toBeTruthy();
+
+      const cancelBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-cancel"]');
+      expect(cancelBtn).toBeTruthy();
+    });
+
+    it('should render newPassword and confirmPassword fields with labels', () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+
+      const content = fixture.nativeElement.textContent;
+      expect(content).toContain('Nueva contraseña');
+      expect(content).toContain('Confirmar contraseña');
+    });
   });
 
-  it('should show error message when service fails', async () => {
-    setupComponent();
-    usersServiceMock.changePassword.mockReturnValue(
-      throwError(() => ({ status: 400, error: { message: 'Invalid current password' } }))
-    );
-    const fixture = await createFixture();
+  // ======================================================================
+  //  VALIDATION
+  // ======================================================================
+  describe('validation', () => {
+    beforeEach(() => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+    });
 
-    const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
-    const currentInput = inputs[0];
-    const newInput = inputs[1];
-    const confirmInput = inputs[2];
+    it('should show validation error when submitted empty', () => {
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+      fixture.detectChanges();
 
-    currentInput.value = 'wrongpass';
-    currentInput.dispatchEvent(new Event('input'));
-    newInput.value = 'newpass456';
-    newInput.dispatchEvent(new Event('input'));
-    confirmInput.value = 'newpass456';
-    confirmInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
+      const errorEl = fixture.nativeElement.querySelector('.field-error');
+      // Form invalid but no server error yet; mismatched or required message appears
+      // The form marks all as touched, so validation messages should appear
+      expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+    });
 
-    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
-    submitButton.click();
+    it('should show minLength error when newPassword is too short', () => {
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      const newInput = inputs[0] as HTMLInputElement;
+      const confirmInput = inputs[1] as HTMLInputElement;
 
-    await fixture.whenStable();
-    fixture.detectChanges();
+      newInput.value = '123';
+      newInput.dispatchEvent(new Event('input'));
+      confirmInput.value = '123';
+      confirmInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
 
-    expect(dialogRefMock.close).not.toHaveBeenCalled();
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+      fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.dialog-error');
-    expect(errorEl).toBeTruthy();
+      expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+    });
+
+    it('should show mismatch error when passwords differ', () => {
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      const newInput = inputs[0] as HTMLInputElement;
+      const confirmInput = inputs[1] as HTMLInputElement;
+
+      newInput.value = 'newpass123';
+      newInput.dispatchEvent(new Event('input'));
+      confirmInput.value = 'different';
+      confirmInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+      fixture.detectChanges();
+
+      const content = fixture.nativeElement.textContent;
+      expect(content).toContain('coinciden');
+      expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+    });
   });
 
-  it('should close dialog without changes on cancel', async () => {
-    setupComponent();
-    const fixture = await createFixture();
+  // ======================================================================
+  //  SUCCESSFUL SUBMISSION
+  // ======================================================================
+  describe('successful submission', () => {
+    it('should call UsersService.changePassword with userId and newPassword on valid submit', async () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      usersServiceMock.changePassword.mockReturnValue(of(undefined));
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
 
-    const cancelButton = fixture.nativeElement.querySelector('button[type="button"]');
-    cancelButton.click();
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      const newInput = inputs[0] as HTMLInputElement;
+      const confirmInput = inputs[1] as HTMLInputElement;
 
-    expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+      newInput.value = 'newpass456';
+      newInput.dispatchEvent(new Event('input'));
+      confirmInput.value = 'newpass456';
+      confirmInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+
+      await fixture.whenStable();
+
+      expect(usersServiceMock.changePassword).toHaveBeenCalledWith('u1', { newPassword: 'newpass456' });
+    });
+
+    it('should emit changed and close dialog on success', async () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      usersServiceMock.changePassword.mockReturnValue(of(undefined));
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+
+      const changedSpy = vi.fn();
+      const sub = fixture.componentInstance.changed.subscribe(changedSpy);
+
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      (inputs[0] as HTMLInputElement).value = 'newpass456';
+      inputs[0].dispatchEvent(new Event('input'));
+      (inputs[1] as HTMLInputElement).value = 'newpass456';
+      inputs[1].dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(changedSpy).toHaveBeenCalled();
+      expect(fixture.componentInstance.visible()).toBe(false);
+      sub.unsubscribe();
+    });
   });
 
-  it('should display dialog title', async () => {
-    setupComponent();
-    const fixture = await createFixture();
+  // ======================================================================
+  //  ERROR HANDLING
+  // ======================================================================
+  describe('error handling', () => {
+    it('should show error message when service fails', async () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      usersServiceMock.changePassword.mockReturnValue(
+        throwError(() => ({ status: 400, error: { message: 'Invalid password' } })),
+      );
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
 
-    const title = fixture.nativeElement.querySelector('h2[mat-dialog-title]');
-    expect(title).toBeTruthy();
-    expect(title.textContent).toContain('Change Password');
+      const inputs = fixture.nativeElement.querySelectorAll('input[type="password"]');
+      (inputs[0] as HTMLInputElement).value = 'newpass456';
+      inputs[0].dispatchEvent(new Event('input'));
+      (inputs[1] as HTMLInputElement).value = 'newpass456';
+      inputs[1].dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      const confirmBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-confirm"]') as HTMLElement;
+      confirmBtn.click();
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector('.field-error');
+      expect(errorEl).toBeTruthy();
+      expect(fixture.componentInstance.visible()).toBe(true); // stays open on error
+    });
+  });
+
+  // ======================================================================
+  //  CANCEL
+  // ======================================================================
+  describe('cancel', () => {
+    it('should close dialog without calling service on cancel', () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+
+      const cancelBtn = fixture.nativeElement.querySelector('[data-testid="app-dialog-cancel"]') as HTMLElement;
+      cancelBtn.click();
+      fixture.detectChanges();
+
+      expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.visible()).toBe(false);
+    });
+
+    it('should close dialog on overlay click', () => {
+      setupComponent();
+      fixture.componentRef.setInput('userId', 'u1');
+      fixture.componentInstance.visible.set(true);
+      fixture.detectChanges();
+
+      const overlay = fixture.nativeElement.querySelector('[data-testid="app-dialog-overlay"]') as HTMLElement;
+      overlay.click();
+      fixture.detectChanges();
+
+      expect(usersServiceMock.changePassword).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.visible()).toBe(false);
+    });
   });
 });

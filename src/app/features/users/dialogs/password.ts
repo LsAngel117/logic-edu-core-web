@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, model, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -8,14 +8,9 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
+import { AppDialog } from '../../../shared/ui';
 import { UsersService } from '../services/users';
-import { ChangePasswordPayload } from '../models/user-profile';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPass = group.get('newPassword')?.value;
@@ -25,28 +20,113 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
 
 @Component({
   selector: 'app-password-dialog',
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-  ],
-  templateUrl: './password.html',
-  styleUrl: './password.scss',
+  standalone: true,
+  imports: [ReactiveFormsModule, AppDialog],
+  template: `
+    <app-dialog
+      title="Restablecer Contraseña"
+      confirmLabel="Cambiar"
+      cancelLabel="Cancelar"
+      [loading]="loading()"
+      [(visible)]="visible"
+      (confirm)="onSubmit()"
+      (cancel)="visible.set(false)"
+    >
+      <form [formGroup]="form" class="dialog-form">
+        <div class="form-field">
+          <label>Nueva contraseña <span class="required">*</span></label>
+          <input
+            type="password"
+            formControlName="newPassword"
+            placeholder="Mínimo 8 caracteres"
+          />
+          @if (
+            form.controls.newPassword.touched &&
+            form.controls.newPassword.hasError('minlength')
+          ) {
+            <span class="field-error">La contraseña debe tener al menos 8 caracteres</span>
+          }
+          @if (
+            form.controls.newPassword.touched &&
+            form.controls.newPassword.hasError('required')
+          ) {
+            <span class="field-error">La nueva contraseña es requerida</span>
+          }
+        </div>
+        <div class="form-field">
+          <label>Confirmar contraseña <span class="required">*</span></label>
+          <input
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Repetir contraseña"
+          />
+          @if (
+            form.controls.confirmPassword.touched &&
+            form.controls.confirmPassword.hasError('required')
+          ) {
+            <span class="field-error">Confirmar contraseña es requerido</span>
+          }
+        </div>
+        @if (form.hasError('mismatch') && form.touched) {
+          <div class="field-error">Las contraseñas no coinciden</div>
+        }
+        @if (errorMessage()) {
+          <div class="field-error">{{ errorMessage() }}</div>
+        }
+      </form>
+    </app-dialog>
+  `,
+  styles: `
+    .dialog-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 4px 0;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .required {
+      color: #ef4444;
+    }
+    .form-field input {
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-field input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .field-error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 2px;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordDialogComponent {
   private readonly usersService = inject(UsersService);
-  private readonly dialogRef = inject(MatDialogRef<PasswordDialogComponent>);
   private readonly fb = inject(FormBuilder);
-  private readonly data: { userId: string } = inject(MAT_DIALOG_DATA);
+
+  readonly visible = model(false);
+  readonly userId = input.required<string>();
+  readonly changed = output<void>();
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly form: FormGroup<{
-    currentPassword: FormControl<string>;
     newPassword: FormControl<string>;
     confirmPassword: FormControl<string>;
   }>;
@@ -54,11 +134,10 @@ export class PasswordDialogComponent {
   constructor() {
     this.form = this.fb.nonNullable.group(
       {
-        currentPassword: ['', [Validators.required]],
         newPassword: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]],
       },
-      { validators: passwordMatchValidator }
+      { validators: passwordMatchValidator },
     );
   }
 
@@ -72,26 +151,22 @@ export class PasswordDialogComponent {
     this.errorMessage.set('');
 
     const raw = this.form.getRawValue();
-    const payload: ChangePasswordPayload = {
-      currentPassword: raw.currentPassword,
-      newPassword: raw.newPassword,
-    };
 
     try {
+      // Admin reset: only newPassword is sent (no currentPassword needed)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await firstValueFrom(
-        this.usersService.changePassword(this.data.userId, payload)
+        this.usersService.changePassword(this.userId(), { newPassword: raw.newPassword } as any),
       );
-      this.dialogRef.close(true);
+      this.changed.emit();
+      this.visible.set(false);
+      this.form.reset();
     } catch (err: unknown) {
       const e = err as { error?: { message?: string }; message?: string };
       this.errorMessage.set(
-        e.error?.message || e.message || 'Failed to change password'
+        e.error?.message || e.message || 'Error al cambiar la contraseña',
       );
       this.loading.set(false);
     }
-  }
-
-  onCancel(): void {
-    this.dialogRef.close();
   }
 }

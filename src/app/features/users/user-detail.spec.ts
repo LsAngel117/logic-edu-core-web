@@ -4,7 +4,6 @@ import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Observable, BehaviorSubject } from 'rxjs';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from './services/users';
 import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
@@ -15,8 +14,11 @@ import { UserDetailComponent } from './user-detail';
 
 describe('UserDetailComponent', () => {
   let usersServiceMock: { getById: ReturnType<typeof vi.fn>; changeStatus: ReturnType<typeof vi.fn> };
-  let membershipsServiceMock: { getByUser: ReturnType<typeof vi.fn> };
-  let dialogMock: { open: ReturnType<typeof vi.fn> };
+  let membershipsServiceMock: {
+    getByUser: ReturnType<typeof vi.fn>;
+    deactivate: ReturnType<typeof vi.fn>;
+    assign: ReturnType<typeof vi.fn>;
+  };
   let authServiceMock: { user: ReturnType<typeof vi.fn> };
   let paramsSubject: BehaviorSubject<{ id: string }>;
 
@@ -47,9 +49,10 @@ describe('UserDetailComponent', () => {
 
   function setupComponent(userId: string = 'u1') {
     usersServiceMock = { getById: vi.fn(), changeStatus: vi.fn() };
-    membershipsServiceMock = { getByUser: vi.fn().mockReturnValue(of([])) };
-    dialogMock = {
-      open: vi.fn().mockReturnValue({ afterClosed: () => of(undefined) } as Partial<MatDialogRef<unknown>>),
+    membershipsServiceMock = {
+      getByUser: vi.fn().mockReturnValue(of([])),
+      deactivate: vi.fn(),
+      assign: vi.fn(),
     };
     authServiceMock = { user: vi.fn().mockReturnValue(null) };
     paramsSubject = new BehaviorSubject({ id: userId });
@@ -67,7 +70,6 @@ describe('UserDetailComponent', () => {
           provide: ActivatedRoute,
           useValue: { params: paramsSubject.asObservable() },
         },
-        { provide: MatDialog, useValue: dialogMock },
       ],
     });
   }
@@ -262,11 +264,12 @@ describe('UserDetailComponent', () => {
       return fixture;
     }
 
-    it('should render all 5 tabs', async () => {
+    it('should render all 6 tabs', async () => {
       const fixture = await loadAndGetFixture();
       const content = fixture.nativeElement.textContent;
       expect(content).toContain('Cuenta');
       expect(content).toContain('Membresías');
+      expect(content).toContain('Académico');
       expect(content).toContain('Accesos');
       expect(content).toContain('Actividad');
       expect(content).toContain('Auditoría');
@@ -299,6 +302,23 @@ describe('UserDetailComponent', () => {
 
       const content = fixture.nativeElement.textContent;
       expect(content).toContain('Total Membresías');
+    });
+
+    it('should switch to Académico tab and show placeholder', async () => {
+      const fixture = await loadAndGetFixture();
+
+      const tabs: NodeListOf<Element> = fixture.nativeElement.querySelectorAll('.tab-item');
+      const academicoTab = Array.from(tabs).find(
+        (el) => (el as HTMLElement).textContent?.includes('Académico'),
+      ) as HTMLElement | undefined;
+      if (academicoTab) {
+        academicoTab.click();
+        fixture.detectChanges();
+      }
+
+      const content = fixture.nativeElement.textContent;
+      expect(content).toContain('Información Académica');
+      expect(content).toContain('próximamente');
     });
 
     it('should switch to Accesos tab and show placeholder', async () => {
@@ -400,6 +420,17 @@ describe('UserDetailComponent', () => {
   //  MEMBRESÍAS TAB (Tab 2)
   // ======================================================================
   describe('Membresías tab', () => {
+    async function switchToMembresias(fixture: any) {
+      const tabs: NodeListOf<Element> = fixture.nativeElement.querySelectorAll('.tab-item');
+      const mbTab = Array.from(tabs).find(
+        (el) => (el as HTMLElement).textContent?.includes('Membresías'),
+      ) as HTMLElement | undefined;
+      if (mbTab) {
+        mbTab.click();
+        fixture.detectChanges();
+      }
+    }
+
     it('should show stat cards with membership counts', async () => {
       setupComponent();
       usersServiceMock.getById.mockReturnValue(of(mockUser));
@@ -408,16 +439,7 @@ describe('UserDetailComponent', () => {
       const fixture = await createFixture();
       await fixture.whenStable();
       fixture.detectChanges();
-
-      // Switch to Membresías tab
-      const tabs: NodeListOf<Element> = fixture.nativeElement.querySelectorAll('.tab-item');
-      const membresiasTab = Array.from(tabs).find(
-        (el) => (el as HTMLElement).textContent?.includes('Membresías'),
-      ) as HTMLElement | undefined;
-      if (membresiasTab) {
-        membresiasTab.click();
-        fixture.detectChanges();
-      }
+      await switchToMembresias(fixture);
 
       const content = fixture.nativeElement.textContent;
       expect(content).toContain('Total Membresías');
@@ -445,20 +467,59 @@ describe('UserDetailComponent', () => {
       const fixture = await createFixture();
       await fixture.whenStable();
       fixture.detectChanges();
-
-      // Switch to Membresías tab
-      const tabs: NodeListOf<Element> = fixture.nativeElement.querySelectorAll('.tab-item');
-      const membresiasTab = Array.from(tabs).find(
-        (el) => (el as HTMLElement).textContent?.includes('Membresías'),
-      ) as HTMLElement | undefined;
-      if (membresiasTab) {
-        membresiasTab.click();
-        fixture.detectChanges();
-      }
+      await switchToMembresias(fixture);
 
       const content = fixture.nativeElement.textContent;
       expect(content).toContain('TEACHER');
       expect(content).toContain('SCHOOL_ADMIN');
+    });
+
+    it('should open add membership dialog when "Agregar membresía" button is clicked', async () => {
+      setupComponent();
+      usersServiceMock.getById.mockReturnValue(of(mockUser));
+      membershipsServiceMock.getByUser.mockReturnValue(of(mockMemberships));
+
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await switchToMembresias(fixture);
+
+      const addBtns = Array.from(
+        fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLElement>,
+      ).filter((el) => el.textContent?.includes('Agregar membresía'));
+
+      expect(addBtns.length).toBeGreaterThan(0);
+      if (addBtns.length > 0) {
+        addBtns[0].click();
+        fixture.detectChanges();
+      }
+
+      // After clicking, the app-add-membership dialog should appear
+      const dialogTitle = fixture.nativeElement.querySelector('[data-testid="app-dialog-title"]');
+      expect(dialogTitle).toBeTruthy();
+    });
+
+    it('should show remove confirmation dialog when trash button is clicked', async () => {
+      setupComponent();
+      usersServiceMock.getById.mockReturnValue(of(mockUser));
+      membershipsServiceMock.getByUser.mockReturnValue(of(mockMemberships));
+
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await switchToMembresias(fixture);
+
+      // Find trash buttons (action-btn--danger)
+      const trashBtns = fixture.nativeElement.querySelectorAll('.action-btn--danger');
+      expect(trashBtns.length).toBeGreaterThan(0);
+      if (trashBtns.length > 0) {
+        (trashBtns[0] as HTMLElement).click();
+        fixture.detectChanges();
+      }
+
+      // The confirmation dialog should now be visible
+      const confirmTitle = fixture.nativeElement.querySelector('[data-testid="confirmation-dialog-title"]');
+      expect(confirmTitle).toBeTruthy();
     });
   });
 
@@ -466,7 +527,7 @@ describe('UserDetailComponent', () => {
   //  ACTION DIALOGS
   // ======================================================================
   describe('action dialogs', () => {
-    it('should open edit dialog when Edit button is clicked', async () => {
+    it('should open inline edit dialog when Edit button is clicked', async () => {
       setupComponent();
       usersServiceMock.getById.mockReturnValue(of(mockUser));
 
@@ -483,10 +544,12 @@ describe('UserDetailComponent', () => {
         fixture.detectChanges();
       }
 
-      expect(dialogMock.open).toHaveBeenCalled();
+      // The edit dialog is inline with app-edit-user component
+      const editSelector = fixture.nativeElement.querySelector('app-edit-user');
+      expect(editSelector).toBeTruthy();
     });
 
-    it('should open password dialog when Reset Password button is clicked', async () => {
+    it('should open inline password dialog when Reset Password button is clicked', async () => {
       setupComponent();
       usersServiceMock.getById.mockReturnValue(of(mockUser));
 
@@ -503,7 +566,9 @@ describe('UserDetailComponent', () => {
         fixture.detectChanges();
       }
 
-      expect(dialogMock.open).toHaveBeenCalled();
+      // The password dialog is now inline with app-password-dialog component
+      const pwdDialog = fixture.nativeElement.querySelector('app-password-dialog');
+      expect(pwdDialog).toBeTruthy();
     });
   });
 

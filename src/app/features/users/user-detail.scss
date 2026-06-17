@@ -31,6 +31,7 @@ $font-family: 'Roboto', sans-serif;
   max-width: 1024px;
   margin: 0 auto;
   font-family: $font-family;
+  min-height: 0;
 }
 
 /* ---- Loading ---- */
@@ -606,7 +607,7 @@ $font-family: 'Roboto', sans-serif;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 24px;
+  padding: 32px 24px;
   background: #fff;
   border-radius: $radius-card;
   box-shadow: $shadow-card;

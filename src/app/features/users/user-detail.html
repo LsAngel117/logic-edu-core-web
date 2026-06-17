@@ -128,6 +128,13 @@
     </button>
     <button
       class="tab-item"
+      [class.tab-item--active]="activeTab() === 'academico'"
+      (click)="setActiveTab('academico')"
+    >
+      Académico
+    </button>
+    <button
+      class="tab-item"
       [class.tab-item--active]="activeTab() === 'accesos'"
       (click)="setActiveTab('accesos')"
     >
@@ -248,7 +255,7 @@
       <div class="table-card">
         <div class="table-card__toolbar">
           <h3 class="table-card__title">Membresías asignadas</h3>
-          <button class="btn-primary btn-primary--sm">
+          <button class="btn-primary btn-primary--sm" (click)="openAddMembership()">
             <svg lucideUserRoundPen class="btn-icon btn-icon--sm"></svg>
             Agregar membresía
           </button>
@@ -298,7 +305,7 @@
                   <button class="action-btn" title="Editar membresía">
                     <svg lucidePencil></svg>
                   </button>
-                  <button class="action-btn action-btn--danger" title="Eliminar membresía">
+                  <button class="action-btn action-btn--danger" title="Eliminar membresía" (click)="openRemoveMembership(m)">
                     <svg lucideTrash></svg>
                   </button>
                 </td>
@@ -318,7 +325,18 @@
     </div>
     }
 
-    <!-- ======= TAB 3: ACCESOS (Placeholder) ======= -->
+    <!-- ======= TAB 3: ACADÉMICO (Placeholder) ======= -->
+    @if (activeTab() === 'academico') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideSchool></svg>
+      </div>
+      <h3 class="placeholder-card__title">Información Académica</h3>
+      <p class="placeholder-card__desc">Escuela, sede y matrícula del usuario — próximamente.</p>
+    </div>
+    }
+
+    <!-- ======= TAB 4: ACCESOS (Placeholder) ======= -->
     @if (activeTab() === 'accesos') {
     <div class="placeholder-card">
       <div class="placeholder-card__icon">
@@ -329,7 +347,7 @@
     </div>
     }
 
-    <!-- ======= TAB 4: ACTIVIDAD (Placeholder) ======= -->
+    <!-- ======= TAB 5: ACTIVIDAD (Placeholder) ======= -->
     @if (activeTab() === 'actividad') {
     <div class="placeholder-card">
       <div class="placeholder-card__icon">
@@ -340,7 +358,7 @@
     </div>
     }
 
-    <!-- ======= TAB 5: AUDITORÍA (Placeholder) ======= -->
+    <!-- ======= TAB 6: AUDITORÍA (Placeholder) ======= -->
     @if (activeTab() === 'auditoria') {
     <div class="placeholder-card">
       <div class="placeholder-card__icon">
@@ -367,6 +385,30 @@
     [(visible)]="blockDialogVisible"
     (confirm)="confirmBlock()"
     (cancel)="closeBlockDialog()"
+  />
+
+  <!-- ======= PASSWORD RESET DIALOG ======= -->
+  <app-password-dialog
+    [(visible)]="passwordDialogVisible"
+    [userId]="u.id"
+    (changed)="onPasswordChanged()"
+  />
+
+  <!-- ======= ADD MEMBERSHIP DIALOG ======= -->
+  <app-add-membership
+    [(visible)]="addMembershipVisible"
+    [userId]="u.id"
+    (created)="onMembershipAdded()"
+  />
+
+  <!-- ======= REMOVE MEMBERSHIP CONFIRMATION DIALOG ======= -->
+  <app-confirmation-dialog
+    title="Eliminar membresía"
+    [message]="removeMembershipMessage()"
+    confirmLabel="Eliminar"
+    [(visible)]="removeMembershipVisible"
+    (confirm)="confirmRemoveMembership()"
+    (cancel)="closeRemoveDialog()"
   />
   }
 </div>

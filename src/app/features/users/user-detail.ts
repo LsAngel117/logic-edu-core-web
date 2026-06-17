@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import {
   LucideChevronLeft,
@@ -23,6 +22,7 @@ import {
   LucideUsers,
   LucideTrash,
   LucideUserRoundPen,
+  LucideSchool,
 } from '@lucide/angular';
 import { UsersService } from './services/users';
 import { MembershipsService } from './memberships/services/memberships';
@@ -32,6 +32,7 @@ import { Membership } from './memberships/models/membership';
 import { StatCard, ConfirmationDialog } from '../../shared/ui';
 import { PasswordDialogComponent } from './dialogs/password';
 import { EditUser } from './dialogs/edit-user';
+import { AddMembershipDialogComponent } from './memberships/dialogs/add-membership';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                           */
@@ -76,6 +77,8 @@ const STATUS_BG: Record<string, string> = {
     StatCard,
     ConfirmationDialog,
     EditUser,
+    PasswordDialogComponent,
+    AddMembershipDialogComponent,
     LucideChevronLeft,
     LucidePencil,
     LucideBan,
@@ -87,6 +90,7 @@ const STATUS_BG: Record<string, string> = {
     LucideUsers,
     LucideTrash,
     LucideUserRoundPen,
+    LucideSchool,
   ],
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.scss',
@@ -98,7 +102,6 @@ export class UserDetailComponent {
   private readonly usersService = inject(UsersService);
   private readonly membershipsService = inject(MembershipsService);
   private readonly auth = inject(AuthService);
-  private readonly dialog = inject(MatDialog);
 
   /* ---- State --------------------------------------------------------- */
   readonly user = signal<UserProfile | null>(null);
@@ -114,6 +117,9 @@ export class UserDetailComponent {
   readonly editDialogVisible = signal(false);
   readonly blockDialogVisible = signal(false);
   readonly passwordDialogVisible = signal(false);
+  readonly addMembershipVisible = signal(false);
+  readonly removeMembershipVisible = signal(false);
+  readonly selectedMembership = signal<Membership | null>(null);
 
   /* ---- Computed ------------------------------------------------------ */
   readonly isBlocked = computed(() => this.user()?.status === 'BLOCKED');
@@ -135,6 +141,12 @@ export class UserDetailComponent {
   readonly blockConfirmLabel = computed(() =>
     this.isBlocked() ? 'Desbloquear' : 'Bloquear',
   );
+
+  readonly removeMembershipMessage = computed(() => {
+    const m = this.selectedMembership();
+    if (!m) return '';
+    return `¿Eliminar la membresía de ${m.role}?`;
+  });
 
   readonly roleColor = computed(() => ROLE_COLORS[this.user()?.role ?? ''] ?? '#6B7280');
   readonly roleBg = computed(() => ROLE_BG[this.user()?.role ?? ''] ?? 'rgba(107, 114, 128, 0.1)');
@@ -261,13 +273,43 @@ export class UserDetailComponent {
 
   /* ---- Action: Reset Password ---------------------------------------- */
   openPasswordDialog(): void {
-    const u = this.user();
-    if (!u) return;
+    this.passwordDialogVisible.set(true);
+  }
 
-    this.dialog.open(PasswordDialogComponent, {
-      data: { userId: u.id },
-      width: '400px',
-    });
+  onPasswordChanged(): void {
+    // Password reset successful — no UI update needed
+  }
+
+  /* ---- Action: Add Membership ---------------------------------------- */
+  openAddMembership(): void {
+    this.addMembershipVisible.set(true);
+  }
+
+  onMembershipAdded(): void {
+    this.loadMemberships(this.currentId());
+  }
+
+  /* ---- Action: Remove Membership ------------------------------------- */
+  openRemoveMembership(membership: Membership): void {
+    this.selectedMembership.set(membership);
+    this.removeMembershipVisible.set(true);
+  }
+
+  closeRemoveDialog(): void {
+    this.removeMembershipVisible.set(false);
+  }
+
+  async confirmRemoveMembership(): Promise<void> {
+    const m = this.selectedMembership();
+    if (!m) return;
+
+    try {
+      await firstValueFrom(this.membershipsService.deactivate(m.id));
+      this.removeMembershipVisible.set(false);
+      this.loadMemberships(this.currentId());
+    } catch {
+      // silently fail
+    }
   }
 
   /* ---- Helpers ------------------------------------------------------- */
@@ -291,5 +333,8 @@ export class UserDetailComponent {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.blockDialogVisible.set(false);
+    this.passwordDialogVisible.set(false);
+    this.addMembershipVisible.set(false);
+    this.removeMembershipVisible.set(false);
   }
 }
