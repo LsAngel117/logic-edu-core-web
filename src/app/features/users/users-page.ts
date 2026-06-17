@@ -429,8 +429,8 @@ export class UsersPageComponent {
     this.router.navigate(['/users', user.id]);
   }
 
-  editUser(_user: UserProfile): void {
-    // Open edit dialog — wired in future PR
+  editUser(user: UserProfile): void {
+    this.router.navigate(['/users', user.id]);
   }
 
   /* ---- Helpers ------------------------------------------------------- */
