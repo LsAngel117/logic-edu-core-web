@@ -3,8 +3,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AppDialog } from '../../../../shared/ui';
 import { MembershipsService } from '../services/memberships';
-import { SchoolsService } from '../../../services/schools';
-import { BranchesService } from '../../../../schools/branches/services/branches';
+import { SchoolsService } from '../../../schools/services/schools';
+import { BranchesService } from '../../../schools/branches/services/branches';
 import { AssignMembershipRequest } from '../models/membership';
 
 const ROLES = ['PLATFORM_ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] as const;
