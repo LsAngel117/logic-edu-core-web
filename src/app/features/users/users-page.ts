@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { firstValueFrom, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
@@ -103,6 +103,7 @@ export class UsersPageComponent {
   private readonly usersService = inject(UsersService);
   private readonly membershipsService = inject(MembershipsService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   /* ---- State --------------------------------------------------------- */
   readonly users = signal<UserProfile[]>([]);
@@ -424,8 +425,8 @@ export class UsersPageComponent {
   }
 
   // View user
-  viewUser(_user: UserProfile): void {
-    // Navigation wired externally
+  viewUser(user: UserProfile): void {
+    this.router.navigate(['/users', user.id]);
   }
 
   editUser(_user: UserProfile): void {
