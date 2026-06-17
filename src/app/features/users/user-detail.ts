@@ -75,6 +75,7 @@ const STATUS_BG: Record<string, string> = {
     DatePipe,
     StatCard,
     ConfirmationDialog,
+    EditUser,
     LucideChevronLeft,
     LucidePencil,
     LucideBan,
