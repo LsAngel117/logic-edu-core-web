@@ -1,121 +1,134 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
-import { UserProfile } from '../models/user-profile';
+import { UserProfile, UpdateUserPayload } from '../models/user-profile';
+import { AppDialog } from '../../../shared/ui';
 
 @Component({
   selector: 'app-edit-user',
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatButton,
-    MatProgressSpinner,
-    MatError,
-  ],
+  imports: [ReactiveFormsModule, AppDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title>Edit User</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="edit-user-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" />
-          @if (form.controls.email.hasError('required')) {
-            <mat-error>Email is required</mat-error>
-          }
-          @if (form.controls.email.hasError('email')) {
-            <mat-error>Invalid email format</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Full Name</mat-label>
-          <input matInput formControlName="fullName" />
-          @if (form.controls.fullName.hasError('required')) {
-            <mat-error>Full name is required</mat-error>
-          }
-        </mat-form-field>
-
+    <app-dialog
+      title="Editar Usuario"
+      confirmLabel="Guardar"
+      cancelLabel="Cancelar"
+      [loading]="loading()"
+      [(visible)]="visible"
+      (confirm)="onSubmit()"
+      (cancel)="visible.set(false)"
+    >
+      <form [formGroup]="form" class="dialog-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" formControlName="email" placeholder="email@ejemplo.com" />
+          </div>
+          <div class="form-field">
+            <label>Nombre completo <span class="required">*</span></label>
+            <input type="text" formControlName="fullName" placeholder="Nombre completo" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Teléfono</label>
+            <input type="text" formControlName="phone" placeholder="+57 300 123 4567" />
+          </div>
+          <div class="form-field">
+            <label>Ciudad</label>
+            <input type="text" formControlName="city" placeholder="Medellín" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Dirección</label>
+            <input type="text" formControlName="address" placeholder="Calle 123 #45-67" />
+          </div>
+          <div class="form-field">
+            <label>País</label>
+            <input type="text" formControlName="country" placeholder="Colombia" />
+          </div>
+        </div>
         @if (errorMessage()) {
-          <p class="error-message">{{ errorMessage() }}</p>
+          <div class="field-error">{{ errorMessage() }}</div>
         }
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close [disabled]="loading()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSubmit()"
-        [disabled]="form.invalid || loading()"
-      >
-        @if (loading()) {
-          <mat-spinner diameter="20" />
-        } @else {
-          Save
-        }
-      </button>
-    </mat-dialog-actions>
+    </app-dialog>
   `,
   styles: `
-    .edit-user-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 320px;
-      padding-top: 8px;
+    .dialog-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .form-field label { font-size: 13px; font-weight: 500; color: #374151; }
+    .required { color: #ef4444; }
+    .form-field input {
+      height: 40px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 14px; color: #111827; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .error-message {
-      color: var(--mat-sys-error);
-      margin: 0;
-    }
+    .form-field input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .field-error { background: #fef2f2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
   `,
 })
 export class EditUser {
   private readonly usersService = inject(UsersService);
-  private readonly dialogRef = inject(MatDialogRef<EditUser>);
-  private readonly data: UserProfile = inject(MAT_DIALOG_DATA);
+  private readonly fb = inject(FormBuilder);
+
+  readonly visible = model(false);
+  readonly userData = model<UserProfile | null>(null);
+  readonly saved = output<UserProfile>();
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
 
-  readonly form = inject(FormBuilder).group({
-    email: [this.data.email, [Validators.required, Validators.email]],
-    fullName: [this.data.fullName, Validators.required],
+  readonly form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    fullName: ['', Validators.required],
+    phone: [''],
+    address: [''],
+    city: [''],
+    country: [''],
   });
 
+  constructor() {
+    // Patch form when userData changes
+    const u = this.userData();
+    if (u) this.patchForm(u);
+  }
+
+  private patchForm(u: UserProfile): void {
+    this.form.patchValue({
+      email: u.email,
+      fullName: u.fullName,
+      phone: u.phone || '',
+      address: u.address || '',
+      city: u.city || '',
+      country: u.country || '',
+    });
+  }
+
   async onSubmit(): Promise<void> {
-    if (this.form.invalid) return;
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    const u = this.userData();
+    if (!u) return;
 
     this.loading.set(true);
     this.errorMessage.set('');
 
+    const raw = this.form.getRawValue();
+    const payload: UpdateUserPayload = {
+      email: raw.email, fullName: raw.fullName,
+      phone: raw.phone || undefined, address: raw.address || undefined,
+      city: raw.city || undefined, country: raw.country || undefined,
+    };
+
     try {
-      const formValue = this.form.getRawValue() as { email: string; fullName: string };
-      const payload = {
-        email: formValue.email,
-        fullName: formValue.fullName,
-      };
-      const updated = await firstValueFrom(this.usersService.update(this.data.id, payload));
-      this.dialogRef.close(updated);
+      const result = await firstValueFrom(this.usersService.update(u.id, payload));
+      this.visible.set(false);
+      this.saved.emit(result);
     } catch (err: unknown) {
-      const error = err as { status?: number };
-      if (error.status === 409) {
-        this.errorMessage.set('A user with this email already exists.');
-      } else if (error.status === 404) {
-        this.errorMessage.set('User no longer exists.');
-      } else {
-        this.errorMessage.set('Failed to update user. Please try again.');
-      }
+      this.errorMessage.set((err as Error).message || 'Error al actualizar');
     } finally {
       this.loading.set(false);
     }

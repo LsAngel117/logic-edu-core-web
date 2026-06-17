@@ -25,6 +25,7 @@ import { AuthService } from '../../core/services/auth';
 import { UserProfile, ChangeStatusRequest } from './models/user-profile';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
 import { CreateUserDialogComponent } from './dialogs/create-user';
+import { EditUser } from './dialogs/edit-user';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -73,6 +74,7 @@ const STATUS_CLASSES: Record<string, string> = {
     EmptyState,
     ConfirmationDialog,
     CreateUserDialogComponent,
+    EditUser,
     LucideUserPlus,
     LucideSearch,
     LucideEye,
@@ -429,8 +431,16 @@ export class UsersPageComponent {
     this.router.navigate(['/users', user.id]);
   }
 
+  readonly editDialogVisible = signal(false);
+  readonly editUserData = signal<UserProfile | null>(null);
+
   editUser(user: UserProfile): void {
-    this.router.navigate(['/users', user.id]);
+    this.editUserData.set(user);
+    this.editDialogVisible.set(true);
+  }
+
+  onUserEdited(user: UserProfile): void {
+    this.users.update((list) => list.map((u) => (u.id === user.id ? user : u)));
   }
 
   /* ---- Helpers ------------------------------------------------------- */

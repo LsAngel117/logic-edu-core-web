@@ -225,20 +225,14 @@ export class UserDetailComponent {
   }
 
   /* ---- Action: Edit -------------------------------------------------- */
+  readonly editDialogVisible = signal(false);
+
   openEditDialog(): void {
-    const u = this.user();
-    if (!u) return;
+    this.editDialogVisible.set(true);
+  }
 
-    const ref = this.dialog.open(EditUser, {
-      data: u,
-      width: '480px',
-    });
-
-    ref.afterClosed().subscribe((result: UserProfile | undefined) => {
-      if (result) {
-        this.onUserUpdated(result);
-      }
-    });
+  onUserEdited(updated: UserProfile): void {
+    this.user.set(updated);
   }
 
   /* ---- Action: Block/Unblock ----------------------------------------- */

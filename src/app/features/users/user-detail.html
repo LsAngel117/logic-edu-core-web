@@ -352,6 +352,13 @@
     }
   </div>
 
+  <!-- ======= EDIT USER DIALOG ======= -->
+  <app-edit-user
+    [(visible)]="editDialogVisible"
+    [userData]="user()"
+    (saved)="onUserEdited($event)"
+  />
+
   <!-- ======= BLOCK/UNBLOCK CONFIRMATION DIALOG ======= -->
   <app-confirmation-dialog
     [title]="blockTitle()"
