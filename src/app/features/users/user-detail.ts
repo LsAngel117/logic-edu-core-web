@@ -226,8 +226,6 @@ export class UserDetailComponent {
   }
 
   /* ---- Action: Edit -------------------------------------------------- */
-  readonly editDialogVisible = signal(false);
-
   openEditDialog(): void {
     this.editDialogVisible.set(true);
   }
