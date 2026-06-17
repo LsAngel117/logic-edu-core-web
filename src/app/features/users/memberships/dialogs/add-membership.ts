@@ -107,16 +107,19 @@ export class AddMembershipDialogComponent {
   });
 
   /** Scope type is derived from role — no independent selector needed */
-  readonly scopeType = computed(() => {
-    const r = this.form.controls.role.value;
-    return ROLE_SCOPE[r] ?? '';
+  readonly scopeType = signal('');
+
+  readonly needsRef = computed(() => {
+    const s = this.scopeType();
+    return s !== 'PLATFORM' && s !== '';
   });
 
-  readonly needsRef = computed(() => this.scopeType() !== 'PLATFORM' && this.scopeType() !== '');
-
   constructor() {
+    this.form.controls.role.valueChanges.subscribe((role) => {
+      this.scopeType.set(ROLE_SCOPE[role] ?? '');
+      this.form.controls.scopeRefId.reset();
+    });
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
-    // Fetch branches across schools
     this.schoolsService.getAll().subscribe((schools) => {
       schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
         const cur = this.branches();
