@@ -1,63 +1,353 @@
 <div class="user-detail">
-  <button mat-icon-button class="back-btn" routerLink="/users" aria-label="Back to users">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-
+  <!-- ======= LOADING STATE ======= -->
   @if (loading()) {
-  <div class="loading-state">
-    <mat-spinner diameter="48" />
+  <div class="user-detail__loading" data-testid="user-detail-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando usuario...</span>
   </div>
-  } @else if (notFound()) {
-  <div class="error-state">
-    <h2>User not found</h2>
-    <p>The requested user does not exist or has been removed.</p>
-    <button mat-raised-button routerLink="/users">Back to Users</button>
-  </div>
-  } @else if (error()) {
-  <div class="error-state">
-    <h2>Failed to load user</h2>
-    <p>An error occurred while fetching user details.</p>
-    <button mat-raised-button class="retry-btn" (click)="loadUser(currentId())">
-      Retry
-    </button>
-  </div>
-  } @else if (user(); as u) {
-  <div class="profile-card">
-    <h2>{{ u.fullName }}</h2>
+  }
 
-    <div class="info-grid">
-      <div class="info-row">
-        <span class="label">Email</span>
-        <span class="value">{{ u.email }}</span>
+  <!-- ======= ERROR: NOT FOUND ======= -->
+  @if (!loading() && notFound()) {
+  <div class="user-detail__error" data-testid="user-detail-notfound">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideShield></svg>
       </div>
-      <div class="info-row">
-        <span class="label">Username</span>
-        <span class="value">{{ u.username }}</span>
+      <h3>Usuario no encontrado</h3>
+      <p>El usuario solicitado no existe o ha sido eliminado.</p>
+      <button class="btn-outline" routerLink="/users">
+        Volver a Usuarios
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= ERROR: NETWORK ======= -->
+  @if (!loading() && error()) {
+  <div class="user-detail__error" data-testid="user-detail-error">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideShield></svg>
       </div>
-      <div class="info-row">
-        <span class="label">Status</span>
-        <mat-chip [class.status-active]="u.status === 'ACTIVE'" [class.status-inactive]="u.status === 'INACTIVE'" [class.status-blocked]="u.status === 'BLOCKED'">
-          {{ u.status }}
-        </mat-chip>
-      </div>
-      <div class="info-row">
-        <span class="label">Created</span>
-        <span class="value">{{ u.createdAt | date:'yyyy-MM-dd' }}</span>
+      <h3>Error al cargar usuario</h3>
+      <p>Ocurrió un error al obtener los detalles del usuario.</p>
+      <button class="btn-outline" (click)="loadUser(currentId())">
+        Reintentar
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= CONTENT ======= -->
+  @if (!loading() && !error() && !notFound() && user(); as u) {
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a routerLink="/users" class="breadcrumb__link">
+      <svg lucideChevronLeft class="breadcrumb__icon"></svg>
+      Usuarios
+    </a>
+    <span class="breadcrumb__sep">/</span>
+    <span class="breadcrumb__current">Detalle</span>
+  </nav>
+
+  <!-- HEADER CARD -->
+  <div class="header-card">
+    <div class="header-card__main">
+      <!-- Avatar -->
+      <div class="avatar">{{ getInitials(u.fullName) }}</div>
+
+      <!-- User info -->
+      <div class="user-info">
+        <h1 class="user-info__name">{{ u.fullName }}</h1>
+        <span class="user-info__username">&#64;{{ u.username }}</span>
+
+        <!-- Badges row -->
+        <div class="badges">
+          @if (u.role) {
+          <span
+            class="badge badge--role"
+            [style.background-color]="roleBg()"
+            [style.color]="roleColor()"
+          >
+            <svg lucideShield class="badge__icon"></svg>
+            {{ u.role }}
+          </span>
+          }
+          <span
+            class="badge badge--status"
+            [style.background-color]="statusBg()"
+            [style.color]="statusColor()"
+          >
+            {{ u.status }}
+          </span>
+        </div>
       </div>
     </div>
 
-    <div class="action-buttons">
-      <button
-        mat-raised-button
-        color="primary"
-        class="change-password-btn"
-        (click)="openPasswordDialog()"
-      >
-        Change Password
+    <!-- Action buttons -->
+    <div class="header-card__actions">
+      <button class="btn-outline" (click)="openEditDialog()">
+        <svg lucidePencil class="btn-icon"></svg>
+        Editar
+      </button>
+      @if (isBlocked()) {
+      <button class="btn-outline btn-outline--success" (click)="openBlockDialog()">
+        <svg lucideLockOpen class="btn-icon"></svg>
+        Desbloquear
+      </button>
+      } @else {
+      <button class="btn-outline btn-outline--danger" (click)="openBlockDialog()">
+        <svg lucideBan class="btn-icon"></svg>
+        Bloquear
+      </button>
+      }
+      <button class="btn-outline" (click)="openPasswordDialog()">
+        <svg lucideKeyRound class="btn-icon"></svg>
+        Reset Password
       </button>
     </div>
   </div>
 
-  <app-memberships-panel [userId]="u.id" />
+  <!-- TAB NAVIGATION -->
+  <div class="tabs">
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'cuenta'"
+      (click)="setActiveTab('cuenta')"
+    >
+      Cuenta
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'membresias'"
+      (click)="setActiveTab('membresias')"
+    >
+      Membresías
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'accesos'"
+      (click)="setActiveTab('accesos')"
+    >
+      Accesos
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'actividad'"
+      (click)="setActiveTab('actividad')"
+    >
+      Actividad
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'auditoria'"
+      (click)="setActiveTab('auditoria')"
+    >
+      Auditoría
+    </button>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+    <!-- ======= TAB 1: CUENTA ======= -->
+    @if (activeTab() === 'cuenta') {
+    <div class="cuenta-grid">
+      <!-- Left column: Personal Info -->
+      <div class="info-card">
+        <div class="info-card__header">
+          <h2 class="info-card__title">Información Personal</h2>
+          <button class="btn-outline btn-outline--sm" (click)="openEditDialog()">
+            <svg lucidePencil class="btn-icon btn-icon--sm"></svg>
+            Editar
+          </button>
+        </div>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">Nombre completo</label>
+            <span class="info-field__value">{{ u.fullName }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Email</label>
+            <span class="info-field__value">{{ u.email }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Teléfono</label>
+            <span class="info-field__value info-field__value--muted">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: Technical Info -->
+      <div class="info-card">
+        <h2 class="info-card__title">Información Técnica</h2>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">ID</label>
+            <span class="info-field__value info-field__value--mono">{{ u.id }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Fecha creación</label>
+            <span class="info-field__value">{{ u.createdAt | date:'yyyy-MM-dd HH:mm' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Última actualización</label>
+            <span class="info-field__value info-field__value--muted">{{ u.createdAt | date:'yyyy-MM-dd HH:mm' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Último login</label>
+            <span class="info-field__value info-field__value--muted">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- ======= TAB 2: MEMBRESÍAS ======= -->
+    @if (activeTab() === 'membresias') {
+    <div class="membresias-tab">
+      <!-- Stat cards row -->
+      <div class="stats-row">
+        <app-stat-card
+          icon="users"
+          label="Total Membresías"
+          [value]="totalMemberships()"
+          iconColor="#2563eb"
+          iconBg="rgba(37, 99, 235, 0.08)"
+        />
+        <app-stat-card
+          icon="school"
+          label="Escuelas asignadas"
+          [value]="assignedSchools()"
+          iconColor="#10b981"
+          iconBg="rgba(16, 185, 129, 0.1)"
+        />
+        <app-stat-card
+          icon="shield"
+          label="Roles activos"
+          [value]="activeRoles()"
+          iconColor="#f59e0b"
+          iconBg="rgba(245, 158, 11, 0.1)"
+        />
+      </div>
+
+      <!-- Memberships table -->
+      <div class="table-card">
+        <div class="table-card__toolbar">
+          <h3 class="table-card__title">Membresías asignadas</h3>
+          <button class="btn-primary btn-primary--sm">
+            <svg lucideUserRoundPen class="btn-icon btn-icon--sm"></svg>
+            Agregar membresía
+          </button>
+        </div>
+        <div class="table-card__divider"></div>
+
+        @if (memberships().length > 0) {
+        <div class="table-card__table-wrapper">
+          <table class="membresias-table">
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>Institución</th>
+                <th>Sede</th>
+                <th>Estado</th>
+                <th class="membresias-table__th--actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of memberships(); track m.id) {
+              <tr class="membership-row">
+                <td>
+                  <span
+                    class="badge badge--role"
+                    [style.background-color]="roleDisplayBg(m.role)"
+                    [style.color]="roleDisplayColor(m.role)"
+                  >
+                    {{ m.role }}
+                  </span>
+                </td>
+                <td>
+                  <span class="cell-muted">{{ m.scopeRefId }}</span>
+                </td>
+                <td>
+                  <span class="cell-muted">{{ m.scopeType }}</span>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.badge--active]="m.active"
+                    [class.badge--inactive]="!m.active"
+                  >
+                    {{ m.active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="membresias-table__td--actions">
+                  <button class="action-btn" title="Editar membresía">
+                    <svg lucidePencil></svg>
+                  </button>
+                  <button class="action-btn action-btn--danger" title="Eliminar membresía">
+                    <svg lucideTrash></svg>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="table-card__empty">
+          <svg lucideUsers class="empty-icon"></svg>
+          <p class="empty-title">Sin membresías</p>
+          <p class="empty-desc">Este usuario no tiene membresías asignadas.</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- ======= TAB 3: ACCESOS (Placeholder) ======= -->
+    @if (activeTab() === 'accesos') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideShield></svg>
+      </div>
+      <h3 class="placeholder-card__title">Próximamente</h3>
+      <p class="placeholder-card__desc">Gestión de accesos y permisos en desarrollo.</p>
+    </div>
+    }
+
+    <!-- ======= TAB 4: ACTIVIDAD (Placeholder) ======= -->
+    @if (activeTab() === 'actividad') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideClock></svg>
+      </div>
+      <h3 class="placeholder-card__title">Próximamente</h3>
+      <p class="placeholder-card__desc">Registro de actividad en desarrollo.</p>
+    </div>
+    }
+
+    <!-- ======= TAB 5: AUDITORÍA (Placeholder) ======= -->
+    @if (activeTab() === 'auditoria') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideFileSearch></svg>
+      </div>
+      <h3 class="placeholder-card__title">Próximamente</h3>
+      <p class="placeholder-card__desc">Auditoría de acciones en desarrollo.</p>
+    </div>
+    }
+  </div>
+
+  <!-- ======= BLOCK/UNBLOCK CONFIRMATION DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="blockTitle()"
+    [message]="blockMessage()"
+    [confirmLabel]="blockConfirmLabel()"
+    [(visible)]="blockDialogVisible"
+    (confirm)="confirmBlock()"
+    (cancel)="closeBlockDialog()"
+  />
   }
 </div>
