@@ -174,7 +174,19 @@
           </div>
           <div class="info-field">
             <label class="info-field__label">Teléfono</label>
-            <span class="info-field__value info-field__value--muted">—</span>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.phone">{{ u.phone || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Dirección</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.address">{{ u.address || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Ciudad</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.city">{{ u.city || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">País</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.country">{{ u.country || '—' }}</span>
           </div>
         </div>
       </div>

@@ -6,6 +6,10 @@ export interface UserProfile {
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
   createdAt: string;
 }
 
@@ -23,6 +27,10 @@ export interface CreateUserPayload {
   role: string;
   scopeType: string;
   scopeRefId?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface ChangeStatusRequest {
@@ -37,4 +45,8 @@ export interface ChangePasswordPayload {
 export interface UpdateUserPayload {
   email: string;
   fullName: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
 }

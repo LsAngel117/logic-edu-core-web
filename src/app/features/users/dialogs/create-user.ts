@@ -33,6 +33,10 @@ export class CreateUserDialogComponent {
   readonly role = signal('');
   readonly scopeType = signal<'SCHOOL' | 'BRANCH' | 'ALL' | ''>('');
   readonly scopeRefId = signal('');
+  readonly phone = signal('');
+  readonly address = signal('');
+  readonly city = signal('');
+  readonly country = signal('');
 
   readonly created = output<void>();
   readonly cancel = output<void>();
@@ -96,6 +100,10 @@ export class CreateUserDialogComponent {
       role: rl,
       scopeType: st as 'SCHOOL' | 'BRANCH' | 'ALL',
       scopeRefId: this.scopeRefId().trim() || undefined,
+      phone: this.phone().trim() || undefined,
+      address: this.address().trim() || undefined,
+      city: this.city().trim() || undefined,
+      country: this.country().trim() || undefined,
     };
 
     try {
@@ -137,6 +145,10 @@ export class CreateUserDialogComponent {
     this.role.set('');
     this.scopeType.set('');
     this.scopeRefId.set('');
+    this.phone.set('');
+    this.address.set('');
+    this.city.set('');
+    this.country.set('');
     this.errorMessage.set('');
   }
 }

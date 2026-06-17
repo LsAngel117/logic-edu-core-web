@@ -193,6 +193,32 @@
     </div>
     }
 
+    <!-- Row 8: Contact info -->
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Teléfono</label>
+        <input class="dialog-input" type="text" data-testid="create-phone"
+          [value]="phone()" (input)="updateTextField('phone', $event)" placeholder="+57 300 123 4567" />
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">Ciudad</label>
+        <input class="dialog-input" type="text" data-testid="create-city"
+          [value]="city()" (input)="updateTextField('city', $event)" placeholder="Medellín" />
+      </div>
+    </div>
+    <div class="dialog-row">
+      <div class="dialog-field">
+        <label class="dialog-label">Dirección</label>
+        <input class="dialog-input" type="text" data-testid="create-address"
+          [value]="address()" (input)="updateTextField('address', $event)" placeholder="Calle 123 #45-67" />
+      </div>
+      <div class="dialog-field">
+        <label class="dialog-label">País</label>
+        <input class="dialog-input" type="text" data-testid="create-country"
+          [value]="country()" (input)="updateTextField('country', $event)" placeholder="Colombia" />
+      </div>
+    </div>
+
     @if (errorMessage()) {
     <div class="dialog-error">{{ errorMessage() }}</div>
     }
