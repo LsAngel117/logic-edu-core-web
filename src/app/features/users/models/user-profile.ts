@@ -22,3 +22,9 @@ export interface ChangePasswordPayload {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface UpdateUserPayload {
+  email: string;
+  displayName: string;
+  roles: string[];
+}
