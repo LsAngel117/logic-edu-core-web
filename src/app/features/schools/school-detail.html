@@ -70,7 +70,7 @@
             [style.background-color]="statusBg()"
             [style.color]="statusColor()"
           >
-            {{ s.status }}
+            {{ statusLabel(s.status) }}
           </span>
         </div>
       </div>
@@ -196,7 +196,7 @@
                 [style.background-color]="statusBg()"
                 [style.color]="statusColor()"
               >
-                {{ s.status }}
+                {{ statusLabel(s.status) }}
               </span>
             </span>
           </div>

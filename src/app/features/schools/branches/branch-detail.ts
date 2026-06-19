@@ -21,6 +21,7 @@ import {
 } from '@lucide/angular';
 import { BranchesService } from './services/branches';
 import { SchoolsService } from '../services/schools';
+import { statusLabel as getStatusLabel } from '../../../core/constants/display-labels';
 import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 import { ConfirmationDialog } from '../../../shared/ui';
@@ -247,3 +248,4 @@ export class BranchDetailComponent {
     this.statusDialogVisible.set(false);
   }
 }
+  statusLabel(s: string): string { return getStatusLabel(s); }

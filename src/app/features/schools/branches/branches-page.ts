@@ -16,6 +16,7 @@ import {
 } from '@lucide/angular';
 import { BranchesService } from './services/branches';
 import { SchoolsService } from '../services/schools';
+import { statusLabel as getStatusLabel } from '../../../core/constants/display-labels';
 import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
@@ -378,3 +379,4 @@ export class BranchesPage {
     return STATUS_CLASSES[status] ?? 'status--default';
   }
 }
+  statusLabel(s: string): string { return getStatusLabel(s); }

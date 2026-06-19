@@ -31,6 +31,17 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
             <input type="text" formControlName="shortName" placeholder="Nombre corto" />
           </div>
           <div class="form-field">
+            <label>Tipo <span class="required">*</span></label>
+            <select formControlName="type" class="form-select">
+              <option value="MAIN">Principal</option>
+              <option value="SECONDARY">Secundaria</option>
+              <option value="VIRTUAL">Virtual</option>
+              <option value="TEMPORARY">Temporal</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
             <label>Email</label>
             <input type="email" formControlName="email" placeholder="email@ejemplo.com" />
           </div>
@@ -95,6 +106,7 @@ export class EditBranch {
     name: ['', [Validators.required]],
     code: ['', [Validators.required, Validators.pattern(CODE_PATTERN)]],
     shortName: ['', [Validators.required]],
+    type: ['MAIN' as 'MAIN' | 'SECONDARY' | 'VIRTUAL' | 'TEMPORARY', Validators.required],
     description: [''],
     email: [''],
     phone: [''],
@@ -137,6 +149,7 @@ export class EditBranch {
       name: raw.name,
       code: raw.code,
       shortName: raw.shortName,
+      type: raw.type,
       description: raw.description || undefined,
       email: raw.email || undefined,
       phone: raw.phone || undefined,

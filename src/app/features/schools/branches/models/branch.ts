@@ -37,6 +37,7 @@ export interface UpdateBranchRequest {
   name: string;
   code: string;
   shortName: string;
+  type?: 'MAIN' | 'SECONDARY' | 'VIRTUAL' | 'TEMPORARY';
   description?: string;
   email?: string;
   phone?: string;

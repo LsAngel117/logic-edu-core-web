@@ -24,6 +24,7 @@ import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
 import { UserProfile, ChangeStatusRequest } from './models/user-profile';
 import { roleLabel as getRoleLabel } from '../../core/constants/role-labels';
+import { statusLabel as getStatusLabel } from '../../core/constants/display-labels';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
 import { CreateUserDialogComponent } from './dialogs/create-user';
 import { EditUser } from './dialogs/edit-user';
@@ -463,6 +464,10 @@ export class UsersPageComponent {
 
   roleLabel(role: string | undefined): string {
     return getRoleLabel(role);
+  }
+
+  statusLabel(status: string): string {
+    return getStatusLabel(status);
   }
 
   statusClass(status: string): string {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
@@ -100,8 +100,10 @@ export class EditUser {
   });
 
   constructor() {
-    const u = this.userData();
-    if (u) this.patchForm(u);
+    effect(() => {
+      const u = this.userData();
+      if (u) this.patchForm(u);
+    });
   }
 
   private patchForm(u: UserProfile): void {
