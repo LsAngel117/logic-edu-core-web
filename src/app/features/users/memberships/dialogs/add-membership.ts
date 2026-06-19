@@ -30,10 +30,24 @@ const ROLE_SCOPE: Record<string, string> = {
         @if (!userId()) {
           <div class="form-field">
             <label>Usuario <span class="required">*</span></label>
-            <select [value]="selectedUserId()" (change)="selectedUserId.set($any($event.target).value)" class="form-select">
-              <option value="" disabled>Seleccionar usuario</option>
-              @for (u of users(); track u.id) { <option [value]="u.id">{{ u.fullName }} ({{ u.email }})</option> }
-            </select>
+            <div class="search-wrapper">
+              <input type="text" class="search-input" [value]="userSearch()" (input)="userSearch.set($any($event.target).value)"
+                placeholder="Buscar por nombre, email o documento..." />
+            </div>
+            @if (selectedUserId()) {
+              <p class="scope-hint">Seleccionado: <strong>{{ selectedUserLabel() }}</strong></p>
+            }
+            <div class="user-list">
+              @for (u of filteredUsers(); track u.id) {
+                <button type="button" class="user-option" [class.active]="u.id === selectedUserId()" (click)="selectedUserId.set(u.id)">
+                  <span class="user-option-name">{{ u.fullName }}</span>
+                  <span class="user-option-email">{{ u.email }}</span>
+                </button>
+              }
+              @if (filteredUsers().length === 0 && userSearch()) {
+                <p class="scope-hint">No se encontraron usuarios</p>
+              }
+            </div>
           </div>
         }
 
@@ -94,6 +108,16 @@ const ROLE_SCOPE: Record<string, string> = {
     .form-field input:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
     .field-error { font-size: 12px; color: #ef4444; margin-top: 2px; }
     .scope-hint { font-size: 13px; color: #6b7280; margin: 0; padding: 4px 0; }
+    .search-wrapper { margin-bottom: 4px; }
+    .search-input { width: 100%; padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 13px; outline: none; font-family: Roboto, sans-serif; }
+    .search-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .user-list { max-height: 180px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .user-option { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: 8px 12px; border: none; background: none; cursor: pointer; text-align: left; font-family: Roboto, sans-serif; border-bottom: 1px solid #f3f4f6; }
+    .user-option:last-child { border-bottom: none; }
+    .user-option:hover { background: #f9fafb; }
+    .user-option.active { background: rgba(37,99,235,.06); }
+    .user-option-name { font-size: 13px; font-weight: 500; color: #111827; }
+    .user-option-email { font-size: 12px; color: #6b7280; }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -111,9 +135,23 @@ export class AddMembershipDialogComponent {
   readonly visible = model(false);
   readonly userId = input('');
   readonly selectedUserId = signal('');
+  readonly userSearch = signal('');
   readonly created = output<void>();
 
   readonly users = signal<{ id: string; fullName: string; email: string }[]>([]);
+
+  readonly filteredUsers = computed(() => {
+    const s = this.userSearch().toLowerCase().trim();
+    if (!s) return this.users().slice(0, 20);
+    return this.users().filter(u =>
+      u.fullName.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
+    ).slice(0, 20);
+  });
+
+  readonly selectedUserLabel = computed(() => {
+    const u = this.users().find(u => u.id === this.selectedUserId());
+    return u ? `${u.fullName} (${u.email})` : '';
+  });
 
   readonly schools = signal<{ id: string; name: string }[]>([]);
   readonly branches = signal<{ id: string; name: string }[]>([]);
