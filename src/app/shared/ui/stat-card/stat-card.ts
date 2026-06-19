@@ -11,6 +11,9 @@ import {
   LucideBookOpen,
   LucideTrendingUp,
   LucideTrendingDown,
+  LucideKey,
+  LucideCheckCircle,
+  LucideXCircle,
 } from '@lucide/angular';
 
 @Component({
@@ -28,6 +31,9 @@ import {
     LucideBookOpen,
     LucideTrendingUp,
     LucideTrendingDown,
+    LucideKey,
+    LucideCheckCircle,
+    LucideXCircle,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './stat-card.html',

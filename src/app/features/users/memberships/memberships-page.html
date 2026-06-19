@@ -1,0 +1,392 @@
+<div class="memberships-page">
+  
+  <!-- ======= PAGE HEADER ======= -->
+  <app-page-header
+    title="Membresías"
+    description="Administra las membresías y roles de los usuarios."
+  />
+
+  <!-- ======= ERROR STATE ======= -->
+  @if (error()) {
+  <div class="error-card" data-testid="memberships-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
+    </div>
+    <h3>Error al cargar membresías</h3>
+    <button class="btn-outline" data-testid="memberships-retry" (click)="loadData()">
+      Reintentar
+    </button>
+  </div>
+  }
+
+  <!-- ======= LOADING STATE ======= -->
+  @if (!error() && loading()) {
+  <div class="memberships-page__loading" data-testid="memberships-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando membresías...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (!error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="key"
+      label="Total Membresías"
+      [value]="totalRows()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
+    />
+    <app-stat-card
+      icon="check-circle"
+      label="Activas"
+      [value]="activeRows()"
+      iconColor="#10b981"
+      iconBg="rgba(16, 185, 129, 0.1)"
+    />
+    <app-stat-card
+      icon="x-circle"
+      label="Inactivas"
+      [value]="inactiveRows()"
+      iconColor="#ef4444"
+      iconBg="rgba(239, 68, 68, 0.08)"
+    />
+  </div>
+
+  <!-- Memberships Table Card -->
+  <div class="table-card">
+    <!-- Toolbar: Filters -->
+    <div class="table-card__toolbar">
+      <div class="toolbar-filters">
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Role Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Rol</label>
+            <select
+              class="filter-select"
+              data-testid="membership-role-filter"
+              [value]="roleFilter()"
+              (change)="setRoleFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="PLATFORM_ADMIN">Admin de Plataforma</option>
+              <option value="SCHOOL_ADMIN">Admin de Escuela</option>
+              <option value="BRANCH_ADMIN">Admin de Sede</option>
+              <option value="TEACHER">Profesor</option>
+              <option value="STUDENT">Estudiante</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="membership-status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                autocomplete="off"
+                name="memberships-search"
+                data-testid="memberships-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                placeholder="Buscar por nombre, email o rol..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+       
+    <div class="table-card__toolbar">
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions-right">
+          <!-- Export dropdown -->
+          <div class="export-dropdown">
+            <button class="btn-outline btn-outline--sm" (click)="toggleExportMenu()">
+              <svg lucideDownload class="btn-icon btn-icon--sm"></svg>
+              Exportar
+            </button>
+            @if (exportMenuOpen()) {
+            <div class="export-menu">
+              <button class="export-item" (click)="exportData('csv')">
+                <svg lucideFileText class="export-item-icon"></svg>
+                CSV
+              </button>
+              <button class="export-item" (click)="exportData('excel')">
+                <svg lucideFileSpreadsheet class="export-item-icon"></svg>
+                Excel
+              </button>
+              <button class="export-item" (click)="exportData('pdf')">
+                <svg lucideFileType class="export-item-icon"></svg>
+                PDF
+              </button>
+            </div>
+            }
+          </div>
+
+          <!-- Nueva Membresía button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-membership-btn" (click)="openCreateDialog()">
+            <svg lucideKey class="btn-icon btn-icon--sm"></svg>
+            Nueva Membresía
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredRows().length > 0) {
+    <div class="table-card__table-wrapper">
+      <table class="memberships-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('userName')">
+              Usuario
+              @if (sortColumn() === 'userName') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('role')">
+              Rol
+              @if (sortColumn() === 'role') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('scopeType')">
+              Alcance
+              @if (sortColumn() === 'scopeType') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('scopeRefId')">
+              Referencia
+              @if (sortColumn() === 'scopeRefId') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('active')">
+              Estado
+              @if (sortColumn() === 'active') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="memberships-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of paginatedRows(); track row.id) {
+          <tr class="membership-row" data-testid="membership-row">
+            <!-- User info with avatar -->
+            <td class="user-cell">
+              <div class="user-avatar">
+                {{ getInitials(row.userName) }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ row.userName }}</span>
+                <span class="user-email">{{ row.userEmail }}</span>
+              </div>
+            </td>
+
+            <!-- Role badge -->
+            <td>
+              <span
+                class="role-badge"
+                data-testid="role-badge"
+                [style.background-color]="roleBg(row.role)"
+                [style.color]="roleColor(row.role)"
+              >
+                <svg lucideShield class="role-icon"></svg>
+                {{ roleLabel(row.role) }}
+              </span>
+            </td>
+
+            <!-- Scope badge -->
+            <td>
+              <span
+                class="scope-badge"
+                data-testid="scope-badge"
+                [style.background-color]="scopeBg(row.scopeType)"
+                [style.color]="scopeColor(row.scopeType)"
+              >
+                {{ scopeLabel(row.scopeType) }}
+              </span>
+            </td>
+
+            <!-- Reference -->
+            <td>
+              <span class="reference-text">{{ row.scopeRefId || '—' }}</span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class.status-badge--active]="row.active"
+                [class.status-badge--inactive]="!row.active"
+              >
+                {{ statusLabel(row.active) }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="memberships-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Ver usuario"
+                (click)="viewUser(row)"
+              >
+                <svg lucideEye></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(row)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredRows().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="memberships-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron membresías con los filtros actuales.</p>
+    </div>
+    }
+  </div>
+
+  <!-- Empty State (no memberships at all) -->
+  @if (rows().length === 0 && !loading() && !error()) {
+  <app-empty-state
+    icon="key"
+    title="No hay membresías registradas"
+    description="Comienza asignando roles a los usuarios de la plataforma."
+  />
+  }
+
+  }
+
+  <!-- ======= ADD MEMBERSHIP DIALOG ======= -->
+  <!-- Note: AddMembershipDialog requires userId — user selection workflow needed -->
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
+</div>

@@ -6,6 +6,7 @@ import {
   LucideGitBranch,
   LucideSchool,
   LucideBookOpen,
+  LucideKey,
 } from '@lucide/angular';
 
 @Component({
@@ -18,6 +19,7 @@ import {
     LucideGitBranch,
     LucideSchool,
     LucideBookOpen,
+    LucideKey,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './empty-state.html',

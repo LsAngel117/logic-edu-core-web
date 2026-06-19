@@ -81,4 +81,31 @@ describe('StatCard', () => {
     expect(valueEl).toBeTruthy();
     expect(valueEl.textContent.trim()).toBe('24 activas');
   });
+
+  it('should render key icon for "key" input', () => {
+    const fixture = setupStatCard('key', 'Total Membresías', 42);
+
+    const iconEl = fixture.nativeElement.querySelector('[data-testid="stat-icon"]');
+    expect(iconEl).toBeTruthy();
+    const keySvg = iconEl.querySelector('svg[lucideKey]');
+    expect(keySvg).toBeTruthy();
+  });
+
+  it('should render check-circle icon for "check-circle" input', () => {
+    const fixture = setupStatCard('check-circle', 'Activas', 15);
+
+    const iconEl = fixture.nativeElement.querySelector('[data-testid="stat-icon"]');
+    expect(iconEl).toBeTruthy();
+    const checkSvg = iconEl.querySelector('svg[lucideCheckCircle]');
+    expect(checkSvg).toBeTruthy();
+  });
+
+  it('should render x-circle icon for "x-circle" input', () => {
+    const fixture = setupStatCard('x-circle', 'Inactivas', 5);
+
+    const iconEl = fixture.nativeElement.querySelector('[data-testid="stat-icon"]');
+    expect(iconEl).toBeTruthy();
+    const xSvg = iconEl.querySelector('svg[lucideXCircle]');
+    expect(xSvg).toBeTruthy();
+  });
 });

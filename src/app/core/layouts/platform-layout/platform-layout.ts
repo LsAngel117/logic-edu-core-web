@@ -35,6 +35,7 @@ export class PlatformLayout {
           { label: 'Usuarios', icon: 'users', route: '/users' },
           { label: 'Instituciones', icon: 'building-2', route: '/schools' },
           { label: 'Sedes', icon: 'git-branch', route: '/branches' },
+          { label: 'Membresías', icon: 'key', route: '/memberships' },
         ];
       default:
         return [];

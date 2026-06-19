@@ -35,6 +35,10 @@ export const routes: Routes = [
         path: 'branches/:id',
         loadComponent: () => import('./features/schools/branches/branch-detail').then(m => m.BranchDetailComponent),
       },
+      {
+        path: 'memberships',
+        loadComponent: () => import('./features/users/memberships/memberships-page').then(m => m.MembershipsPageComponent),
+      },
     ],
   },
 ];
