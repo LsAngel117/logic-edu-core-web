@@ -4,13 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
 import { CreateSchoolPayload } from '../models/school';
 import { AppDialog } from '../../../shared/ui/app-dialog/app-dialog';
-import { LucideBuilding2 } from '@lucide/angular';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
 @Component({
   selector: 'app-create-school',
-  imports: [ReactiveFormsModule, AppDialog, LucideBuilding2],
+  imports: [ReactiveFormsModule, AppDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-dialog

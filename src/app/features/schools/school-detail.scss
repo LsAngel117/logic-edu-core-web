@@ -1,0 +1,642 @@
+/* ================================================================
+   School Detail Page — Premium SaaS Design
+   ================================================================ */
+
+// Design tokens
+$primary: #2563eb;
+$primary-hover: #1d4ed8;
+$success: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+$radius-card: 12px;
+$radius-btn: 10px;
+$shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+$border-color: $gray-200;
+$spacing-unit: 8px;
+$font-family: 'Roboto', sans-serif;
+
+/* ---- Page Layout ---- */
+.school-detail {
+  padding: $spacing-unit * 3;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-family: $font-family;
+  min-height: 0;
+}
+
+/* ---- Loading ---- */
+.school-detail__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-unit * 2;
+  padding: $spacing-unit * 8;
+  color: $gray-500;
+  font-size: 15px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid $gray-200;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Error State ---- */
+.school-detail__error {
+  padding: $spacing-unit * 6 0;
+}
+
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-unit * 6;
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-color;
+  text-align: center;
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba($danger, 0.1);
+    color: $danger;
+    margin-bottom: $spacing-unit * 2;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  h3 {
+    margin: 0 0 $spacing-unit;
+    color: $gray-800;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 $spacing-unit * 2;
+    color: $gray-500;
+    font-size: 14px;
+  }
+}
+
+/* ---- Breadcrumb ---- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: $spacing-unit * 3;
+  font-size: 14px;
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: $gray-500;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  &__sep {
+    color: $gray-300;
+  }
+
+  &__current {
+    color: $gray-700;
+    font-weight: 600;
+  }
+}
+
+/* ---- Header Card ---- */
+.header-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-unit * 3;
+  padding: $spacing-unit * 3;
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-color;
+  margin-bottom: $spacing-unit * 3;
+  flex-wrap: wrap;
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit * 2;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-unit;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.school-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__name {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: $gray-900;
+    line-height: 1.2;
+  }
+
+  &__code {
+    font-size: 14px;
+    color: $gray-500;
+  }
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--status {
+    // dynamic colors via inline styles
+  }
+
+  &--active {
+    background: rgba($success, 0.12);
+    color: $success;
+  }
+
+  &--inactive {
+    background: rgba($danger, 0.12);
+    color: $danger;
+  }
+}
+
+/* ---- Buttons ---- */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff;
+  color: $gray-700;
+  font-family: $font-family;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid $gray-200;
+  border-radius: $radius-btn;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: $gray-50;
+    border-color: $gray-300;
+  }
+
+  &--sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  &--danger {
+    color: $danger;
+    border-color: rgba($danger, 0.3);
+
+    &:hover {
+      background: rgba($danger, 0.04);
+      border-color: $danger;
+    }
+  }
+
+  &--success {
+    color: $success;
+    border-color: rgba($success, 0.3);
+
+    &:hover {
+      background: rgba($success, 0.04);
+      border-color: $success;
+    }
+  }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, $primary, #3b82f6);
+  color: #fff;
+  font-family: $font-family;
+  font-size: 14px;
+  font-weight: 600;
+  height: 38px;
+  border: none;
+  border-radius: $radius-btn;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--sm {
+    padding: 6px 16px;
+    font-size: 13px;
+    height: 36px;
+    border-radius: 8px;
+  }
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+
+  &--sm {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid $gray-100;
+  margin-bottom: $spacing-unit * 3;
+  gap: 0;
+}
+
+.tab-item {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-family: $font-family;
+  font-size: 14px;
+  font-weight: 500;
+  color: $gray-500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    color: $gray-900;
+  }
+
+  &--active {
+    color: $primary;
+    border-bottom-color: $primary;
+  }
+}
+
+.tab-content {
+  min-height: 300px;
+}
+
+/* ---- Información Tab: Two-column grid ---- */
+.informacion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-unit * 3;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-card {
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-color;
+  padding: $spacing-unit * 3;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+}
+
+.info-fields {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2;
+}
+
+.info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $gray-500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__value {
+    font-size: 14px;
+    color: $gray-800;
+    font-weight: 500;
+
+    &--muted {
+      color: $gray-400;
+    }
+
+    &--mono {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 13px;
+    }
+  }
+}
+
+/* ---- Stats Row ---- */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-unit * 2;
+  margin-bottom: $spacing-unit * 3;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Table Card ---- */
+.table-card {
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-color;
+  overflow: hidden;
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-unit * 2 $spacing-unit * 3;
+    gap: $spacing-unit * 2;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: $gray-800;
+  }
+
+  &__divider {
+    height: 1px;
+    background: $gray-100;
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      color: $gray-400;
+      margin-bottom: 16px;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: $gray-700;
+      margin: 0 0 4px;
+    }
+
+    .empty-desc {
+      font-size: 14px;
+      color: $gray-500;
+      margin: 0;
+    }
+  }
+}
+
+/* ---- Sedes Table ---- */
+.sedes-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: $gray-50;
+
+    th {
+      padding: 12px 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: $gray-500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $gray-100;
+      transition: background 0.15s;
+
+      &:hover {
+        background: rgba($primary, 0.02);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  td {
+    padding: 14px 24px;
+    vertical-align: middle;
+  }
+
+  &__th--actions,
+  &__td--actions {
+    text-align: center;
+    width: 100px;
+  }
+}
+
+.cell-main {
+  color: $gray-800;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cell-muted {
+  color: $gray-500;
+  font-size: 13px;
+}
+
+/* ---- Action Buttons ---- */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: $gray-400;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    color: $primary;
+    background: rgba($primary, 0.08);
+  }
+
+  &--danger:hover {
+    color: $danger;
+    background: rgba($danger, 0.08);
+  }
+}
+
+/* ---- Placeholder Card (coming soon tabs) ---- */
+.placeholder-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-color;
+  text-align: center;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba($primary, 0.08);
+    color: $primary;
+    margin-bottom: $spacing-unit * 2;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  &__title {
+    margin: 0 0 $spacing-unit;
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-800;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 14px;
+    color: $gray-500;
+    max-width: 320px;
+  }
+}

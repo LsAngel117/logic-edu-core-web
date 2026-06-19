@@ -116,7 +116,7 @@ describe('AddMembershipDialogComponent', () => {
       fixture.detectChanges();
 
       fixture.componentInstance.form.controls.role.setValue('TEACHER');
-      fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+      fixture.componentInstance.scopeType.set('SCHOOL');
       fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
       fixture.detectChanges();
 
@@ -145,7 +145,7 @@ describe('AddMembershipDialogComponent', () => {
       const sub = fixture.componentInstance.created.subscribe(createdSpy);
 
       fixture.componentInstance.form.controls.role.setValue('TEACHER');
-      fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+      fixture.componentInstance.scopeType.set('SCHOOL');
       fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
       fixture.detectChanges();
 
@@ -173,7 +173,7 @@ describe('AddMembershipDialogComponent', () => {
       fixture.detectChanges();
 
       fixture.componentInstance.form.controls.role.setValue('TEACHER');
-      fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+      fixture.componentInstance.scopeType.set('SCHOOL');
       fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
       fixture.detectChanges();
 
@@ -197,7 +197,7 @@ describe('AddMembershipDialogComponent', () => {
       fixture.detectChanges();
 
       fixture.componentInstance.form.controls.role.setValue('TEACHER');
-      fixture.componentInstance.form.controls.scopeType.setValue('SCHOOL');
+      fixture.componentInstance.scopeType.set('SCHOOL');
       fixture.componentInstance.form.controls.scopeRefId.setValue('school-1');
       fixture.detectChanges();
 

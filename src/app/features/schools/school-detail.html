@@ -1,0 +1,355 @@
+<div class="school-detail">
+  <!-- ======= LOADING STATE ======= -->
+  @if (loading()) {
+  <div class="school-detail__loading" data-testid="school-detail-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando institución...</span>
+  </div>
+  }
+
+  <!-- ======= ERROR: NOT FOUND ======= -->
+  @if (!loading() && notFound()) {
+  <div class="school-detail__error" data-testid="school-detail-notfound">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideBuilding2></svg>
+      </div>
+      <h3>Institución no encontrada</h3>
+      <p>La institución solicitada no existe o ha sido eliminada.</p>
+      <button class="btn-outline" routerLink="/schools">
+        Volver a Instituciones
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= ERROR: NETWORK ======= -->
+  @if (!loading() && error()) {
+  <div class="school-detail__error" data-testid="school-detail-error">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideBuilding2></svg>
+      </div>
+      <h3>Error al cargar institución</h3>
+      <p>Ocurrió un error al obtener los detalles de la institución.</p>
+      <button class="btn-outline" (click)="loadSchool(currentId())">
+        Reintentar
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= CONTENT ======= -->
+  @if (!loading() && !error() && !notFound() && school(); as s) {
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a routerLink="/schools" class="breadcrumb__link">
+      <svg lucideChevronLeft class="breadcrumb__icon"></svg>
+      Instituciones
+    </a>
+    <span class="breadcrumb__sep">/</span>
+    <span class="breadcrumb__current">Detalle</span>
+  </nav>
+
+  <!-- HEADER CARD -->
+  <div class="header-card">
+    <div class="header-card__main">
+      <!-- Avatar -->
+      <div class="avatar">{{ getInitials(s.name) }}</div>
+
+      <!-- School info -->
+      <div class="school-info">
+        <h1 class="school-info__name">{{ s.name }}</h1>
+        <span class="school-info__code">{{ s.code }}</span>
+
+        <!-- Status badge -->
+        <div class="badges">
+          <span
+            class="badge badge--status"
+            [style.background-color]="statusBg()"
+            [style.color]="statusColor()"
+          >
+            {{ s.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="header-card__actions">
+      <button class="btn-outline" (click)="openEditDialog()">
+        <svg lucidePencil class="btn-icon"></svg>
+        Editar
+      </button>
+      @if (isActive()) {
+      <button class="btn-outline btn-outline--danger" (click)="openStatusDialog()">
+        <svg lucideBan class="btn-icon"></svg>
+        Desactivar
+      </button>
+      } @else {
+      <button class="btn-outline btn-outline--success" (click)="openStatusDialog()">
+        <svg lucideCheckCircle class="btn-icon"></svg>
+        Activar
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tabs">
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'informacion'"
+      (click)="setActiveTab('informacion')"
+    >
+      Información
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'sedes'"
+      (click)="setActiveTab('sedes')"
+    >
+      Sedes
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'usuarios'"
+      (click)="setActiveTab('usuarios')"
+    >
+      Usuarios
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'academico'"
+      (click)="setActiveTab('academico')"
+    >
+      Académico
+    </button>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+    <!-- ======= TAB 1: INFORMACIÓN ======= -->
+    @if (activeTab() === 'informacion') {
+    <div class="informacion-grid">
+      <!-- Left column: General Info -->
+      <div class="info-card">
+        <div class="info-card__header">
+          <h2 class="info-card__title">Información General</h2>
+          <button class="btn-outline btn-outline--sm" (click)="openEditDialog()">
+            <svg lucidePencil class="btn-icon btn-icon--sm"></svg>
+            Editar
+          </button>
+        </div>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">Nombre</label>
+            <span class="info-field__value">{{ s.name }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Código</label>
+            <span class="info-field__value">{{ s.code }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Nombre Corto</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.shortName">{{ s.shortName || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Email</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.email">{{ s.email || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Teléfono</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.phone">{{ s.phone || '—' }}</span>
+          </div>
+          @if (s.description) {
+          <div class="info-field">
+            <label class="info-field__label">Descripción</label>
+            <span class="info-field__value">{{ s.description }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right column: Administrative Info -->
+      <div class="info-card">
+        <h2 class="info-card__title">Información Administrativa</h2>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">Dirección</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.address">{{ s.address || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Ciudad</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.city">{{ s.city || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">País</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!s.country">{{ s.country || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Estado</label>
+            <span class="info-field__value">
+              <span
+                class="badge badge--status"
+                [style.background-color]="statusBg()"
+                [style.color]="statusColor()"
+              >
+                {{ s.status }}
+              </span>
+            </span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Fecha creación</label>
+            <span class="info-field__value">{{ s.createdAt | date:'yyyy-MM-dd HH:mm' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">ID</label>
+            <span class="info-field__value info-field__value--mono">{{ s.id }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- ======= TAB 2: SEDES ======= -->
+    @if (activeTab() === 'sedes') {
+    <div class="sedes-tab">
+      <!-- Stat cards row -->
+      <div class="stats-row">
+        <app-stat-card
+          icon="school"
+          label="Total Sedes"
+          [value]="totalBranches()"
+          iconColor="#2563eb"
+          iconBg="rgba(37, 99, 235, 0.08)"
+        />
+        <app-stat-card
+          icon="users"
+          label="Activas"
+          [value]="activeBranches()"
+          iconColor="#10b981"
+          iconBg="rgba(16, 185, 129, 0.1)"
+        />
+        <app-stat-card
+          icon="users"
+          label="Inactivas"
+          [value]="inactiveBranches()"
+          iconColor="#ef4444"
+          iconBg="rgba(239, 68, 68, 0.1)"
+        />
+      </div>
+
+      <!-- Branches table -->
+      <div class="table-card">
+        <div class="table-card__toolbar">
+          <h3 class="table-card__title">Sedes asignadas</h3>
+          <button class="btn-primary btn-primary--sm" (click)="openCreateBranchDialog()">
+            <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
+            Nueva Sede
+          </button>
+        </div>
+        <div class="table-card__divider"></div>
+
+        @if (branches().length > 0) {
+        <div class="table-card__table-wrapper">
+          <table class="sedes-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th class="sedes-table__th--actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (b of branches(); track b.id) {
+              <tr class="branch-row">
+                <td>
+                  <span class="cell-main">{{ b.name }}</span>
+                </td>
+                <td>
+                  <span class="cell-muted">{{ b.code }}</span>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [style.background-color]="branchTypeBg(b.type)"
+                    [style.color]="branchTypeColor(b.type)"
+                  >
+                    {{ b.type }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.badge--active]="b.status === 'ACTIVE'"
+                    [class.badge--inactive]="b.status === 'INACTIVE'"
+                  >
+                    {{ b.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="sedes-table__td--actions">
+                  <button class="action-btn" title="Editar sede">
+                    <svg lucidePencil></svg>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="table-card__empty">
+          <svg lucideGitBranch class="empty-icon"></svg>
+          <p class="empty-title">Sin sedes</p>
+          <p class="empty-desc">Esta institución no tiene sedes asignadas.</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- ======= TAB 3: USUARIOS (Placeholder) ======= -->
+    @if (activeTab() === 'usuarios') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideUsers></svg>
+      </div>
+      <h3 class="placeholder-card__title">Usuarios de esta institución</h3>
+      <p class="placeholder-card__desc">Gestión de usuarios vinculados — próximamente.</p>
+    </div>
+    }
+
+    <!-- ======= TAB 4: ACADÉMICO (Placeholder) ======= -->
+    @if (activeTab() === 'academico') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideSchool></svg>
+      </div>
+      <h3 class="placeholder-card__title">Estructura académica</h3>
+      <p class="placeholder-card__desc">Configuración de niveles, grados y asignaturas — próximamente.</p>
+    </div>
+    }
+  </div>
+
+  <!-- ======= STATUS CONFIRMATION DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
+
+  <!-- ======= CREATE BRANCH DIALOG ======= -->
+  <app-create-branch
+    [(visible)]="createBranchVisible"
+    [schoolId]="s.id"
+    (created)="onBranchCreated()"
+  />
+  }
+</div>

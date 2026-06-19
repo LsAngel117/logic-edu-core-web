@@ -2,8 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { EditUser } from './edit-user';
 import { UserProfile } from '../models/user-profile';
 
@@ -18,16 +16,15 @@ const mockUser: UserProfile = {
 
 function setup() {
   TestBed.configureTestingModule({
-    imports: [EditUser, MatDialogModule, NoopAnimationsModule],
+    imports: [EditUser],
     providers: [
       provideHttpClient(),
       provideHttpClientTesting(),
-      { provide: MatDialogRef, useValue: { close: () => {} } },
-      { provide: MAT_DIALOG_DATA, useValue: mockUser },
     ],
   });
 
   const fixture = TestBed.createComponent(EditUser);
+  fixture.componentRef.setInput('userData', mockUser);
   const httpMock = TestBed.inject(HttpTestingController);
   fixture.detectChanges();
   return { fixture, httpMock };
@@ -38,7 +35,8 @@ describe('EditUser', () => {
     const { fixture } = setup();
     const component = fixture.componentInstance;
     expect(component.form.controls.email.value).toBe('test@logicedu.com');
-    expect(component.form.controls.fullName.value).toBe('Test User');
+    expect(component.form.controls.firstGivenName.value).toBe('Test');
+    expect(component.form.controls.firstFamilyName.value).toBe('User');
   });
 
   it('should call UsersService.update() on valid submit', () => {
@@ -47,16 +45,17 @@ describe('EditUser', () => {
 
     component.form.patchValue({
       email: 'updated@logicedu.com',
-      fullName: 'Updated Name',
+      firstGivenName: 'Updated',
+      firstFamilyName: 'Name',
     });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/users/usr_1');
     expect(req.request.method).toBe('PATCH');
-    expect(req.request.body).toEqual({
-      email: 'updated@logicedu.com',
-      fullName: 'Updated Name',
-    });
+    const body = req.request.body as Record<string, unknown>;
+    expect(body['email']).toBe('updated@logicedu.com');
+    expect(body['firstGivenName']).toBe('Updated');
+    expect(body['firstFamilyName']).toBe('Name');
     req.flush({ ...mockUser, email: 'updated@logicedu.com', fullName: 'Updated Name' });
   });
 
@@ -64,7 +63,7 @@ describe('EditUser', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'duplicate@logicedu.com', fullName: 'Updated' });
+    component.form.patchValue({ email: 'duplicate@logicedu.com', firstGivenName: 'Updated' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/users/usr_1');
@@ -79,7 +78,7 @@ describe('EditUser', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'updated@logicedu.com', fullName: 'Updated' });
+    component.form.patchValue({ email: 'updated@logicedu.com', firstGivenName: 'Updated' });
     component.onSubmit();
 
     const req = httpMock.expectOne('/api/v1/users/usr_1');
@@ -94,7 +93,7 @@ describe('EditUser', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: 'updated@logicedu.com', fullName: 'Updated' });
+    component.form.patchValue({ email: 'updated@logicedu.com', firstGivenName: 'Updated' });
     component.onSubmit();
 
     httpMock.expectOne('/api/v1/users/usr_1').error(new ProgressEvent('error'));
@@ -108,7 +107,7 @@ describe('EditUser', () => {
     const { fixture, httpMock } = setup();
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ email: '', fullName: '' });
+    component.form.patchValue({ email: '', firstGivenName: '' });
     component.onSubmit();
 
     httpMock.expectNone('/api/v1/users/usr_1');
