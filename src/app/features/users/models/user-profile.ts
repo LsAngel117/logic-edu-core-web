@@ -44,7 +44,10 @@ export interface ChangePasswordPayload {
 
 export interface UpdateUserPayload {
   email: string;
-  fullName: string;
+  firstGivenName: string;
+  secondGivenName?: string;
+  firstFamilyName: string;
+  secondFamilyName?: string;
   phone?: string;
   address?: string;
   city?: string;

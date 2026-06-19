@@ -10,25 +10,32 @@ import { AppDialog } from '../../../shared/ui';
   imports: [ReactiveFormsModule, AppDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-dialog
-      title="Editar Usuario"
-      confirmLabel="Guardar"
-      cancelLabel="Cancelar"
-      [loading]="loading()"
-      [(visible)]="visible"
-      (confirm)="onSubmit()"
-      (cancel)="visible.set(false)"
-    >
+    <app-dialog title="Editar Usuario" confirmLabel="Guardar" cancelLabel="Cancelar"
+      [loading]="loading()" [(visible)]="visible" (confirm)="onSubmit()" (cancel)="visible.set(false)">
       <form [formGroup]="form" class="dialog-form">
         <div class="form-row">
           <div class="form-field">
-            <label>Email <span class="required">*</span></label>
-            <input type="email" formControlName="email" placeholder="email@ejemplo.com" />
+            <label>Primer Nombre <span class="required">*</span></label>
+            <input type="text" formControlName="firstGivenName" placeholder="Primer nombre" />
           </div>
           <div class="form-field">
-            <label>Nombre completo <span class="required">*</span></label>
-            <input type="text" formControlName="fullName" placeholder="Nombre completo" />
+            <label>Segundo Nombre</label>
+            <input type="text" formControlName="secondGivenName" placeholder="Segundo nombre (opcional)" />
           </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Primer Apellido <span class="required">*</span></label>
+            <input type="text" formControlName="firstFamilyName" placeholder="Primer apellido" />
+          </div>
+          <div class="form-field">
+            <label>Segundo Apellido</label>
+            <input type="text" formControlName="secondFamilyName" placeholder="Segundo apellido (opcional)" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" formControlName="email" placeholder="email@ejemplo.com" />
         </div>
         <div class="form-row">
           <div class="form-field">
@@ -50,9 +57,7 @@ import { AppDialog } from '../../../shared/ui';
             <input type="text" formControlName="country" placeholder="Colombia" />
           </div>
         </div>
-        @if (errorMessage()) {
-          <div class="field-error">{{ errorMessage() }}</div>
-        }
+        @if (errorMessage()) { <div class="field-error">{{ errorMessage() }}</div> }
       </form>
     </app-dialog>
   `,
@@ -83,8 +88,11 @@ export class EditUser {
   readonly errorMessage = signal('');
 
   readonly form = this.fb.nonNullable.group({
+    firstGivenName: ['', Validators.required],
+    secondGivenName: [''],
+    firstFamilyName: ['', Validators.required],
+    secondFamilyName: [''],
     email: ['', [Validators.required, Validators.email]],
-    fullName: ['', Validators.required],
     phone: [''],
     address: [''],
     city: [''],
@@ -92,15 +100,23 @@ export class EditUser {
   });
 
   constructor() {
-    // Patch form when userData changes
     const u = this.userData();
     if (u) this.patchForm(u);
   }
 
   private patchForm(u: UserProfile): void {
+    // Best-effort split from fullName: first word=firstGivenName, last word=firstFamilyName
+    const parts = (u.fullName || '').trim().split(/\s+/);
+    const firstGiven = parts[0] || '';
+    const firstFamily = parts.length > 1 ? parts[parts.length - 1] : '';
+    const secondGiven = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
+    
     this.form.patchValue({
+      firstGivenName: firstGiven,
+      secondGivenName: secondGiven || '',
+      firstFamilyName: firstFamily,
+      secondFamilyName: '',
       email: u.email,
-      fullName: u.fullName,
       phone: u.phone || '',
       address: u.address || '',
       city: u.city || '',
@@ -118,9 +134,15 @@ export class EditUser {
 
     const raw = this.form.getRawValue();
     const payload: UpdateUserPayload = {
-      email: raw.email, fullName: raw.fullName,
-      phone: raw.phone || undefined, address: raw.address || undefined,
-      city: raw.city || undefined, country: raw.country || undefined,
+      email: raw.email,
+      firstGivenName: raw.firstGivenName,
+      secondGivenName: raw.secondGivenName || undefined,
+      firstFamilyName: raw.firstFamilyName,
+      secondFamilyName: raw.secondFamilyName || undefined,
+      phone: raw.phone || undefined,
+      address: raw.address || undefined,
+      city: raw.city || undefined,
+      country: raw.country || undefined,
     };
 
     try {
