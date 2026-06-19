@@ -352,19 +352,21 @@
     (created)="onBranchCreated()"
   />
 
+  @if (selectedBranch(); as b) {
   <app-edit-branch
     [(visible)]="editBranchVisible"
-    [branchData]="selectedBranch()"
+    [branchData]="b"
     (saved)="onBranchEdited()"
   />
 
   <app-confirmation-dialog
     title="Desactivar sede"
-    [message]="'¿Desactivar la sede ' + (selectedBranch()?.name || '') + '?'"
+    [message]="'¿Desactivar la sede ' + (b.name || '') + '?'"
     confirmLabel="Desactivar"
     [(visible)]="deactivateBranchVisible"
     (confirm)="confirmDeactivateBranch()"
     (cancel)="deactivateBranchVisible.set(false)"
   />
+  }
   }
 </div>
