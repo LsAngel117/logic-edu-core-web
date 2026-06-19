@@ -345,6 +345,15 @@
     (cancel)="closeStatusDialog()"
   />
 
+  <!-- ======= EDIT SCHOOL DIALOG ======= -->
+  @if (school(); as s) {
+  <app-edit-school
+    [schoolData]="s"
+    [(visible)]="editSchoolVisible"
+    (saved)="onSchoolSaved($event)"
+  />
+  }
+
   <!-- ======= CREATE BRANCH DIALOG ======= -->
   <app-create-branch
     [(visible)]="createBranchVisible"

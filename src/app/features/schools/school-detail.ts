@@ -10,7 +10,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
 import {
   LucideChevronLeft,
   LucidePencil,
@@ -26,7 +25,7 @@ import { SchoolsService } from './services/schools';
 import { BranchesService } from './branches/services/branches';
 import { School } from './models/school';
 import { BranchResponse } from './branches/models/branch';
-import { EditSchoolDialogComponent } from './dialogs/edit-school';
+import { EditSchool } from './dialogs/edit-school';
 import { CreateBranchDialogComponent } from './branches/dialogs/create-branch';
 import { StatCard, ConfirmationDialog } from '../../shared/ui';
 
@@ -70,6 +69,7 @@ const BRANCH_TYPE_BG: Record<string, string> = {
     DatePipe,
     StatCard,
     ConfirmationDialog,
+    EditSchool,
     CreateBranchDialogComponent,
     LucideChevronLeft,
     LucidePencil,
@@ -90,7 +90,6 @@ export class SchoolDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
-  private readonly dialog = inject(MatDialog);
 
   /* ---- State --------------------------------------------------------- */
   readonly school = signal<School | null>(null);
@@ -103,6 +102,7 @@ export class SchoolDetail {
   readonly branchesLoading = signal(false);
 
   /* ---- Dialog visibility --------------------------------------------- */
+  readonly editSchoolVisible = signal(false);
   readonly statusDialogVisible = signal(false);
   readonly createBranchVisible = signal(false);
 
@@ -204,17 +204,13 @@ export class SchoolDetail {
     const current = this.school();
     if (!current) return;
 
-    const dialogRef = this.dialog.open(EditSchoolDialogComponent, {
-      data: current,
-      width: '480px',
-    });
+    this.editSchoolVisible.set(true);
+  }
 
-    dialogRef.afterClosed().subscribe((result: School | undefined) => {
-      if (result) {
-        this.school.set(result);
-        this.loadBranches(this.currentId());
-      }
-    });
+  onSchoolSaved(updated: School): void {
+    this.editSchoolVisible.set(false);
+    this.school.set(updated);
+    this.loadBranches(this.currentId());
   }
 
   /* ---- Action: Status change ----------------------------------------- */
@@ -270,6 +266,7 @@ export class SchoolDetail {
   /* ---- Close dialogs on Escape --------------------------------------- */
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    this.editSchoolVisible.set(false);
     this.statusDialogVisible.set(false);
     this.createBranchVisible.set(false);
   }

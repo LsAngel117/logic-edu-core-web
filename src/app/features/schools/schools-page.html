@@ -358,6 +358,14 @@
     (created)="onSchoolCreated()"
   />
 
+  @if (editingSchool(); as school) {
+  <app-edit-school
+    [schoolData]="school"
+    [(visible)]="editSchoolVisible"
+    (saved)="onSchoolSaved()"
+  />
+  }
+
   <app-confirmation-dialog
     [title]="statusDialogTitle()"
     [message]="statusDialogMessage()"

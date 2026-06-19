@@ -20,6 +20,7 @@ import { BranchResponse } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
 import { CreateBranchDialogComponent } from './dialogs/create-branch';
+import { EditBranch } from './dialogs/edit-branch';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -74,6 +75,7 @@ const STATUS_CLASSES: Record<string, string> = {
     LucideArrowUp,
     LucideArrowDown,
     CreateBranchDialogComponent,
+    EditBranch,
   ],
   templateUrl: './branches-page.html',
   styleUrl: './branches-page.scss',
@@ -101,8 +103,10 @@ export class BranchesPage {
   readonly pageSize = signal<PageSize>(10);
 
   // Dialog visibility
+  readonly editBranchVisible = signal(false);
   readonly statusDialogVisible = signal(false);
   readonly selectedBranch = signal<BranchResponse | null>(null);
+  readonly editingBranch = signal<BranchResponse | null>(null);
 
   /* ---- Computed: Stats ----------------------------------------------- */
   readonly totalBranches = computed(() => this.branches().length);
@@ -318,18 +322,14 @@ export class BranchesPage {
   }
 
   async openEditDialog(branch: BranchResponse): Promise<void> {
-    const { EditBranchDialogComponent } = await import('./dialogs/edit-branch');
-    const { MatDialog } = await import('@angular/material/dialog');
-    const dialog = inject(MatDialog);
-    const dialogRef = dialog.open(EditBranchDialogComponent, {
-      width: '480px',
-      data: branch,
-    });
-    dialogRef.afterClosed().subscribe((result: BranchResponse | undefined) => {
-      if (result) {
-        this.loadData();
-      }
-    });
+    this.editingBranch.set(branch);
+    this.editBranchVisible.set(true);
+  }
+
+  onBranchSaved(): void {
+    this.editBranchVisible.set(false);
+    this.editingBranch.set(null);
+    this.loadData();
   }
 
   // Status dialog

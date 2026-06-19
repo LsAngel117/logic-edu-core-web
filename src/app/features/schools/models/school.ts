@@ -33,4 +33,6 @@ export interface UpdateSchoolPayload {
   email?: string;
   phone?: string;
   address: string;
+  city?: string;
+  country?: string;
 }

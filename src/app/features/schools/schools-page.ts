@@ -22,6 +22,7 @@ import { SchoolsService } from './services/schools';
 import { School } from './models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
 import { CreateSchoolDialogComponent } from './dialogs/create-school';
+import { EditSchool } from './dialogs/edit-school';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -68,6 +69,7 @@ const STATUS_CLASSES: Record<string, string> = {
     LucideArrowUp,
     LucideArrowDown,
     CreateSchoolDialogComponent,
+    EditSchool,
   ],
   templateUrl: './schools-page.html',
   styleUrl: './schools-page.scss',
@@ -95,8 +97,10 @@ export class SchoolsPageComponent {
 
   // Dialog visibility
   readonly createDialogVisible = signal(false);
+  readonly editSchoolVisible = signal(false);
   readonly statusDialogVisible = signal(false);
   readonly selectedSchool = signal<School | null>(null);
+  readonly editingSchool = signal<School | null>(null);
 
   /* ---- Computed: Stats ----------------------------------------------- */
   readonly totalSchools = computed(() => this.schools().length);
@@ -303,18 +307,14 @@ export class SchoolsPageComponent {
   }
 
   async openEditDialog(school: School): Promise<void> {
-    const { EditSchoolDialogComponent } = await import('./dialogs/edit-school');
-    const { MatDialog } = await import('@angular/material/dialog');
-    const dialog = inject(MatDialog);
-    const dialogRef = dialog.open(EditSchoolDialogComponent, {
-      width: '480px',
-      data: school,
-    });
-    dialogRef.afterClosed().subscribe((result: School | undefined) => {
-      if (result) {
-        this.loadSchools();
-      }
-    });
+    this.editingSchool.set(school);
+    this.editSchoolVisible.set(true);
+  }
+
+  onSchoolSaved(): void {
+    this.editSchoolVisible.set(false);
+    this.editingSchool.set(null);
+    this.loadSchools();
   }
 
   // Status dialog

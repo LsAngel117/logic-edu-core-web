@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { BranchesService } from '../services/branches';
 import { BranchResponse } from '../models/branch';
-import { BranchStatusDialogComponent } from './branch-status';
+import { BranchStatusDialog } from './branch-status';
 
-describe('BranchStatusDialogComponent', () => {
+describe('BranchStatusDialog', () => {
   let branchesServiceMock: { updateStatus: ReturnType<typeof vi.fn> };
-  let dialogRefMock: { close: ReturnType<typeof vi.fn> };
 
   const activeBranch: BranchResponse = {
     id: 'b1',
@@ -28,39 +26,29 @@ describe('BranchStatusDialogComponent', () => {
   };
 
   const inactiveBranch: BranchResponse = {
+    ...activeBranch,
     id: 'b2',
-    schoolId: 's1',
     name: 'Downtown Annex',
     code: 'DA-002',
-    shortName: 'Downtown',
-    description: '',
-    email: '',
-    phone: '',
-    address: '456 City Blvd',
-    type: 'SECONDARY',
     status: 'INACTIVE',
-    createdAt: '2026-02-01T00:00:00Z',
-    updatedAt: '2026-02-01T00:00:00Z',
   };
 
-  function setupComponent(dialogData: BranchResponse = activeBranch) {
+  function setupComponent() {
     branchesServiceMock = { updateStatus: vi.fn() };
-    dialogRefMock = { close: vi.fn() };
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [BranchStatusDialogComponent],
+      imports: [BranchStatusDialog],
       providers: [
         provideAnimationsAsync(),
         { provide: BranchesService, useValue: branchesServiceMock },
-        { provide: MatDialogRef, useValue: dialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
       ],
     });
   }
 
-  async function createFixture() {
-    const fixture = await TestBed.createComponent(BranchStatusDialogComponent);
+  async function createFixture(branch: BranchResponse = activeBranch) {
+    const fixture = await TestBed.createComponent(BranchStatusDialog);
+    fixture.componentRef.setInput('branch', branch);
     fixture.detectChanges();
     return fixture;
   }
@@ -69,49 +57,55 @@ describe('BranchStatusDialogComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should display current branch name and status', async () => {
-    setupComponent(activeBranch);
-    const fixture = await createFixture();
+  it('should compute correct title and message for ACTIVE branch', async () => {
+    setupComponent();
+    const fixture = await createFixture(activeBranch);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('Main Campus');
-    expect(content).toContain('ACTIVE');
+    const comp = fixture.componentInstance;
+    expect(comp.statusTitle()).toBe('Desactivar sede');
+    expect(comp.statusMessage()).toContain('desactivar');
+    expect(comp.statusMessage()).toContain('Main Campus');
+    expect(comp.confirmLabel()).toBe('Desactivar');
   });
 
-  it('should show inactive status when branch is inactive', async () => {
-    setupComponent(inactiveBranch);
-    const fixture = await createFixture();
+  it('should compute correct title and message for INACTIVE branch', async () => {
+    setupComponent();
+    const fixture = await createFixture(inactiveBranch);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('Downtown Annex');
-    expect(content).toContain('INACTIVE');
+    const comp = fixture.componentInstance;
+    expect(comp.statusTitle()).toBe('Activar sede');
+    expect(comp.statusMessage()).toContain('activar');
+    expect(comp.statusMessage()).toContain('Downtown Annex');
+    expect(comp.confirmLabel()).toBe('Activar');
   });
 
   it('should call updateStatus with schoolId and branch id on confirm', async () => {
-    setupComponent(activeBranch);
+    setupComponent();
     const updatedBranch: BranchResponse = { ...activeBranch, status: 'INACTIVE' };
     branchesServiceMock.updateStatus.mockReturnValue(of(updatedBranch));
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeBranch);
 
-    const confirmButton = fixture.nativeElement.querySelector('button[color="primary"]');
-    expect(confirmButton).toBeTruthy();
-    confirmButton.click();
+    const comp = fixture.componentInstance;
+    comp.visible.set(true);
+    fixture.detectChanges();
 
+    await comp.onConfirm();
     await fixture.whenStable();
 
     expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('s1', 'b1');
-    expect(dialogRefMock.close).toHaveBeenCalledWith(updatedBranch);
   });
 
   it('should toggle inactive to active correctly', async () => {
-    setupComponent(inactiveBranch);
+    setupComponent();
     const updatedBranch: BranchResponse = { ...inactiveBranch, status: 'ACTIVE' };
     branchesServiceMock.updateStatus.mockReturnValue(of(updatedBranch));
-    const fixture = await createFixture();
+    const fixture = await createFixture(inactiveBranch);
 
-    const confirmButton = fixture.nativeElement.querySelector('button[color="primary"]');
-    confirmButton.click();
+    const comp = fixture.componentInstance;
+    comp.visible.set(true);
+    fixture.detectChanges();
 
+    await comp.onConfirm();
     await fixture.whenStable();
 
     expect(branchesServiceMock.updateStatus).toHaveBeenCalledWith('s1', 'b2');
@@ -119,16 +113,15 @@ describe('BranchStatusDialogComponent', () => {
 
   it('should close dialog without changes on cancel', async () => {
     setupComponent();
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeBranch);
 
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    const cancelButton = Array.from(buttons as Element[]).find(
-      (b) => b.textContent?.trim() === 'Cancel'
-    );
-    expect(cancelButton).toBeTruthy();
-    (cancelButton as HTMLButtonElement).click();
+    const comp = fixture.componentInstance;
+    comp.visible.set(true);
+    fixture.detectChanges();
 
-    expect(dialogRefMock.close).toHaveBeenCalled();
+    comp.onCancel();
+
+    expect(comp.visible()).toBe(false);
     expect(branchesServiceMock.updateStatus).not.toHaveBeenCalled();
   });
 });

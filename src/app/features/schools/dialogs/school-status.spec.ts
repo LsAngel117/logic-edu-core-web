@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { signal, computed } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth';
 import { MembershipsService } from '../../users/memberships/services/memberships';
@@ -10,16 +9,12 @@ import { User } from '../../../core/models/user';
 import { SchoolsService } from '../services/schools';
 import { School } from '../models/school';
 import { Membership } from '../../users/memberships/models/membership';
-import { SchoolStatusDialogComponent } from './school-status';
+import { SchoolStatusDialog } from './school-status';
 
-describe('SchoolStatusDialogComponent', () => {
+describe('SchoolStatusDialog', () => {
   let schoolsServiceMock: { updateStatus: ReturnType<typeof vi.fn> };
-  let dialogRefMock: { close: ReturnType<typeof vi.fn> };
   let membershipsServiceMock: { getByUser: ReturnType<typeof vi.fn> };
-  let authServiceMock: {
-    user: ReturnType<typeof signal<User | null>>;
-    isAuthenticated: ReturnType<typeof computed<boolean>>;
-  };
+  let authServiceMock: any;
 
   const mockAuthUser: User = {
     id: 'auth1',
@@ -44,43 +39,33 @@ describe('SchoolStatusDialogComponent', () => {
   };
 
   const inactiveSchool: School = {
+    ...activeSchool,
     id: 's2',
     name: 'South School',
     code: 'SOS-002',
-    shortName: 'South',
-    description: '',
-    email: '',
-    phone: '',
-    address: '456 Oak Ave',
     status: 'INACTIVE',
-    createdAt: '2026-02-01T00:00:00Z',
   };
 
   function setupComponent(dialogData: School = activeSchool, authUser: User | null = null) {
     schoolsServiceMock = { updateStatus: vi.fn() };
-    dialogRefMock = { close: vi.fn() };
     membershipsServiceMock = { getByUser: vi.fn().mockReturnValue(of([])) };
-    authServiceMock = {
-      user: signal(authUser),
-      isAuthenticated: computed(() => authUser !== null),
-    };
+    authServiceMock = { user: signal(authUser) };
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [SchoolStatusDialogComponent],
+      imports: [SchoolStatusDialog],
       providers: [
-        provideNoopAnimations(),
+        provideAnimationsAsync(),
         { provide: SchoolsService, useValue: schoolsServiceMock },
-        { provide: MatDialogRef, useValue: dialogRefMock },
-        { provide: MAT_DIALOG_DATA, useValue: dialogData },
         { provide: AuthService, useValue: authServiceMock },
         { provide: MembershipsService, useValue: membershipsServiceMock },
       ],
     });
   }
 
-  async function createFixture() {
-    const fixture = await TestBed.createComponent(SchoolStatusDialogComponent);
+  async function createFixture(school: School = activeSchool) {
+    const fixture = await TestBed.createComponent(SchoolStatusDialog);
+    fixture.componentRef.setInput('school', school);
     fixture.detectChanges();
     return fixture;
   }
@@ -89,56 +74,45 @@ describe('SchoolStatusDialogComponent', () => {
     vi.clearAllMocks();
   });
 
-  it('should display current school name and status', async () => {
+  it('should compute correct title and message for ACTIVE school', async () => {
     setupComponent(activeSchool);
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeSchool);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('North Academy');
-    expect(content).toContain('ACTIVE');
+    const comp = fixture.componentInstance;
+    expect(comp.statusTitle()).toBe('Desactivar institución');
+    expect(comp.statusMessage()).toContain('desactivar');
+    expect(comp.statusMessage()).toContain('North Academy');
+    expect(comp.confirmLabel()).toBe('Desactivar');
   });
 
-  it('should show inactive status when school is inactive', async () => {
+  it('should compute correct title and message for INACTIVE school', async () => {
     setupComponent(inactiveSchool);
-    const fixture = await createFixture();
+    const fixture = await createFixture(inactiveSchool);
 
-    const content = fixture.nativeElement.textContent;
-    expect(content).toContain('South School');
-    expect(content).toContain('INACTIVE');
+    const comp = fixture.componentInstance;
+    expect(comp.statusTitle()).toBe('Activar institución');
+    expect(comp.statusMessage()).toContain('activar');
+    expect(comp.statusMessage()).toContain('South School');
+    expect(comp.confirmLabel()).toBe('Activar');
   });
 
   it('should call updateStatus with school id on confirm', async () => {
     setupComponent(activeSchool);
     const updatedSchool: School = { ...activeSchool, status: 'INACTIVE' };
     schoolsServiceMock.updateStatus.mockReturnValue(of(updatedSchool));
-    const fixture = await createFixture();
+    const fixture = await createFixture(activeSchool);
 
-    const confirmButton = fixture.nativeElement.querySelector('button[color="primary"]');
-    expect(confirmButton).toBeTruthy();
-    confirmButton.click();
+    const comp = fixture.componentInstance;
+    comp.visible.set(true);
+    fixture.detectChanges();
 
+    await comp.onConfirm();
     await fixture.whenStable();
 
     expect(schoolsServiceMock.updateStatus).toHaveBeenCalledWith('s1');
-    expect(dialogRefMock.close).toHaveBeenCalledWith(updatedSchool);
   });
 
-  it('should close dialog without changes on cancel', async () => {
-    setupComponent();
-    const fixture = await createFixture();
-
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    const cancelButton = Array.from(buttons as Element[]).find(
-      (b) => b.textContent?.trim() === 'Cancel'
-    );
-    expect(cancelButton).toBeTruthy();
-    (cancelButton as HTMLButtonElement).click();
-
-    expect(dialogRefMock.close).toHaveBeenCalled();
-    expect(schoolsServiceMock.updateStatus).not.toHaveBeenCalled();
-  });
-
-  it('should disable toggle when self-school detected via scopeRefId', async () => {
+  it('should detect self-school and disable confirmation', async () => {
     const selfSchool: School = { ...activeSchool, id: 'auth1' };
     const selfMembership: Membership = {
       id: 'm1',
@@ -150,13 +124,28 @@ describe('SchoolStatusDialogComponent', () => {
     };
     setupComponent(selfSchool, mockAuthUser);
     membershipsServiceMock.getByUser.mockReturnValue(of([selfMembership]));
-    const fixture = await createFixture();
+    const fixture = await createFixture(selfSchool);
+
+    const comp = fixture.componentInstance;
+    comp.checkSelfSchool();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isSelfSchool()).toBe(true);
+    expect(comp.isSelfSchool()).toBe(true);
+    expect(comp.statusMessage()).toContain('No puedes');
+  });
 
-    const message = fixture.nativeElement.querySelector('.self-disable-message');
-    expect(message).toBeTruthy();
+  it('should close dialog without changes on cancel', async () => {
+    setupComponent(activeSchool);
+    const fixture = await createFixture(activeSchool);
+
+    const comp = fixture.componentInstance;
+    comp.visible.set(true);
+    fixture.detectChanges();
+
+    comp.onCancel();
+
+    expect(comp.visible()).toBe(false);
+    expect(schoolsServiceMock.updateStatus).not.toHaveBeenCalled();
   });
 });

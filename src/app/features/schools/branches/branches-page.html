@@ -344,6 +344,14 @@
     (created)="onBranchCreated()"
   />
 
+  @if (editingBranch(); as branch) {
+  <app-edit-branch
+    [branchData]="branch"
+    [(visible)]="editBranchVisible"
+    (saved)="onBranchSaved()"
+  />
+  }
+
   <app-confirmation-dialog
     [title]="statusDialogTitle()"
     [message]="statusDialogMessage()"

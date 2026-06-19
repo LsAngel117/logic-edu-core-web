@@ -4,7 +4,6 @@ import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Observable, BehaviorSubject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
 import { SchoolsService } from './services/schools';
 import { BranchesService } from './branches/services/branches';
 import { School } from './models/school';
@@ -116,7 +115,6 @@ describe('SchoolDetail', () => {
         provideAnimationsAsync(),
         { provide: SchoolsService, useValue: schoolsServiceMock },
         { provide: BranchesService, useValue: branchesServiceMock },
-        { provide: MatDialog, useValue: { open: vi.fn().mockReturnValue({ afterClosed: () => of(undefined) }) } },
         {
           provide: ActivatedRoute,
           useValue: { params: paramsSubject.asObservable() },

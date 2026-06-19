@@ -1,52 +1,69 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { BranchesService } from '../services/branches';
 import { BranchResponse } from '../models/branch';
+import { ConfirmationDialog } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-branch-status',
-  imports: [
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatSlideToggleModule,
-  ],
-  templateUrl: './branch-status.html',
+  imports: [ConfirmationDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-confirmation-dialog
+      [title]="statusTitle()"
+      [message]="statusMessage()"
+      [confirmLabel]="confirmLabel()"
+      [loading]="loading()"
+      [(visible)]="visible"
+      (confirm)="onConfirm()"
+      (cancel)="onCancel()"
+    />
+  `,
 })
-export class BranchStatusDialogComponent {
+export class BranchStatusDialog {
   private readonly branchesService = inject(BranchesService);
-  private readonly dialogRef = inject(MatDialogRef<BranchStatusDialogComponent>);
-  readonly data: BranchResponse = inject(MAT_DIALOG_DATA);
+
+  readonly visible = model(false);
+  readonly branch = input.required<BranchResponse>();
+  readonly statusChanged = output<BranchResponse>();
 
   readonly loading = signal(false);
-  readonly errorMessage = signal('');
 
-  isToggled(): boolean {
-    return this.data.status === 'INACTIVE';
-  }
+  readonly statusTitle = computed(() => {
+    const b = this.branch();
+    if (!b) return '';
+    return b.status === 'ACTIVE' ? 'Desactivar sede' : 'Activar sede';
+  });
+
+  readonly statusMessage = computed(() => {
+    const b = this.branch();
+    if (!b) return '';
+    const action = b.status === 'ACTIVE' ? 'desactivar' : 'activar';
+    return `¿Estás seguro de que deseas ${action} a ${b.name}?`;
+  });
+
+  readonly confirmLabel = computed(() => {
+    const b = this.branch();
+    if (!b) return 'Confirmar';
+    return b.status === 'ACTIVE' ? 'Desactivar' : 'Activar';
+  });
 
   async onConfirm(): Promise<void> {
+    const b = this.branch();
+    if (!b) return;
+
     this.loading.set(true);
-    this.errorMessage.set('');
 
     try {
-      const result = await firstValueFrom(
-        this.branchesService.updateStatus(this.data.schoolId, this.data.id)
-      );
-      this.dialogRef.close(result);
-    } catch (err: unknown) {
-      const error = err as Error;
-      this.errorMessage.set(error.message || 'Failed to update status');
+      const result = await firstValueFrom(this.branchesService.updateStatus(b.schoolId, b.id));
+      this.visible.set(false);
+      this.statusChanged.emit(result);
+    } catch {
       this.loading.set(false);
     }
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.visible.set(false);
   }
 }
