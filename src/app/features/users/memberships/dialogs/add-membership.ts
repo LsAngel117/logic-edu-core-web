@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, model, out
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AppDialog } from '../../../../shared/ui';
-import { roleLabel } from '../../../../core/constants/role-labels';
+import { roleLabel as getRoleLabel } from '../../../../core/constants/role-labels';
 import { MembershipsService } from '../services/memberships';
 import { SchoolsService } from '../../../schools/services/schools';
 import { BranchesService } from '../../../schools/branches/services/branches';
@@ -114,6 +114,10 @@ export class AddMembershipDialogComponent {
     const s = this.scopeType();
     return s !== 'PLATFORM' && s !== '';
   });
+
+  roleLabel(role: string | undefined): string {
+    return getRoleLabel(role);
+  }
 
   constructor() {
     this.form.controls.role.valueChanges.subscribe((role) => {
