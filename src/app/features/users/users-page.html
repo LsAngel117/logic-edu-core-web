@@ -154,6 +154,8 @@
                 #searchInput
                 class="search-input"
                 type="text"
+                autocomplete="off"
+                name="users-search"
                 data-testid="users-search"
                 [value]="searchTerm()"
                 (input)="onSearchInput($event)"

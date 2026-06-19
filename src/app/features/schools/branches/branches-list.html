@@ -95,7 +95,7 @@
                 data-testid="branches-search"
                 [value]="searchTerm()"
                 (input)="onSearchInput($event)"
-                placeholder="Buscar por nombre, código o institución..."
+                autocomplete="off" name="search" placeholder="Buscar por nombre, código o institución..."
               />
               @if (searchTerm()) {
               <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">

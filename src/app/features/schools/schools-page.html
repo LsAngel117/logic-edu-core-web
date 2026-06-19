@@ -102,7 +102,7 @@
                 data-testid="schools-search"
                 [value]="searchTerm()"
                 (input)="onSearchInput($event)"
-                placeholder="Buscar por nombre o código..."
+                autocomplete="off" name="search" placeholder="Buscar por nombre o código..."
               />
               @if (searchTerm()) {
               <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
