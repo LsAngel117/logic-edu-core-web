@@ -107,11 +107,31 @@ export class EditUser {
   }
 
   private patchForm(u: UserProfile): void {
+    const parts = (u.fullName || '').trim().split(/\s+/);
+    let firstGiven = '', secondGiven = '', firstFamily = '', secondFamily = '';
+
+    if (parts.length === 1) {
+      firstGiven = parts[0];
+    } else if (parts.length === 2) {
+      firstGiven = parts[0];
+      firstFamily = parts[1];
+    } else if (parts.length === 3) {
+      firstGiven = parts[0];
+      secondGiven = parts[1];
+      firstFamily = parts[2];
+    } else {
+      // 4+ parts: distribute as firstGiven, secondGiven, firstFamily, secondFamily
+      firstGiven = parts[0];
+      secondGiven = parts.slice(1, parts.length - 2).join(' ');
+      firstFamily = parts[parts.length - 2];
+      secondFamily = parts[parts.length - 1];
+    }
+
     this.form.patchValue({
-      firstGivenName: u.firstGivenName || u.fullName || '',
-      secondGivenName: u.secondGivenName || '',
-      firstFamilyName: u.firstFamilyName || '',
-      secondFamilyName: u.secondFamilyName || '',
+      firstGivenName: u.firstGivenName || firstGiven,
+      secondGivenName: u.secondGivenName || secondGiven,
+      firstFamilyName: u.firstFamilyName || firstFamily,
+      secondFamilyName: u.secondFamilyName || secondFamily,
       email: u.email,
       phone: u.phone || '',
       address: u.address || '',
