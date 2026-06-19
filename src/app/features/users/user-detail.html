@@ -72,7 +72,7 @@
             [style.color]="roleColor()"
           >
             <svg lucideShield class="badge__icon"></svg>
-            {{ u.role }}
+            {{ roleLabel(u.role) }}
           </span>
           }
           <span
@@ -283,7 +283,7 @@
                     [style.background-color]="roleDisplayBg(m.role)"
                     [style.color]="roleDisplayColor(m.role)"
                   >
-                    {{ m.role }}
+                    {{ roleLabel(m.role) }}
                   </span>
                 </td>
                 <td>

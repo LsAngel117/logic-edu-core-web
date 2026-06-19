@@ -28,6 +28,7 @@ import { UsersService } from './services/users';
 import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
 import { UserProfile } from './models/user-profile';
+import { roleLabel } from '../../core/constants/role-labels';
 import { Membership } from './memberships/models/membership';
 import { StatCard, ConfirmationDialog } from '../../shared/ui';
 import { PasswordDialogComponent } from './dialogs/password';
@@ -145,7 +146,7 @@ export class UserDetailComponent {
   readonly removeMembershipMessage = computed(() => {
     const m = this.selectedMembership();
     if (!m) return '';
-    return `¿Eliminar la membresía de ${m.role}?`;
+    return `¿Eliminar la membresía de ${roleLabel(m.role)}?`;
   });
 
   readonly roleColor = computed(() => ROLE_COLORS[this.user()?.role ?? ''] ?? '#6B7280');
@@ -327,6 +328,10 @@ export class UserDetailComponent {
 
   roleDisplayBg(role: string): string {
     return ROLE_BG[role] ?? 'rgba(107, 114, 128, 0.1)';
+  }
+
+  roleLabel(role: string | undefined): string {
+    return roleLabel(role);
   }
 
   /* ---- Close dialogs on Escape --------------------------------------- */

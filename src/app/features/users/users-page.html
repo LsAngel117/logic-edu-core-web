@@ -86,10 +86,10 @@
               (change)="setRoleFilter($any($event.target).value)"
             >
               <option value="Todos">Todos</option>
-              <option value="PLATFORM_ADMIN">Platform Admin</option>
-              <option value="SCHOOL_ADMIN">School Admin</option>
-              <option value="TEACHER">Teacher</option>
-              <option value="STUDENT">Student</option>
+            <option value="PLATFORM_ADMIN">Admin de Plataforma</option>
+            <option value="SCHOOL_ADMIN">Admin de Escuela</option>
+            <option value="TEACHER">Profesor</option>
+            <option value="STUDENT">Estudiante</option>
             </select>
           </div>
 
@@ -289,7 +289,7 @@
                 [style.color]="roleColor(user.role)"
               >
                 <svg lucideShield class="role-icon"></svg>
-                {{ user.role || 'Sin rol' }}
+                {{ roleLabel(user.role) }}
               </span>
             </td>
 

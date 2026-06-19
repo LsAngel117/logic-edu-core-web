@@ -23,6 +23,7 @@ import { UsersService } from './services/users';
 import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
 import { UserProfile, ChangeStatusRequest } from './models/user-profile';
+import { roleLabel } from '../../core/constants/role-labels';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
 import { CreateUserDialogComponent } from './dialogs/create-user';
 import { EditUser } from './dialogs/edit-user';
@@ -458,6 +459,10 @@ export class UsersPageComponent {
 
   roleBg(role: string | undefined): string {
     return ROLE_BG[role ?? ''] ?? 'rgba(107, 114, 128, 0.1)';
+  }
+
+  roleLabel(role: string | undefined): string {
+    return roleLabel(role);
   }
 
   statusClass(status: string): string {

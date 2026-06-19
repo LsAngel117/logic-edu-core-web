@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, model, out
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AppDialog } from '../../../../shared/ui';
+import { roleLabel } from '../../../../core/constants/role-labels';
 import { MembershipsService } from '../services/memberships';
 import { SchoolsService } from '../../../schools/services/schools';
 import { BranchesService } from '../../../schools/branches/services/branches';
@@ -29,7 +30,7 @@ const ROLE_SCOPE: Record<string, string> = {
           <label>Rol <span class="required">*</span></label>
           <select formControlName="role" class="form-select">
             <option value="" disabled>Seleccionar rol</option>
-            @for (r of roles; track r) { <option [value]="r">{{ r }}</option> }
+            @for (r of roles; track r) { <option [value]="r">{{ roleLabel(r) }}</option> }
           </select>
         </div>
 
