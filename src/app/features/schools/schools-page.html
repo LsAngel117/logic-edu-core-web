@@ -59,13 +59,6 @@
       iconColor="#ff3e1d"
       iconBg="rgba(255, 62, 29, 0.08)"
     />
-    <app-stat-card
-      icon="git-branch"
-      label="Sedes"
-      [value]="branchesCount()"
-      iconColor="#8b5cf6"
-      iconBg="rgba(139, 92, 246, 0.1)"
-    />
   </div>
 
   <!-- Schools Table Card -->
@@ -217,7 +210,20 @@
                 }
               }
             </th>
-            <th>Sedes</th>
+            <th class="sortable" (click)="sortBy('city')">
+              Ciudad
+              @if (sortColumn() === 'city') {
+                @if (sortDirection() === 'asc') { <svg lucideArrowUp class="sort-icon"></svg> }
+                @else { <svg lucideArrowDown class="sort-icon"></svg> }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('country')">
+              País
+              @if (sortColumn() === 'country') {
+                @if (sortDirection() === 'asc') { <svg lucideArrowUp class="sort-icon"></svg> }
+                @else { <svg lucideArrowDown class="sort-icon"></svg> }
+              }
+            </th>
             <th class="schools-table__th--actions">Acciones</th>
           </tr>
         </thead>
@@ -255,9 +261,14 @@
               </span>
             </td>
 
-            <!-- Branches count -->
+            <!-- City -->
             <td>
-              <span class="school-branches-count">{{ branchesCount() }}</span>
+              <span class="school-city">{{ school.city || '—' }}</span>
+            </td>
+
+            <!-- Country -->
+            <td>
+              <span class="school-country">{{ school.country || '—' }}</span>
             </td>
 
             <!-- Actions -->
