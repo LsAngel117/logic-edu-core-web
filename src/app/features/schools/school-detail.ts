@@ -25,7 +25,6 @@ import {
 } from '@lucide/angular';
 import { SchoolsService } from './services/schools';
 import { BranchesService } from './branches/services/branches';
-import { statusLabel as getStatusLabel } from '../../../core/constants/display-labels';
 import { School } from './models/school';
 import { BranchResponse } from './branches/models/branch';
 import { EditSchool } from './dialogs/edit-school';
@@ -307,12 +306,12 @@ export class SchoolDetail {
 
   /* ---- Close dialogs on Escape --------------------------------------- */
   @HostListener('document:keydown.escape')
-  statusLabel(s: string): string { return getStatusLabel(s); }
+  statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' }; return labels[s] ?? s; }
   onEscape(): void {
     this.editSchoolVisible.set(false);
     this.statusDialogVisible.set(false);
     this.createBranchVisible.set(false);
   }
 
-  statusLabel(s: string): string { return getStatusLabel(s); }
+  statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' }; return labels[s] ?? s; }
 }

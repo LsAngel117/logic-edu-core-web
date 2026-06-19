@@ -19,7 +19,6 @@ import {
   LucideArrowDown,
 } from '@lucide/angular';
 import { SchoolsService } from './services/schools';
-import { statusLabel as getStatusLabel } from '../../../core/constants/display-labels';
 import { School } from './models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../shared/ui';
 import { CreateSchoolDialogComponent } from './dialogs/create-school';
@@ -366,5 +365,5 @@ export class SchoolsPageComponent {
     return STATUS_CLASSES[status] ?? 'status--default';
   }
 
-  statusLabel(s: string): string { return getStatusLabel(s); }
+  statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' }; return labels[s] ?? s; }
 }

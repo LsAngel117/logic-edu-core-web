@@ -29,7 +29,6 @@ import { MembershipsService } from './memberships/services/memberships';
 import { AuthService } from '../../core/services/auth';
 import { UserProfile } from './models/user-profile';
 import { roleLabel as getRoleLabel } from '../../core/constants/role-labels';
-import { statusLabel as getStatusLabel } from '../../core/constants/display-labels';
 import { Membership } from './memberships/models/membership';
 import { StatCard, ConfirmationDialog } from '../../shared/ui';
 import { PasswordDialogComponent } from './dialogs/password';
@@ -336,7 +335,8 @@ export class UserDetailComponent {
   }
 
   statusLabel(status: string | undefined): string {
-    return getStatusLabel(status);
+    const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' };
+    return labels[status ?? ''] ?? status ?? '—';
   }
 
   /* ---- Close dialogs on Escape --------------------------------------- */
