@@ -107,16 +107,10 @@ export class EditUser {
   }
 
   private patchForm(u: UserProfile): void {
-    // Best-effort split from fullName: first word=firstGivenName, last word=firstFamilyName
-    const parts = (u.fullName || '').trim().split(/\s+/);
-    const firstGiven = parts[0] || '';
-    const firstFamily = parts.length > 1 ? parts[parts.length - 1] : '';
-    const secondGiven = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
-    
     this.form.patchValue({
-      firstGivenName: firstGiven,
-      secondGivenName: secondGiven || '',
-      firstFamilyName: firstFamily,
+      firstGivenName: u.fullName || '',
+      secondGivenName: '',
+      firstFamilyName: '',
       secondFamilyName: '',
       email: u.email,
       phone: u.phone || '',
