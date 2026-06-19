@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AppDialog } from '../../../../shared/ui';
 import { roleLabel as getRoleLabel } from '../../../../core/constants/role-labels';
 import { MembershipsService } from '../services/memberships';
+import { UsersService } from '../../services/users';
 import { SchoolsService } from '../../../schools/services/schools';
 import { BranchesService } from '../../../schools/branches/services/branches';
 import { AssignMembershipRequest } from '../models/membership';
@@ -25,6 +26,17 @@ const ROLE_SCOPE: Record<string, string> = {
     <app-dialog title="Agregar Membresía" confirmLabel="Agregar" cancelLabel="Cancelar"
       [loading]="loading()" [(visible)]="visible" (confirm)="onSubmit()" (cancel)="visible.set(false)">
       <form [formGroup]="form" class="dialog-form">
+        <!-- User selector — only when adding from memberships page (no userId provided) -->
+        @if (!userId()) {
+          <div class="form-field">
+            <label>Usuario <span class="required">*</span></label>
+            <select [value]="selectedUserId()" (change)="selectedUserId.set($any($event.target).value)" class="form-select">
+              <option value="" disabled>Seleccionar usuario</option>
+              @for (u of users(); track u.id) { <option [value]="u.id">{{ u.fullName }} ({{ u.email }})</option> }
+            </select>
+          </div>
+        }
+
         <!-- Role selector -->
         <div class="form-field">
           <label>Rol <span class="required">*</span></label>
@@ -87,6 +99,7 @@ const ROLE_SCOPE: Record<string, string> = {
 })
 export class AddMembershipDialogComponent {
   private readonly membershipsService = inject(MembershipsService);
+  private readonly usersService = inject(UsersService);
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
   private readonly fb = inject(FormBuilder);
@@ -96,8 +109,11 @@ export class AddMembershipDialogComponent {
   readonly errorMessage = signal('');
 
   readonly visible = model(false);
-  readonly userId = input.required<string>();
+  readonly userId = input('');
+  readonly selectedUserId = signal('');
   readonly created = output<void>();
+
+  readonly users = signal<{ id: string; fullName: string; email: string }[]>([]);
 
   readonly schools = signal<{ id: string; name: string }[]>([]);
   readonly branches = signal<{ id: string; name: string }[]>([]);
@@ -124,6 +140,8 @@ export class AddMembershipDialogComponent {
       this.scopeType.set(ROLE_SCOPE[role] ?? '');
       this.form.controls.scopeRefId.reset();
     });
+    // Load users for the dropdown
+    this.usersService.getAll().subscribe((list) => this.users.set(list.map(u => ({ id: u.id, fullName: u.fullName, email: u.email }))));
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
     this.schoolsService.getAll().subscribe((schools) => {
       schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
@@ -135,6 +153,8 @@ export class AddMembershipDialogComponent {
   }
 
   async onSubmit(): Promise<void> {
+    const uid = this.userId() || this.selectedUserId();
+    if (!uid) { this.errorMessage.set('Selecciona un usuario'); return; }
     const role = this.form.controls.role.value;
     const ref = this.form.controls.scopeRefId.value;
     const scope = this.scopeType();
@@ -149,7 +169,7 @@ export class AddMembershipDialogComponent {
     this.errorMessage.set('');
 
     const payload: AssignMembershipRequest = {
-      userId: this.userId(),
+      userId: uid,
       role,
       scopeType: scope,
       scopeRefId: scope === 'PLATFORM' ? '' : ref,

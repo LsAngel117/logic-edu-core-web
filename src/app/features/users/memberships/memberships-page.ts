@@ -23,6 +23,7 @@ import { MembershipsService } from './services/memberships';
 import { Membership } from './models/membership';
 import { roleLabel as getRoleLabel } from '../../../core/constants/role-labels';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
+import { AddMembershipDialogComponent } from './dialogs/add-membership';
 
 /* ------------------------------------------------------------------ */
 /*  Row model                                                           */
@@ -95,6 +96,7 @@ const SCOPE_BG: Record<string, string> = {
     StatCard,
     EmptyState,
     ConfirmationDialog,
+    AddMembershipDialogComponent,
     LucideKey,
     LucideSearch,
     LucideEye,

@@ -378,7 +378,10 @@
   }
 
   <!-- ======= ADD MEMBERSHIP DIALOG ======= -->
-  <!-- Note: AddMembershipDialog requires userId — user selection workflow needed -->
+  <app-add-membership
+    [(visible)]="createDialogVisible"
+    (created)="onMembershipCreated()"
+  />
 
   <!-- ======= STATUS DIALOG ======= -->
   <app-confirmation-dialog
