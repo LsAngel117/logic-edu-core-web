@@ -44,12 +44,21 @@
 
   <!-- BREADCRUMB -->
   <nav class="breadcrumb">
-    <a routerLink="/branches" class="breadcrumb__link">
-      <svg lucideChevronLeft class="breadcrumb__icon"></svg>
-      Sedes
-    </a>
-    <span class="breadcrumb__sep">/</span>
-    <span class="breadcrumb__current">Detalle</span>
+    @if (fromSchools()) {
+      <a routerLink="/schools" class="breadcrumb__link">
+        <svg lucideChevronLeft class="breadcrumb__icon"></svg>
+        Instituciones
+      </a>
+      <span class="breadcrumb__sep">/</span>
+      <a [routerLink]="['/schools', currentSchoolId()]" class="breadcrumb__link">Detalle</a>
+      <span class="breadcrumb__sep">/</span>
+    } @else {
+      <a routerLink="/branches" class="breadcrumb__link">
+        <svg lucideChevronLeft class="breadcrumb__icon"></svg>
+        Sedes
+      </a>
+      <span class="breadcrumb__sep">/</span>
+    }
     <span class="breadcrumb__current">Detalle</span>
   </nav>
 

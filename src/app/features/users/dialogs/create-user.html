@@ -13,7 +13,7 @@
         <label class="dialog-label">Email *</label>
         <input
           class="dialog-input"
-          type="email"
+          type="email" autocomplete="off"
           data-testid="create-email"
           [value]="email()"
           (input)="updateTextField('email', $event)"
@@ -24,7 +24,7 @@
         <label class="dialog-label">Contraseña *</label>
         <input
           class="dialog-input"
-          type="password"
+          type="password" autocomplete="new-password"
           data-testid="create-password"
           [value]="rawPassword()"
           (input)="updateTextField('rawPassword', $event)"

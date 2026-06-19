@@ -31,6 +31,10 @@ export const routes: Routes = [
         path: 'branches',
         loadComponent: () => import('./features/schools/branches/branches-list').then(m => m.BranchesListComponent),
       },
+      {
+        path: 'branches/:id',
+        loadComponent: () => import('./features/schools/branches/branch-detail').then(m => m.BranchDetailComponent),
+      },
     ],
   },
 ];

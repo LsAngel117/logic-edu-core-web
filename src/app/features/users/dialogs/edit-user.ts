@@ -108,10 +108,10 @@ export class EditUser {
 
   private patchForm(u: UserProfile): void {
     this.form.patchValue({
-      firstGivenName: u.fullName || '',
-      secondGivenName: '',
-      firstFamilyName: '',
-      secondFamilyName: '',
+      firstGivenName: u.firstGivenName || u.fullName || '',
+      secondGivenName: u.secondGivenName || '',
+      firstFamilyName: u.firstFamilyName || '',
+      secondFamilyName: u.secondFamilyName || '',
       email: u.email,
       phone: u.phone || '',
       address: u.address || '',

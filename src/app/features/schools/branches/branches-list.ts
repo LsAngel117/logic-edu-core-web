@@ -398,7 +398,7 @@ export class BranchesListComponent {
   }
 
   viewBranch(branch: BranchRow): void {
-    this.router.navigate(['/schools', branch.schoolId, 'branches', branch.id]);
+    this.router.navigate(['/branches', branch.id], { queryParams: { schoolId: branch.schoolId } });
   }
 
   editBranch(branch: BranchRow): void {

@@ -3,6 +3,10 @@ export interface UserProfile {
   username: string;
   email: string;
   fullName: string;
+  firstGivenName?: string;
+  secondGivenName?: string;
+  firstFamilyName?: string;
+  secondFamilyName?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;

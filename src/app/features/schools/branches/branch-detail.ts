@@ -94,6 +94,7 @@ export class BranchDetailComponent {
   readonly activeTab = signal('informacion');
   readonly currentSchoolId = signal('');
   readonly currentBranchId = signal('');
+  readonly fromSchools = signal(false);
 
   /* ---- Dialog visibility --------------------------------------------- */
   readonly editBranchVisible = signal(false);
@@ -135,9 +136,19 @@ export class BranchDetailComponent {
     this.route.params.subscribe((params) => {
       const schoolId = params['schoolId'];
       const id = params['id'];
+      this.fromSchools.set(!!schoolId);
+
       if (schoolId && id) {
+        // From school detail: /schools/:schoolId/branches/:id
         this.currentSchoolId.set(schoolId);
         this.currentBranchId.set(id);
+      } else if (id) {
+        // From branches list: /branches/:id?schoolId=xxx
+        this.currentBranchId.set(id);
+        this.route.queryParams.subscribe((qp) => {
+          const sid = qp['schoolId'];
+          if (sid) this.currentSchoolId.set(sid);
+        });
       }
     });
 
