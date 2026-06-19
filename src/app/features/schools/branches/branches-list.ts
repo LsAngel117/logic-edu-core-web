@@ -364,11 +364,6 @@ export class BranchesListComponent {
     }
   }
 
-  // View branch — navigate to school's branches
-  viewBranch(_branch: BranchRow): void {
-    // Navigation wired externally
-  }
-
   /* ---- Helpers ------------------------------------------------------- */
   getInitials(name: string): string {
     const parts = name.trim().split(/\s+/);
