@@ -9,6 +9,7 @@ export interface UserProfile {
   secondFamilyName?: string;
   documentValue?: string;
   documentType?: string;
+  birthDate?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;
@@ -56,6 +57,7 @@ export interface UpdateUserPayload {
   secondFamilyName?: string;
   documentType?: string;
   documentValue?: string;
+  birthDate?: string;
   phone?: string;
   address?: string;
   city?: string;

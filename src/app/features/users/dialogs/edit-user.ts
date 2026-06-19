@@ -55,6 +55,13 @@ import { AppDialog } from '../../../shared/ui';
         </div>
         <div class="form-row">
           <div class="form-field">
+            <label>Fecha Nacimiento</label>
+            <input type="date" formControlName="birthDate" />
+          </div>
+          <div class="form-field"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
             <label>Teléfono</label>
             <input type="text" formControlName="phone" placeholder="+57 300 123 4567" />
           </div>
@@ -88,7 +95,8 @@ import { AppDialog } from '../../../shared/ui';
       font-family: Roboto, sans-serif; font-size: 14px; color: #111827; outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .form-field input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .form-field input:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .form-select { height: 40px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 10px; font-family: Roboto, sans-serif; font-size: 14px; color: #111827; outline: none; background: #fff; cursor: pointer; }
     .field-error { background: #fef2f2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
   `,
 })
@@ -111,6 +119,7 @@ export class EditUser {
     email: ['', [Validators.required, Validators.email]],
     documentType: [''],
     documentValue: [''],
+    birthDate: [''],
     phone: [''],
     address: [''],
     city: [''],
@@ -153,6 +162,7 @@ export class EditUser {
       email: u.email,
       documentType: u.documentType || '',
       documentValue: u.documentValue || '',
+      birthDate: u.birthDate || '',
       phone: u.phone || '',
       address: u.address || '',
       city: u.city || '',
@@ -181,6 +191,7 @@ export class EditUser {
       country: raw.country || undefined,
       documentType: raw.documentType || undefined,
       documentValue: raw.documentValue || undefined,
+      birthDate: raw.birthDate || undefined,
     };
 
     try {
