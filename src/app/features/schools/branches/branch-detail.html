@@ -221,8 +221,15 @@
           <div class="info-field">
             <label class="info-field__label">ID</label>
             <span class="info-field__value info-field__value--mono">{{ b.id }}</span>
-          </div>
-        </div>
+    </div>
+  </div>
+
+  @if (school(); as s) {
+  <div class="header-card__school">
+    <svg lucideSchool class="school-icon"></svg>
+    <span>{{ s.name }}</span>
+  </div>
+  }
       </div>
     </div>
     }
