@@ -365,5 +365,6 @@ export class SchoolsPageComponent {
   statusClass(status: string): string {
     return STATUS_CLASSES[status] ?? 'status--default';
   }
-}
+
   statusLabel(s: string): string { return getStatusLabel(s); }
+}

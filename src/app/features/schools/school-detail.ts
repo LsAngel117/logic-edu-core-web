@@ -313,4 +313,6 @@ export class SchoolDetail {
     this.statusDialogVisible.set(false);
     this.createBranchVisible.set(false);
   }
+
+  statusLabel(s: string): string { return getStatusLabel(s); }
 }

@@ -247,5 +247,6 @@ export class BranchDetailComponent {
     this.editBranchVisible.set(false);
     this.statusDialogVisible.set(false);
   }
-}
+
   statusLabel(s: string): string { return getStatusLabel(s); }
+}
