@@ -192,6 +192,10 @@
             <span class="info-field__value" [class.info-field__value--muted]="!u.birthDate">{{ u.birthDate || '—' }}</span>
           </div>
           <div class="info-field">
+            <label class="info-field__label">Sexo</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.sex">{{ u.sex === 'MALE' ? 'Masculino' : u.sex === 'FEMALE' ? 'Femenino' : '—' }}</span>
+          </div>
+          <div class="info-field">
             <label class="info-field__label">Teléfono</label>
             <span class="info-field__value" [class.info-field__value--muted]="!u.phone">{{ u.phone || '—' }}</span>
           </div>

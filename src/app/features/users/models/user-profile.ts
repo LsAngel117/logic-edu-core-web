@@ -10,6 +10,7 @@ export interface UserProfile {
   documentValue?: string;
   documentType?: string;
   birthDate?: string;
+  sex?: 'MALE' | 'FEMALE';
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;
@@ -58,6 +59,7 @@ export interface UpdateUserPayload {
   documentType?: string;
   documentValue?: string;
   birthDate?: string;
+  sex?: 'MALE' | 'FEMALE';
   phone?: string;
   address?: string;
   city?: string;

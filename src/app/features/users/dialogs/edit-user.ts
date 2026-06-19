@@ -58,7 +58,14 @@ import { AppDialog } from '../../../shared/ui';
             <label>Fecha Nacimiento</label>
             <input type="date" formControlName="birthDate" />
           </div>
-          <div class="form-field"></div>
+          <div class="form-field">
+            <label>Sexo</label>
+            <select formControlName="sex" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="MALE">Masculino</option>
+              <option value="FEMALE">Femenino</option>
+            </select>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-field">
@@ -120,6 +127,7 @@ export class EditUser {
     documentType: [''],
     documentValue: [''],
     birthDate: [''],
+    sex: [''],
     phone: [''],
     address: [''],
     city: [''],
@@ -163,6 +171,7 @@ export class EditUser {
       documentType: u.documentType || '',
       documentValue: u.documentValue || '',
       birthDate: u.birthDate || '',
+      sex: u.sex || '',
       phone: u.phone || '',
       address: u.address || '',
       city: u.city || '',
@@ -192,6 +201,7 @@ export class EditUser {
       documentType: raw.documentType || undefined,
       documentValue: raw.documentValue || undefined,
       birthDate: raw.birthDate || undefined,
+      sex: (raw.sex as 'MALE' | 'FEMALE') || undefined,
     };
 
     try {
