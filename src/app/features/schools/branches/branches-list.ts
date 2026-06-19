@@ -76,6 +76,7 @@ const STATUS_CLASSES: Record<string, string> = {
     LucidePlus,
     LucideSearch,
     LucideEye,
+    LucidePencil,
     LucidePower,
     LucideShield,
     LucideDownload,
