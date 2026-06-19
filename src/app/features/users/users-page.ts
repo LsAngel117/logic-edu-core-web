@@ -164,7 +164,8 @@ export class UsersPageComponent {
         (u) =>
           u.fullName.toLowerCase().includes(search) ||
           u.email.toLowerCase().includes(search) ||
-          u.username.toLowerCase().includes(search),
+          u.username.toLowerCase().includes(search) ||
+          (u.documentValue ?? '').toLowerCase().includes(search),
       );
     }
 
