@@ -87,7 +87,8 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
     }
     .form-field input { height: 40px; }
     .form-field textarea { padding: 8px 12px; resize: vertical; min-height: 60px; }
-    .form-field input:focus, .form-field textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .form-field input:focus, .form-field textarea:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .form-select { height: 40px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 10px; font-family: Roboto, sans-serif; font-size: 14px; color: #111827; outline: none; background: #fff; cursor: pointer; }
     .field-error { background: #fef2f2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
   `,
 })

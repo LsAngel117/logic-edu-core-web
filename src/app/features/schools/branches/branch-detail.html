@@ -81,7 +81,7 @@
             [style.background-color]="typeBg()"
             [style.color]="typeColor()"
           >
-            {{ b.type }}
+            {{ typeLabel(b.type) }}
           </span>
         </div>
       </div>
@@ -161,7 +161,7 @@
           </div>
           <div class="info-field">
             <label class="info-field__label">Tipo</label>
-            <span class="info-field__value">{{ b.type }}</span>
+            <span class="info-field__value">{{ typeLabel(b.type) }}</span>
           </div>
           <div class="info-field">
             <label class="info-field__label">Email</label>
