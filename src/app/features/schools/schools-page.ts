@@ -342,6 +342,11 @@ export class SchoolsPageComponent {
     }
   }
 
+  // View school detail
+  viewSchool(school: School): void {
+    this.router.navigate(['/schools', school.id]);
+  }
+
   // View school / branches
   viewBranches(school: School): void {
     this.router.navigate(['/schools', school.id, 'branches']);
