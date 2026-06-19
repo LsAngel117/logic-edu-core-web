@@ -292,8 +292,14 @@
                   </span>
                 </td>
                 <td class="sedes-table__td--actions">
-                  <button class="action-btn" title="Editar sede">
+                  <button class="action-btn" title="Ver sede" (click)="viewBranch(b)">
+                    <svg lucideEye></svg>
+                  </button>
+                  <button class="action-btn" title="Editar sede" (click)="editBranch(b)">
                     <svg lucidePencil></svg>
+                  </button>
+                  <button class="action-btn action-btn--danger" title="Desactivar sede" (click)="deactivateBranch(b)">
+                    <svg lucidePower></svg>
                   </button>
                 </td>
               </tr>
@@ -352,13 +358,26 @@
     [(visible)]="editSchoolVisible"
     (saved)="onSchoolSaved($event)"
   />
-  }
 
-  <!-- ======= CREATE BRANCH DIALOG ======= -->
   <app-create-branch
     [(visible)]="createBranchVisible"
     [schoolId]="s.id"
     (created)="onBranchCreated()"
+  />
+
+  <app-edit-branch
+    [(visible)]="editBranchVisible"
+    [branchData]="selectedBranch()"
+    (saved)="onBranchEdited()"
+  />
+
+  <app-confirmation-dialog
+    title="Desactivar sede"
+    [message]="'¿Desactivar la sede ' + (selectedBranch()?.name || '') + '?'"
+    confirmLabel="Desactivar"
+    [(visible)]="deactivateBranchVisible"
+    (confirm)="confirmDeactivateBranch()"
+    (cancel)="deactivateBranchVisible.set(false)"
   />
   }
 </div>

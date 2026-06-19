@@ -8,11 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
   LucideChevronLeft,
   LucidePencil,
+  LucideEye,
+  LucidePower,
   LucideBan,
   LucideCheckCircle,
   LucideBuilding2,
@@ -26,6 +28,7 @@ import { BranchesService } from './branches/services/branches';
 import { School } from './models/school';
 import { BranchResponse } from './branches/models/branch';
 import { EditSchool } from './dialogs/edit-school';
+import { EditBranch } from './branches/dialogs/edit-branch';
 import { CreateBranchDialogComponent } from './branches/dialogs/create-branch';
 import { StatCard, ConfirmationDialog } from '../../shared/ui';
 
@@ -70,9 +73,12 @@ const BRANCH_TYPE_BG: Record<string, string> = {
     StatCard,
     ConfirmationDialog,
     EditSchool,
+    EditBranch,
     CreateBranchDialogComponent,
     LucideChevronLeft,
     LucidePencil,
+    LucideEye,
+    LucidePower,
     LucideBan,
     LucideCheckCircle,
     LucideBuilding2,
@@ -90,6 +96,7 @@ export class SchoolDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
+  private readonly router = inject(Router);
 
   /* ---- State --------------------------------------------------------- */
   readonly school = signal<School | null>(null);
@@ -105,6 +112,9 @@ export class SchoolDetail {
   readonly editSchoolVisible = signal(false);
   readonly statusDialogVisible = signal(false);
   readonly createBranchVisible = signal(false);
+  readonly editBranchVisible = signal(false);
+  readonly deactivateBranchVisible = signal(false);
+  readonly selectedBranch = signal<BranchResponse | null>(null);
 
   /* ---- Computed ------------------------------------------------------ */
   readonly isActive = computed(() => this.school()?.status === 'ACTIVE');
@@ -261,6 +271,37 @@ export class SchoolDetail {
 
   branchTypeBg(type: string): string {
     return BRANCH_TYPE_BG[type] ?? 'rgba(107, 114, 128, 0.1)';
+  }
+
+  /* ---- Branch actions ------------------------------------------------- */
+
+  viewBranch(branch: BranchResponse): void {
+    this.router.navigate(['/schools', branch.schoolId, 'branches', branch.id]);
+  }
+
+  editBranch(branch: BranchResponse): void {
+    this.selectedBranch.set(branch);
+    this.editBranchVisible.set(true);
+  }
+
+  deactivateBranch(branch: BranchResponse): void {
+    this.selectedBranch.set(branch);
+    this.deactivateBranchVisible.set(true);
+  }
+
+  async confirmDeactivateBranch(): Promise<void> {
+    const branch = this.selectedBranch();
+    if (!branch) return;
+    try {
+      await firstValueFrom(this.branchesService.updateStatus(branch.schoolId, branch.id));
+      this.deactivateBranchVisible.set(false);
+      this.loadBranches();
+    } catch { /* error handled by interceptor */ }
+  }
+
+  onBranchEdited(): void {
+    this.editBranchVisible.set(false);
+    this.loadBranches();
   }
 
   /* ---- Close dialogs on Escape --------------------------------------- */
