@@ -1,5 +1,5 @@
 /* ================================================================
-   School Detail Page — Premium SaaS Design
+   Branch Detail Page — Premium SaaS Design
    ================================================================ */
 
 // Design tokens
@@ -26,7 +26,7 @@ $spacing-unit: 8px;
 $font-family: 'Roboto', sans-serif;
 
 /* ---- Page Layout ---- */
-.school-detail {
+.branch-detail {
   padding: $spacing-unit * 3;
   max-width: 1280px;
   margin: 0 auto;
@@ -35,7 +35,7 @@ $font-family: 'Roboto', sans-serif;
 }
 
 /* ---- Loading ---- */
-.school-detail__loading {
+.branch-detail__loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -59,7 +59,7 @@ $font-family: 'Roboto', sans-serif;
 }
 
 /* ---- Error State ---- */
-.school-detail__error {
+.branch-detail__error {
   padding: $spacing-unit * 6 0;
 }
 
@@ -185,7 +185,7 @@ $font-family: 'Roboto', sans-serif;
   flex-shrink: 0;
 }
 
-.school-info {
+.branch-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -281,39 +281,6 @@ $font-family: 'Roboto', sans-serif;
       background: rgba($success, 0.04);
       border-color: $success;
     }
-  }
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background: linear-gradient(135deg, $primary, #3b82f6);
-  color: #fff;
-  font-family: $font-family;
-  font-size: 14px;
-  font-weight: 600;
-  height: 38px;
-  border: none;
-  border-radius: $radius-btn;
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.15s;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba($primary, 0.3);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &--sm {
-    padding: 6px 16px;
-    font-size: 13px;
-    height: 36px;
-    border-radius: 8px;
   }
 }
 
@@ -430,176 +397,6 @@ $font-family: 'Roboto', sans-serif;
       font-family: 'SF Mono', 'Cascadia Code', monospace;
       font-size: 13px;
     }
-  }
-}
-
-/* ---- Stats Row ---- */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-unit * 2;
-  margin-bottom: $spacing-unit * 3;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ---- Table Card ---- */
-.table-card {
-  background: #fff;
-  border-radius: $radius-card;
-  box-shadow: $shadow-card;
-  border: 1px solid $border-color;
-  overflow: hidden;
-
-  &__toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: $spacing-unit * 2 $spacing-unit * 3;
-    gap: $spacing-unit * 2;
-    flex-wrap: wrap;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: $gray-800;
-  }
-
-  &__divider {
-    height: 1px;
-    background: $gray-100;
-  }
-
-  &__table-wrapper {
-    overflow-x: auto;
-  }
-
-  &__empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 24px;
-    text-align: center;
-
-    .empty-icon {
-      width: 48px;
-      height: 48px;
-      color: $gray-400;
-      margin-bottom: 16px;
-    }
-
-    .empty-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: $gray-700;
-      margin: 0 0 4px;
-    }
-
-    .empty-desc {
-      font-size: 14px;
-      color: $gray-500;
-      margin: 0;
-    }
-  }
-}
-
-/* ---- Sedes Table ---- */
-.sedes-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  thead {
-    background: $gray-50;
-
-    th {
-      padding: 12px 24px;
-      font-size: 12px;
-      font-weight: 600;
-      color: $gray-500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: left;
-      white-space: nowrap;
-    }
-  }
-
-  tbody {
-    tr {
-      border-bottom: 1px solid $gray-100;
-      transition: background 0.15s;
-
-      &:hover {
-        background: rgba($primary, 0.02);
-      }
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-
-  td {
-    padding: 14px 24px;
-    vertical-align: middle;
-  }
-
-  &__th--actions,
-  &__td--actions {
-    text-align: center;
-    width: 100px;
-  }
-
-  &__td--actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    justify-content: center;
-  }
-}
-
-.cell-main {
-  color: $gray-800;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.cell-muted {
-  color: $gray-500;
-  font-size: 13px;
-}
-
-/* ---- Action Buttons ---- */
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  color: $gray-400;
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  &:hover {
-    color: $primary;
-    background: rgba($primary, 0.08);
-  }
-
-  &--danger:hover {
-    color: $danger;
-    background: rgba($danger, 0.08);
   }
 }
 

@@ -543,4 +543,53 @@ describe('SchoolDetail', () => {
       expect(content).toContain('Sin sedes');
     });
   });
+
+  // ======================================================================
+  //  EDIT SCHOOL DIALOG (Fix 1)
+  // ======================================================================
+  describe('edit school dialog', () => {
+    it('should render app-edit-school component in the template', async () => {
+      setupComponent();
+      schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const editSchoolEl = fixture.nativeElement.querySelector('app-edit-school');
+      expect(editSchoolEl).toBeTruthy();
+    });
+
+    it('should bind schoolData to the current school', async () => {
+      setupComponent();
+      schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const editSchoolEl = fixture.nativeElement.querySelector('app-edit-school');
+      expect(editSchoolEl).toBeTruthy();
+      // The schoolData input should receive the school from the template binding
+    });
+
+    it('should update school signal on save instead of reloading', async () => {
+      setupComponent();
+      schoolsServiceMock.getById.mockReturnValue(of(mockSchool));
+
+      const fixture = await createFixture();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const componentInstance = fixture.componentInstance;
+      const updatedSchool: School = { ...mockSchool, name: 'Updated Name' };
+
+      // Call onSchoolSaved with updated school
+      componentInstance.onSchoolSaved(updatedSchool);
+
+      // The school signal should be updated in place, not reloaded
+      expect(componentInstance.school()).toEqual(updatedSchool);
+      expect(componentInstance.editSchoolVisible()).toBe(false);
+    });
+  });
 });

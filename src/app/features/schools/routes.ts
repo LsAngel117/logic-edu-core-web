@@ -16,6 +16,10 @@ export default [
         path: ':schoolId/branches',
         loadComponent: () => import('./branches/branches-page').then(m => m.BranchesPage),
       },
+      {
+        path: ':schoolId/branches/:id',
+        loadComponent: () => import('./branches/branch-detail').then(m => m.BranchDetailComponent),
+      },
     ],
   },
 ] satisfies Routes;

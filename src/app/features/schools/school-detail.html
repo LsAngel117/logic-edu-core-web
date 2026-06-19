@@ -352,6 +352,12 @@
     (created)="onBranchCreated()"
   />
 
+  <app-edit-school
+    [schoolData]="s"
+    [(visible)]="editSchoolVisible"
+    (saved)="onSchoolSaved($event)"
+  />
+
   @if (selectedBranch(); as b) {
   <app-edit-branch
     [(visible)]="editBranchVisible"

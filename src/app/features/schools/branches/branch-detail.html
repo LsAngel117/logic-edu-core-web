@@ -1,0 +1,264 @@
+<div class="branch-detail">
+  <!-- ======= LOADING STATE ======= -->
+  @if (loading()) {
+  <div class="branch-detail__loading" data-testid="branch-detail-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando sede...</span>
+  </div>
+  }
+
+  <!-- ======= ERROR: NOT FOUND ======= -->
+  @if (!loading() && notFound()) {
+  <div class="branch-detail__error" data-testid="branch-detail-notfound">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideGitBranch></svg>
+      </div>
+      <h3>Sede no encontrada</h3>
+      <p>La sede solicitada no existe o ha sido eliminada.</p>
+      <button class="btn-outline" (click)="goBack()">
+        Volver a Sedes
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= ERROR: NETWORK ======= -->
+  @if (!loading() && error()) {
+  <div class="branch-detail__error" data-testid="branch-detail-error">
+    <div class="error-card">
+      <div class="error-card__icon">
+        <svg lucideGitBranch></svg>
+      </div>
+      <h3>Error al cargar sede</h3>
+      <p>Ocurrió un error al obtener los detalles de la sede.</p>
+      <button class="btn-outline" (click)="loadData(currentSchoolId(), currentBranchId())">
+        Reintentar
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- ======= CONTENT ======= -->
+  @if (!loading() && !error() && !notFound() && branch(); as b) {
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a routerLink="/schools" class="breadcrumb__link">
+      <svg lucideChevronLeft class="breadcrumb__icon"></svg>
+      Instituciones
+    </a>
+    <span class="breadcrumb__sep">/</span>
+    <a [routerLink]="['/schools', currentSchoolId()]" class="breadcrumb__link">
+      Sedes
+    </a>
+    <span class="breadcrumb__sep">/</span>
+    <span class="breadcrumb__current">Detalle</span>
+  </nav>
+
+  <!-- HEADER CARD -->
+  <div class="header-card">
+    <div class="header-card__main">
+      <!-- Avatar -->
+      <div class="avatar">{{ getInitials(b.name) }}</div>
+
+      <!-- Branch info -->
+      <div class="branch-info">
+        <h1 class="branch-info__name">{{ b.name }}</h1>
+        <span class="branch-info__code">{{ b.code }}</span>
+
+        <!-- Badges -->
+        <div class="badges">
+          <span
+            class="badge badge--status"
+            [style.background-color]="statusBg()"
+            [style.color]="statusColor()"
+          >
+            {{ b.status }}
+          </span>
+          <span
+            class="badge"
+            [style.background-color]="typeBg()"
+            [style.color]="typeColor()"
+          >
+            {{ b.type }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="header-card__actions">
+      <button class="btn-outline" (click)="openEditDialog()">
+        <svg lucidePencil class="btn-icon"></svg>
+        Editar
+      </button>
+      @if (isActive()) {
+      <button class="btn-outline btn-outline--danger" (click)="openStatusDialog()">
+        <svg lucideBan class="btn-icon"></svg>
+        Desactivar
+      </button>
+      } @else {
+      <button class="btn-outline btn-outline--success" (click)="openStatusDialog()">
+        <svg lucideCheckCircle class="btn-icon"></svg>
+        Activar
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tabs">
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'informacion'"
+      (click)="setActiveTab('informacion')"
+    >
+      Información
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'academico'"
+      (click)="setActiveTab('academico')"
+    >
+      Académico
+    </button>
+    <button
+      class="tab-item"
+      [class.tab-item--active]="activeTab() === 'usuarios'"
+      (click)="setActiveTab('usuarios')"
+    >
+      Usuarios
+    </button>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+    <!-- ======= TAB 1: INFORMACIÓN ======= -->
+    @if (activeTab() === 'informacion') {
+    <div class="informacion-grid">
+      <!-- Left column: General Info -->
+      <div class="info-card">
+        <div class="info-card__header">
+          <h2 class="info-card__title">Información General</h2>
+          <button class="btn-outline btn-outline--sm" (click)="openEditDialog()">
+            <svg lucidePencil class="btn-icon btn-icon--sm"></svg>
+            Editar
+          </button>
+        </div>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">Nombre</label>
+            <span class="info-field__value">{{ b.name }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Código</label>
+            <span class="info-field__value">{{ b.code }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Nombre Corto</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.shortName">{{ b.shortName || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Tipo</label>
+            <span class="info-field__value">{{ b.type }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Email</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.email">{{ b.email || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Teléfono</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.phone">{{ b.phone || '—' }}</span>
+          </div>
+          @if (b.description) {
+          <div class="info-field">
+            <label class="info-field__label">Descripción</label>
+            <span class="info-field__value">{{ b.description }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right column: Administrative Info -->
+      <div class="info-card">
+        <h2 class="info-card__title">Información Administrativa</h2>
+        <div class="info-fields">
+          <div class="info-field">
+            <label class="info-field__label">Dirección</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.address">{{ b.address || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Ciudad</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.city">{{ b.city || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">País</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!b.country">{{ b.country || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Estado</label>
+            <span class="info-field__value">
+              <span
+                class="badge badge--status"
+                [style.background-color]="statusBg()"
+                [style.color]="statusColor()"
+              >
+                {{ b.status }}
+              </span>
+            </span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">Fecha creación</label>
+            <span class="info-field__value">{{ b.createdAt | date:'yyyy-MM-dd HH:mm' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">ID</label>
+            <span class="info-field__value info-field__value--mono">{{ b.id }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- ======= TAB 2: ACADÉMICO (Placeholder) ======= -->
+    @if (activeTab() === 'academico') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideSchool></svg>
+      </div>
+      <h3 class="placeholder-card__title">Estructura académica</h3>
+      <p class="placeholder-card__desc">Grupos, horarios y matrículas — próximamente.</p>
+    </div>
+    }
+
+    <!-- ======= TAB 3: USUARIOS (Placeholder) ======= -->
+    @if (activeTab() === 'usuarios') {
+    <div class="placeholder-card">
+      <div class="placeholder-card__icon">
+        <svg lucideUsers></svg>
+      </div>
+      <h3 class="placeholder-card__title">Usuarios de esta sede</h3>
+      <p class="placeholder-card__desc">Usuarios asignados a esta sede — próximamente.</p>
+    </div>
+    }
+  </div>
+
+  <!-- ======= STATUS CONFIRMATION DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
+
+  <!-- ======= EDIT BRANCH DIALOG ======= -->
+  <app-edit-branch
+    [branchData]="b"
+    [(visible)]="editBranchVisible"
+    (saved)="onBranchSaved($event)"
+  />
+  }
+</div>
