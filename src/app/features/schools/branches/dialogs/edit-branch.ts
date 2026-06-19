@@ -55,10 +55,12 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
             <label>Teléfono</label>
             <input type="text" formControlName="phone" placeholder="+57 300 123 4567" />
           </div>
+          @if (form.controls.type.value !== 'VIRTUAL') {
           <div class="form-field">
             <label>Dirección <span class="required">*</span></label>
             <input type="text" formControlName="address" placeholder="Dirección" />
           </div>
+          }
         </div>
         <div class="form-row">
           <div class="form-field">
@@ -111,7 +113,7 @@ export class EditBranch {
     description: [''],
     email: [''],
     phone: [''],
-    address: ['', [Validators.required]],
+    address: [''],
     city: [''],
     country: [''],
   });
@@ -154,7 +156,7 @@ export class EditBranch {
       description: raw.description || undefined,
       email: raw.email || undefined,
       phone: raw.phone || undefined,
-      address: raw.address,
+      address: raw.type === 'VIRTUAL' ? undefined : raw.address,
       city: raw.city || undefined,
       country: raw.country || undefined,
     };

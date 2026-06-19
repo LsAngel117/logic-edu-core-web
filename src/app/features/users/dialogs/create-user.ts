@@ -4,6 +4,14 @@ import { UsersService } from '../services/users';
 import { CreateUserPayload } from '../models/user-profile';
 import { AppDialog } from '../../../shared/ui';
 
+const ROLE_SCOPE: Record<string, string> = {
+  PLATFORM_ADMIN: 'PLATFORM',
+  SCHOOL_ADMIN: 'SCHOOL',
+  BRANCH_ADMIN: 'BRANCH',
+  TEACHER: 'COURSE',
+  STUDENT: 'COURSE',
+};
+
 @Component({
   selector: 'app-create-user',
   standalone: true,
@@ -31,7 +39,6 @@ export class CreateUserDialogComponent {
   readonly documentType = signal('');
   readonly documentValue = signal('');
   readonly role = signal('');
-  readonly scopeType = signal<'SCHOOL' | 'BRANCH' | 'ALL' | ''>('');
   readonly scopeRefId = signal('');
   readonly phone = signal('');
   readonly address = signal('');
@@ -41,10 +48,12 @@ export class CreateUserDialogComponent {
   readonly created = output<void>();
   readonly cancel = output<void>();
 
-  // Show scopeRefId only when scopeType is SCHOOL or BRANCH
+  readonly roleScopeType = computed(() => ROLE_SCOPE[this.role()] ?? '');
+
+  // Show scopeRefId when scope is not PLATFORM
   readonly showScopeRefId = computed(() => {
-    const st = this.scopeType();
-    return st === 'SCHOOL' || st === 'BRANCH';
+    const s = this.roleScopeType();
+    return s !== 'PLATFORM' && s !== '';
   });
 
   updateTextField(field: string, event: Event): void {
@@ -67,7 +76,7 @@ export class CreateUserDialogComponent {
     const dt = this.documentType();
     const dv = this.documentValue().trim();
     const rl = this.role();
-    const st = this.scopeType();
+    const st = this.roleScopeType();
 
     // Required fields validation
     if (!em || !pwd || !fgn || !ffn || !sx || !bd || !dt || !dv || !rl || !st) {
@@ -143,7 +152,6 @@ export class CreateUserDialogComponent {
     this.documentType.set('');
     this.documentValue.set('');
     this.role.set('');
-    this.scopeType.set('');
     this.scopeRefId.set('');
     this.phone.set('');
     this.address.set('');

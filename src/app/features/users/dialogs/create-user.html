@@ -155,23 +155,15 @@
           <option value="" disabled>Seleccionar...</option>
           <option value="PLATFORM_ADMIN">Admin de Plataforma</option>
           <option value="SCHOOL_ADMIN">Admin de Escuela</option>
+          <option value="BRANCH_ADMIN">Admin de Sede</option>
           <option value="TEACHER">Profesor</option>
           <option value="STUDENT">Estudiante</option>
         </select>
       </div>
-      <div class="dialog-field">
-        <label class="dialog-label">Tipo Alcance *</label>
-        <select
-          class="dialog-select"
-          data-testid="create-scopeType"
-          [value]="scopeType()"
-          (change)="updateSelectField('scopeType', $event)"
-        >
-          <option value="" disabled>Seleccionar...</option>
-          <option value="SCHOOL">Colegio</option>
-          <option value="BRANCH">Sede</option>
-          <option value="ALL">Todos</option>
-        </select>
+      <!-- Scope is derived from role — no selector needed -->
+      @if (roleScopeType()) {
+        <p class="scope-hint">Alcance: <strong>{{ roleScopeType() }}</strong></p>
+      }
       </div>
     </div>
 
