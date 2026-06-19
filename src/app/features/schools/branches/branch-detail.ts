@@ -249,5 +249,4 @@ export class BranchDetailComponent {
 
   statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' }; return labels[s] ?? s; }
   typeLabel(t: string): string { const labels: Record<string,string>={MAIN:"Principal",SECONDARY:"Secundaria",VIRTUAL:"Virtual",TEMPORARY:"Temporal"}; return labels[t]??t; }
-  statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: "Activo", INACTIVE: "Inactivo", BLOCKED: "Bloqueado" }; return labels[s] ?? s; }
 }
