@@ -24,7 +24,7 @@ import { BranchResponse, BranchRow } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
 import { CreateBranchDialogComponent } from './dialogs/create-branch';
-import { statusLabel, branchTypeLabel } from '../../../core/constants/display-labels';
+import { statusLabel as getStatusLabel, branchTypeLabel as getBranchTypeLabel } from '../../../core/constants/display-labels';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -391,11 +391,11 @@ export class BranchesListComponent {
   }
 
   typeLabel(type: string | undefined): string {
-    return branchTypeLabel(type);
+    return getBranchTypeLabel(type);
   }
 
   statusLabel(status: string): string {
-    return statusLabel(status);
+    return getStatusLabel(status);
   }
 
   viewBranch(branch: BranchRow): void {
