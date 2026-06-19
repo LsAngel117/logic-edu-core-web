@@ -104,7 +104,7 @@ const ROLE_SCOPE: Record<string, string> = {
     .form-field { display: flex; flex-direction: column; gap: 4px; }
     .form-field label { font-size: 13px; font-weight: 500; color: #374151; }
     .required { color: #ef4444; }
-    .form-field input, .form-select { padding: 10px 12px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 14px; outline: none; background: #fff; font-family: Roboto, sans-serif; transition: border-color 0.15s, box-shadow 0.15s; }
+    .form-field input, .form-select { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 14px; outline: none; background: #fff; font-family: Roboto, sans-serif; transition: border-color 0.15s, box-shadow 0.15s; }
     .form-field input:focus, .form-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
     .field-error { font-size: 12px; color: #ef4444; margin-top: 2px; }
     .scope-hint { font-size: 13px; color: #6b7280; margin: 0; padding: 4px 0; }
@@ -138,13 +138,13 @@ export class AddMembershipDialogComponent {
   readonly userSearch = signal('');
   readonly created = output<void>();
 
-  readonly users = signal<{ id: string; fullName: string; email: string }[]>([]);
+  readonly users = signal<{ id: string; fullName: string; email: string; username: string }[]>([]);
 
   readonly filteredUsers = computed(() => {
     const s = this.userSearch().toLowerCase().trim();
     if (!s) return this.users().slice(0, 20);
     return this.users().filter(u =>
-      u.fullName.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
+      u.fullName.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || u.username.toLowerCase().includes(s)
     ).slice(0, 20);
   });
 
@@ -179,7 +179,7 @@ export class AddMembershipDialogComponent {
       this.form.controls.scopeRefId.reset();
     });
     // Load users for the dropdown
-    this.usersService.getAll().subscribe((list) => this.users.set(list.map(u => ({ id: u.id, fullName: u.fullName, email: u.email }))));
+    this.usersService.getAll().subscribe((list) => this.users.set(list.map(u => ({ id: u.id, fullName: u.fullName, email: u.email, username: u.username }))));
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
     this.schoolsService.getAll().subscribe((schools) => {
       schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
