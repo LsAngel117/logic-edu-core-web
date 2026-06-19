@@ -306,7 +306,6 @@ export class SchoolDetail {
 
   /* ---- Close dialogs on Escape --------------------------------------- */
   @HostListener('document:keydown.escape')
-  statusLabel(s: string): string { const labels: Record<string, string> = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', BLOCKED: 'Bloqueado' }; return labels[s] ?? s; }
   onEscape(): void {
     this.editSchoolVisible.set(false);
     this.statusDialogVisible.set(false);
