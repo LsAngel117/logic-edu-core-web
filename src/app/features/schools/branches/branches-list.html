@@ -254,7 +254,7 @@
                 [style.background-color]="typeBg(branch.type)"
                 [style.color]="typeColor(branch.type)"
               >
-                {{ branch.type }}
+                {{ typeLabel(branch.type) }}
               </span>
             </td>
 
@@ -265,26 +265,19 @@
                 data-testid="status-badge"
                 [class]="'status-badge ' + statusClass(branch.status)"
               >
-                {{ branch.status }}
+                {{ statusLabel(branch.status) }}
               </span>
             </td>
 
             <!-- Actions -->
             <td class="branches-table__td--actions">
-              <button
-                class="action-btn"
-                data-testid="action-btn"
-                title="Ver sede"
-                (click)="viewBranch(branch)"
-              >
+              <button class="action-btn" title="Ver sede" (click)="viewBranch(branch)">
                 <svg lucideEye></svg>
               </button>
-              <button
-                class="action-btn"
-                data-testid="action-btn"
-                title="Cambiar estado"
-                (click)="openStatusDialog(branch)"
-              >
+              <button class="action-btn" title="Editar sede">
+                <svg lucidePencil></svg>
+              </button>
+              <button class="action-btn action-btn--danger" title="Cambiar estado" (click)="openStatusDialog(branch)">
                 <svg lucidePower></svg>
               </button>
             </td>

@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import {
   LucidePlus,
   LucideSearch,
   LucideEye,
   LucidePower,
+  LucidePencil,
   LucideShield,
   LucideDownload,
   LucideFileText,
@@ -23,6 +24,7 @@ import { BranchResponse, BranchRow } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
 import { CreateBranchDialogComponent } from './dialogs/create-branch';
+import { statusLabel, branchTypeLabel } from '../../../core/constants/display-labels';
 
 /* ------------------------------------------------------------------ */
 /*  Filter types                                                        */
@@ -91,6 +93,7 @@ export class BranchesListComponent {
   /* ---- Dependencies -------------------------------------------------- */
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
+  private readonly router = inject(Router);
 
   /* ---- State --------------------------------------------------------- */
   readonly branches = signal<BranchRow[]>([]);
@@ -385,5 +388,17 @@ export class BranchesListComponent {
 
   statusClass(status: string): string {
     return STATUS_CLASSES[status] ?? 'status--default';
+  }
+
+  typeLabel(type: string | undefined): string {
+    return branchTypeLabel(type);
+  }
+
+  statusLabel(status: string): string {
+    return statusLabel(status);
+  }
+
+  viewBranch(branch: BranchRow): void {
+    this.router.navigate(['/schools', branch.schoolId, 'branches', branch.id]);
   }
 }
