@@ -14,6 +14,7 @@ import {
   LucideKey,
   LucideCheckCircle,
   LucideXCircle,
+  LucideCalendarPlus,
 } from '@lucide/angular';
 
 @Component({
@@ -34,6 +35,7 @@ import {
     LucideKey,
     LucideCheckCircle,
     LucideXCircle,
+    LucideCalendarPlus,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './stat-card.html',

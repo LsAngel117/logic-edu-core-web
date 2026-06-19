@@ -86,6 +86,8 @@ export class SchoolsPageComponent {
   readonly error = signal(false);
 
   readonly statusFilter = signal<StatusFilter>('Todos');
+  readonly cityFilter = signal('');
+  readonly countryFilter = signal('');
   readonly searchTerm = signal('');
   readonly exportMenuOpen = signal(false);
   readonly sortColumn = signal<string | null>(null);
@@ -106,7 +108,12 @@ export class SchoolsPageComponent {
   readonly totalSchools = computed(() => this.schools().length);
   readonly activeSchools = computed(() => this.schools().filter((s) => s.status === 'ACTIVE').length);
   readonly inactiveSchools = computed(() => this.schools().filter((s) => s.status === 'INACTIVE').length);
-  readonly branchesCount = computed(() => 0); // TODO: wire branch count when API supports it
+  readonly branchesCount = computed(() => 0);
+  readonly recentSchools = computed(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return this.schools().filter((s) => new Date(s.createdAt) >= thirtyDaysAgo).length;
+  });
 
   /* ---- Computed: Filtered schools ------------------------------------ */
   readonly filteredSchools = computed(() => {
@@ -115,6 +122,16 @@ export class SchoolsPageComponent {
     const status = this.statusFilter();
     if (status !== 'Todos') {
       result = result.filter((s) => s.status === status);
+    }
+
+    const city = this.cityFilter().toLowerCase().trim();
+    if (city) {
+      result = result.filter((s) => (s.city ?? '').toLowerCase().includes(city));
+    }
+
+    const country = this.countryFilter().toLowerCase().trim();
+    if (country) {
+      result = result.filter((s) => (s.country ?? '').toLowerCase().includes(country));
     }
 
     const search = this.searchTerm().toLowerCase().trim();
@@ -244,6 +261,16 @@ export class SchoolsPageComponent {
   /* ---- Filter handlers ----------------------------------------------- */
   setStatusFilter(value: string): void {
     this.statusFilter.set(value as StatusFilter);
+    this.currentPage.set(1);
+  }
+
+  setCityFilter(value: string): void {
+    this.cityFilter.set(value);
+    this.currentPage.set(1);
+  }
+
+  setCountryFilter(value: string): void {
+    this.countryFilter.set(value);
     this.currentPage.set(1);
   }
 

@@ -59,6 +59,13 @@
       iconColor="#ff3e1d"
       iconBg="rgba(255, 62, 29, 0.08)"
     />
+    <app-stat-card
+      icon="calendar-plus"
+      label="Nuevas (30 días)"
+      [value]="recentSchools()"
+      iconColor="#8b5cf6"
+      iconBg="rgba(139, 92, 246, 0.1)"
+    />
   </div>
 
   <!-- Schools Table Card -->
@@ -81,6 +88,22 @@
               <option value="ACTIVE">Activo</option>
               <option value="INACTIVE">Inactivo</option>
             </select>
+          </div>
+
+          <!-- City Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Ciudad</label>
+            <div class="search-wrapper">
+              <input class="search-input" type="text" [value]="cityFilter()" (input)="setCityFilter($any($event.target).value)" placeholder="Filtrar por ciudad..." />
+            </div>
+          </div>
+
+          <!-- Country Filter -->
+          <div class="filter-field">
+            <label class="filter-label">País</label>
+            <div class="search-wrapper">
+              <input class="search-input" type="text" [value]="countryFilter()" (input)="setCountryFilter($any($event.target).value)" placeholder="Filtrar por país..." />
+            </div>
           </div>
 
           <!-- Search -->
