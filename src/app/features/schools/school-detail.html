@@ -341,43 +341,12 @@
     }
   </div>
 
-  <!-- ======= STATUS CONFIRMATION DIALOG ======= -->
-  <app-confirmation-dialog
-    [title]="statusDialogTitle()"
-    [message]="statusDialogMessage()"
-    [confirmLabel]="statusConfirmLabel()"
-    [(visible)]="statusDialogVisible"
-    (confirm)="confirmStatusChange()"
-    (cancel)="closeStatusDialog()"
-  />
-
-  <!-- ======= EDIT SCHOOL DIALOG ======= -->
+  <!-- ======= DIALOGS ======= -->
   @if (school(); as s) {
-  <app-edit-school
-    [schoolData]="s"
-    [(visible)]="editSchoolVisible"
-    (saved)="onSchoolSaved($event)"
-  />
-
-  <app-create-branch
-    [(visible)]="createBranchVisible"
-    [schoolId]="s.id"
-    (created)="onBranchCreated()"
-  />
-
-  <app-edit-branch
-    [(visible)]="editBranchVisible"
-    [branchData]="selectedBranch()"
-    (saved)="onBranchEdited()"
-  />
-
-  <app-confirmation-dialog
-    title="Desactivar sede"
-    [message]="'¿Desactivar la sede ' + (selectedBranch()?.name || '') + '?'"
-    confirmLabel="Desactivar"
-    [(visible)]="deactivateBranchVisible"
-    (confirm)="confirmDeactivateBranch()"
-    (cancel)="deactivateBranchVisible.set(false)"
-  />
+    <app-edit-school [schoolData]="s" [(visible)]="editSchoolVisible" (saved)="onSchoolSaved($event)" />
+    <app-create-branch [(visible)]="createBranchVisible" [schoolId]="s.id" (created)="onBranchCreated()" />
+    <app-edit-branch [(visible)]="editBranchVisible" [branchData]="selectedBranch()" (saved)="onBranchEdited()" />
+    <app-confirmation-dialog title="Desactivar sede" [message]="'¿Desactivar la sede ' + (selectedBranch()?.name || '') + '?'" confirmLabel="Desactivar" [(visible)]="deactivateBranchVisible" (confirm)="confirmDeactivateBranch()" (cancel)="deactivateBranchVisible.set(false)" />
   }
+  <app-confirmation-dialog [title]="statusDialogTitle()" [message]="statusDialogMessage()" [confirmLabel]="statusConfirmLabel()" [(visible)]="statusDialogVisible" (confirm)="confirmStatusChange()" (cancel)="closeStatusDialog()" />
 </div>

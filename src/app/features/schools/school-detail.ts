@@ -295,13 +295,13 @@ export class SchoolDetail {
     try {
       await firstValueFrom(this.branchesService.updateStatus(branch.schoolId, branch.id));
       this.deactivateBranchVisible.set(false);
-      this.loadBranches();
+      this.loadBranches(this.currentId());
     } catch { /* error handled by interceptor */ }
   }
 
   onBranchEdited(): void {
     this.editBranchVisible.set(false);
-    this.loadBranches();
+    this.loadBranches(this.currentId());
   }
 
   /* ---- Close dialogs on Escape --------------------------------------- */
