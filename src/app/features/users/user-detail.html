@@ -193,7 +193,7 @@
           </div>
           <div class="info-field">
             <label class="info-field__label">Sexo</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.sex">{{ u.sex === 'MALE' ? 'Masculino' : u.sex === 'FEMALE' ? 'Femenino' : '—' }}</span>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.sex">{{ u.sex === 'MALE' ? 'Masculino' : u.sex === 'FEMALE' ? 'Femenino' : u.sex === 'OTHER' ? 'Otro' : '—' }}</span>
           </div>
           <div class="info-field">
             <label class="info-field__label">Teléfono</label>

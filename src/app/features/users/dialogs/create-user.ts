@@ -34,7 +34,7 @@ export class CreateUserDialogComponent {
   readonly secondGivenName = signal('');
   readonly firstFamilyName = signal('');
   readonly secondFamilyName = signal('');
-  readonly sex = signal<'MALE' | 'FEMALE' | ''>('');
+  readonly sex = signal<'MALE' | 'FEMALE' | 'OTHER' | ''>('');
   readonly birthDate = signal('');
   readonly documentType = signal('');
   readonly documentValue = signal('');
@@ -102,7 +102,7 @@ export class CreateUserDialogComponent {
       secondGivenName: this.secondGivenName().trim() || undefined,
       firstFamilyName: ffn,
       secondFamilyName: this.secondFamilyName().trim() || undefined,
-      sex: sx as 'MALE' | 'FEMALE',
+      sex: sx as 'MALE' | 'FEMALE' | 'OTHER',
       birthDate: bd,
       documentType: dt,
       documentValue: dv,

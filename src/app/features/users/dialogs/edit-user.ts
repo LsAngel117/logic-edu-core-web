@@ -64,6 +64,7 @@ import { AppDialog } from '../../../shared/ui';
               <option value="">Seleccionar...</option>
               <option value="MALE">Masculino</option>
               <option value="FEMALE">Femenino</option>
+              <option value="OTHER">Otro</option>
             </select>
           </div>
         </div>
@@ -201,7 +202,7 @@ export class EditUser {
       documentType: raw.documentType || undefined,
       documentValue: raw.documentValue || undefined,
       birthDate: raw.birthDate || undefined,
-      sex: (raw.sex as 'MALE' | 'FEMALE') || undefined,
+      sex: (raw.sex as 'MALE' | 'FEMALE' | 'OTHER') || undefined,
     };
 
     try {
