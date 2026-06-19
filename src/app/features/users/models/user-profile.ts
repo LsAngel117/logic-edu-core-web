@@ -9,6 +9,7 @@ export interface UserProfile {
   secondFamilyName?: string;
   documentValue?: string;
   documentType?: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;
   phone?: string;
