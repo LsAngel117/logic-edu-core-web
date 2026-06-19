@@ -7,6 +7,7 @@ export interface UserProfile {
   secondGivenName?: string;
   firstFamilyName?: string;
   secondFamilyName?: string;
+  documentValue?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   role?: string;
   institution?: string;

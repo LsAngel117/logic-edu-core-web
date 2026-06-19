@@ -138,13 +138,13 @@ export class AddMembershipDialogComponent {
   readonly userSearch = signal('');
   readonly created = output<void>();
 
-  readonly users = signal<{ id: string; fullName: string; email: string; username: string }[]>([]);
+  readonly users = signal<{ id: string; fullName: string; email: string; username: string; documentValue?: string }[]>([]);
 
   readonly filteredUsers = computed(() => {
     const s = this.userSearch().toLowerCase().trim();
     if (!s) return this.users().slice(0, 20);
     return this.users().filter(u =>
-      u.fullName.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || u.username.toLowerCase().includes(s)
+      u.fullName.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || u.username.toLowerCase().includes(s) || (u.documentValue ?? '').toLowerCase().includes(s)
     ).slice(0, 20);
   });
 
@@ -179,7 +179,7 @@ export class AddMembershipDialogComponent {
       this.form.controls.scopeRefId.reset();
     });
     // Load users for the dropdown
-    this.usersService.getAll().subscribe((list) => this.users.set(list.map(u => ({ id: u.id, fullName: u.fullName, email: u.email, username: u.username }))));
+    this.usersService.getAll().subscribe((list) => this.users.set(list.map(u => ({ id: u.id, fullName: u.fullName, email: u.email, username: u.username, documentValue: u.documentValue }))));
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
     this.schoolsService.getAll().subscribe((schools) => {
       schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
