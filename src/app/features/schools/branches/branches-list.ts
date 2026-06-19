@@ -24,6 +24,7 @@ import { BranchResponse, BranchRow } from './models/branch';
 import { School } from '../models/school';
 import { PageHeader, StatCard, EmptyState, ConfirmationDialog } from '../../../shared/ui';
 import { CreateBranchDialogComponent } from './dialogs/create-branch';
+import { EditBranch } from './dialogs/edit-branch';
 import { statusLabel as getStatusLabel, branchTypeLabel as getBranchTypeLabel } from '../../../core/constants/display-labels';
 
 /* ------------------------------------------------------------------ */
@@ -71,6 +72,7 @@ const STATUS_CLASSES: Record<string, string> = {
     EmptyState,
     ConfirmationDialog,
     CreateBranchDialogComponent,
+    EditBranch,
     LucidePlus,
     LucideSearch,
     LucideEye,
@@ -113,6 +115,7 @@ export class BranchesListComponent {
   // Dialog visibility
   readonly createDialogVisible = signal(false);
   readonly statusDialogVisible = signal(false);
+  readonly editDialogVisible = signal(false);
   readonly selectedBranch = signal<BranchRow | null>(null);
 
   /* ---- Computed: Stats ----------------------------------------------- */
@@ -395,5 +398,15 @@ export class BranchesListComponent {
 
   viewBranch(branch: BranchRow): void {
     this.router.navigate(['/schools', branch.schoolId, 'branches', branch.id]);
+  }
+
+  editBranch(branch: BranchRow): void {
+    this.selectedBranch.set(branch);
+    this.editDialogVisible.set(true);
+  }
+
+  onBranchEdited(): void {
+    this.editDialogVisible.set(false);
+    this.loadData();
   }
 }

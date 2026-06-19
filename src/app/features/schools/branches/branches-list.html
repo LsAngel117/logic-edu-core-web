@@ -274,7 +274,7 @@
               <button class="action-btn" title="Ver sede" (click)="viewBranch(branch)">
                 <svg lucideEye></svg>
               </button>
-              <button class="action-btn" title="Editar sede">
+              <button class="action-btn" title="Editar sede" (click)="editBranch(branch)">
                 <svg lucidePencil></svg>
               </button>
               <button class="action-btn action-btn--danger" title="Cambiar estado" (click)="openStatusDialog(branch)">
@@ -353,10 +353,18 @@
   />
 
   <!-- ======= STATUS DIALOG ======= -->
+  @if (selectedBranch(); as b) {
+  <app-edit-branch
+    [branchData]="b"
+    [(visible)]="editDialogVisible"
+    (saved)="onBranchEdited()"
+  />
+  }
+
   <app-confirmation-dialog
     [title]="statusDialogTitle()"
     [message]="statusDialogMessage()"
-    [confirmLabel]="statusDialogConfirmLabel()"
+    [confirmLabel]="statusConfirmLabel()"
     [(visible)]="statusDialogVisible"
     (confirm)="confirmStatusChange()"
     (cancel)="closeStatusDialog()"
