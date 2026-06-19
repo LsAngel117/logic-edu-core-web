@@ -28,7 +28,7 @@ export interface CreateUserPayload {
   secondGivenName?: string;
   firstFamilyName: string;
   secondFamilyName?: string;
-  sex: 'MALE' | 'FEMALE';
+  sex: 'MALE' | 'FEMALE' | 'OTHER';
   birthDate: string;
   documentType: string;
   documentValue: string;
