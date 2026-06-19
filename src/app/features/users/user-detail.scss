@@ -415,6 +415,15 @@ $font-family: 'Roboto', sans-serif;
   gap: $spacing-unit * 2;
 }
 
+.info-row {
+  display: flex;
+  gap: $spacing-unit * 3;
+}
+
+.info-row .info-field {
+  flex: 1;
+}
+
 .info-field {
   display: flex;
   flex-direction: column;

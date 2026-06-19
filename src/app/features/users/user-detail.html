@@ -171,45 +171,55 @@
           </button>
         </div>
         <div class="info-fields">
-          <div class="info-field">
-            <label class="info-field__label">Nombre completo</label>
-            <span class="info-field__value">{{ u.fullName }}</span>
+          <div class="info-row">
+            <div class="info-field">
+              <label class="info-field__label">Nombre completo</label>
+              <span class="info-field__value">{{ u.fullName }}</span>
+            </div>
+            <div class="info-field">
+              <label class="info-field__label">Sexo</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.sex">{{ u.sex === 'MALE' ? 'Masculino' : u.sex === 'FEMALE' ? 'Femenino' : u.sex === 'OTHER' ? 'Otro' : '—' }}</span>
+            </div>
           </div>
-          <div class="info-field">
-            <label class="info-field__label">Email</label>
-            <span class="info-field__value">{{ u.email }}</span>
+          <div class="info-row">
+            <div class="info-field">
+              <label class="info-field__label">Email</label>
+              <span class="info-field__value">{{ u.email }}</span>
+            </div>
+            <div class="info-field">
+              <label class="info-field__label">Teléfono</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.phone">{{ u.phone || '—' }}</span>
+            </div>
           </div>
-          <div class="info-field">
-            <label class="info-field__label">Tipo Documento</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.documentType">{{ u.documentType || '—' }}</span>
+          <div class="info-row">
+            <div class="info-field">
+              <label class="info-field__label">Tipo Documento</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.documentType">{{ u.documentType || '—' }}</span>
+            </div>
+            <div class="info-field">
+              <label class="info-field__label">Dirección</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.address">{{ u.address || '—' }}</span>
+            </div>
           </div>
-          <div class="info-field">
-            <label class="info-field__label">N° Documento</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.documentValue">{{ u.documentValue || '—' }}</span>
+          <div class="info-row">
+            <div class="info-field">
+              <label class="info-field__label">N° Documento</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.documentValue">{{ u.documentValue || '—' }}</span>
+            </div>
+            <div class="info-field">
+              <label class="info-field__label">Ciudad</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.city">{{ u.city || '—' }}</span>
+            </div>
           </div>
-          <div class="info-field">
-            <label class="info-field__label">Fecha Nacimiento</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.birthDate">{{ u.birthDate || '—' }}</span>
-          </div>
-          <div class="info-field">
-            <label class="info-field__label">Sexo</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.sex">{{ u.sex === 'MALE' ? 'Masculino' : u.sex === 'FEMALE' ? 'Femenino' : u.sex === 'OTHER' ? 'Otro' : '—' }}</span>
-          </div>
-          <div class="info-field">
-            <label class="info-field__label">Teléfono</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.phone">{{ u.phone || '—' }}</span>
-          </div>
-          <div class="info-field">
-            <label class="info-field__label">Dirección</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.address">{{ u.address || '—' }}</span>
-          </div>
-          <div class="info-field">
-            <label class="info-field__label">Ciudad</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.city">{{ u.city || '—' }}</span>
-          </div>
-          <div class="info-field">
-            <label class="info-field__label">País</label>
-            <span class="info-field__value" [class.info-field__value--muted]="!u.country">{{ u.country || '—' }}</span>
+          <div class="info-row">
+            <div class="info-field">
+              <label class="info-field__label">Fecha Nacimiento</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.birthDate">{{ u.birthDate || '—' }}</span>
+            </div>
+            <div class="info-field">
+              <label class="info-field__label">País</label>
+              <span class="info-field__value" [class.info-field__value--muted]="!u.country">{{ u.country || '—' }}</span>
+            </div>
           </div>
         </div>
       </div>
