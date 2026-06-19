@@ -39,6 +39,22 @@ import { AppDialog } from '../../../shared/ui';
         </div>
         <div class="form-row">
           <div class="form-field">
+            <label>Tipo Documento</label>
+            <select formControlName="documentType" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="CC">CC — Cédula de Ciudadanía</option>
+              <option value="TI">TI — Tarjeta de Identidad</option>
+              <option value="CE">CE — Cédula de Extranjería</option>
+              <option value="PP">PP — Pasaporte</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>N° Documento</label>
+            <input type="text" formControlName="documentValue" placeholder="Número de documento" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
             <label>Teléfono</label>
             <input type="text" formControlName="phone" placeholder="+57 300 123 4567" />
           </div>
@@ -93,6 +109,8 @@ export class EditUser {
     firstFamilyName: ['', Validators.required],
     secondFamilyName: [''],
     email: ['', [Validators.required, Validators.email]],
+    documentType: [''],
+    documentValue: [''],
     phone: [''],
     address: [''],
     city: [''],
@@ -133,6 +151,8 @@ export class EditUser {
       firstFamilyName: u.firstFamilyName || firstFamily,
       secondFamilyName: u.secondFamilyName || secondFamily,
       email: u.email,
+      documentType: u.documentType || '',
+      documentValue: u.documentValue || '',
       phone: u.phone || '',
       address: u.address || '',
       city: u.city || '',
@@ -159,6 +179,8 @@ export class EditUser {
       address: raw.address || undefined,
       city: raw.city || undefined,
       country: raw.country || undefined,
+      documentType: raw.documentType || undefined,
+      documentValue: raw.documentValue || undefined,
     };
 
     try {

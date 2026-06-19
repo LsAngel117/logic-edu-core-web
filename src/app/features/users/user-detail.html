@@ -180,6 +180,14 @@
             <span class="info-field__value">{{ u.email }}</span>
           </div>
           <div class="info-field">
+            <label class="info-field__label">Tipo Documento</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.documentType">{{ u.documentType || '—' }}</span>
+          </div>
+          <div class="info-field">
+            <label class="info-field__label">N° Documento</label>
+            <span class="info-field__value" [class.info-field__value--muted]="!u.documentValue">{{ u.documentValue || '—' }}</span>
+          </div>
+          <div class="info-field">
             <label class="info-field__label">Teléfono</label>
             <span class="info-field__value" [class.info-field__value--muted]="!u.phone">{{ u.phone || '—' }}</span>
           </div>

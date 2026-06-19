@@ -8,7 +8,7 @@ export interface UserProfile {
   firstFamilyName?: string;
   secondFamilyName?: string;
   documentValue?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+  documentType?: string;
   role?: string;
   institution?: string;
   phone?: string;
@@ -53,6 +53,8 @@ export interface UpdateUserPayload {
   secondGivenName?: string;
   firstFamilyName: string;
   secondFamilyName?: string;
+  documentType?: string;
+  documentValue?: string;
   phone?: string;
   address?: string;
   city?: string;
