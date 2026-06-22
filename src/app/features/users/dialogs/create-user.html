@@ -161,29 +161,41 @@
           <option value="STUDENT">Estudiante</option>
         </select>
       </div>
-      <!-- Scope is derived from role — no selector needed -->
-      @if (roleScopeType()) {
-        <p class="scope-hint">Alcance: <strong>{{ roleScopeType() }}</strong></p>
+      <!-- Scope is derived from role -->
+      @if (roleScopeType(); as scope) {
+        <p class="scope-hint">Alcance: <strong>{{ scope }}</strong>{{ scope === 'PLATFORM' ? ' (sin restricción)' : '' }}</p>
+
+        <!-- SCHOOL: select institution -->
+        @if (scope === 'SCHOOL') {
+          <div class="dialog-field">
+            <label class="dialog-label">Institución *</label>
+            <select class="dialog-select" [value]="scopeRefId()" (change)="updateSelectField('scopeRefId', $event)">
+              <option value="" disabled>Seleccionar institución</option>
+              @for (s of schools(); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+            </select>
+          </div>
+        }
+
+        <!-- BRANCH: select branch -->
+        @if (scope === 'BRANCH') {
+          <div class="dialog-field">
+            <label class="dialog-label">Sede *</label>
+            <select class="dialog-select" [value]="scopeRefId()" (change)="updateSelectField('scopeRefId', $event)">
+              <option value="" disabled>Seleccionar sede</option>
+              @for (b of branches(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }
+            </select>
+          </div>
+        }
+
+        <!-- COURSE: text input for group ID -->
+        @if (scope === 'COURSE') {
+          <div class="dialog-field">
+            <label class="dialog-label">ID del Grupo *</label>
+            <input class="dialog-input" type="text" [value]="scopeRefId()" (input)="updateTextField('scopeRefId', $event)" placeholder="Identificador del grupo" />
+          </div>
+        }
       }
     </div>
-
-    <!-- Row 7: ID Alcance (conditional) -->
-    @if (showScopeRefId()) {
-    <div class="dialog-row">
-      <div class="dialog-field">
-        <label class="dialog-label">ID Alcance</label>
-        <input
-          class="dialog-input"
-          type="text"
-          data-testid="create-scopeRefId"
-          [value]="scopeRefId()"
-          (input)="updateTextField('scopeRefId', $event)"
-          placeholder="Identificador del colegio o sede"
-        />
-      </div>
-      <div class="dialog-field"></div>
-    </div>
-    }
 
     <!-- Row 8: Contact info -->
     <div class="dialog-row">

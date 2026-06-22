@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, model, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
+import { SchoolsService } from '../../../schools/services/schools';
+import { BranchesService } from '../../../schools/branches/services/branches';
 import { CreateUserPayload } from '../models/user-profile';
 import { AppDialog } from '../../../shared/ui';
 
@@ -22,6 +24,8 @@ const ROLE_SCOPE: Record<string, string> = {
 })
 export class CreateUserDialogComponent {
   private readonly usersService = inject(UsersService);
+  private readonly schoolsService = inject(SchoolsService);
+  private readonly branchesService = inject(BranchesService);
 
   readonly visible = model(false);
   readonly loading = signal(false);
@@ -45,16 +49,24 @@ export class CreateUserDialogComponent {
   readonly city = signal('');
   readonly country = signal('');
 
+  readonly schools = signal<{ id: string; name: string }[]>([]);
+  readonly branches = signal<{ id: string; name: string }[]>([]);
+
+  constructor() {
+    this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));
+    this.schoolsService.getAll().subscribe((schools) => {
+      schools.forEach((s) => this.branchesService.getBySchool(s.id).subscribe((list) => {
+        const cur = this.branches();
+        list.forEach((b: any) => cur.push({ id: b.id, name: b.name }));
+        this.branches.set([...cur]);
+      }));
+    });
+  }
+
   readonly created = output<void>();
   readonly cancel = output<void>();
 
   readonly roleScopeType = computed(() => ROLE_SCOPE[this.role()] ?? '');
-
-  // Show scopeRefId when scope is not PLATFORM
-  readonly showScopeRefId = computed(() => {
-    const s = this.roleScopeType();
-    return s !== 'PLATFORM' && s !== '';
-  });
 
   updateTextField(field: string, event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -81,6 +93,11 @@ export class CreateUserDialogComponent {
     // Required fields validation
     if (!em || !pwd || !fgn || !ffn || !sx || !bd || !dt || !dv || !rl || !st) {
       this.errorMessage.set('Todos los campos requeridos deben estar completos');
+      return;
+    }
+    // scopeRefId required for non-PLATFORM scopes
+    if (st !== 'PLATFORM' && !this.scopeRefId().trim()) {
+      this.errorMessage.set('Debe seleccionar una referencia de alcance');
       return;
     }
     if (!em.includes('@')) {
