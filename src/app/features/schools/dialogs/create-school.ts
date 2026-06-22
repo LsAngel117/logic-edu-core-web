@@ -4,14 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
 import { CreateSchoolPayload } from '../models/school';
 import { AppDialog } from '../../../shared/ui/app-dialog/app-dialog';
-import { ToastService } from '../../../core/services/toast';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
 @Component({
   selector: 'app-create-school',
   imports: [ReactiveFormsModule, AppDialog],
-import { ToastService } from '../../../core/services/toast';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-dialog
@@ -125,7 +123,6 @@ import { ToastService } from '../../../core/services/toast';
 })
 export class CreateSchoolDialogComponent {
   private readonly schoolsService = inject(SchoolsService);
-  private readonly toast = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   readonly visible = model(false);
