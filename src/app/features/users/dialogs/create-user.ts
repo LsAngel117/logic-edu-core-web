@@ -5,6 +5,7 @@ import { SchoolsService } from '../../schools/services/schools';
 import { BranchesService } from '../../schools/branches/services/branches';
 import { CreateUserPayload } from '../models/user-profile';
 import { AppDialog } from '../../../shared/ui';
+import { ToastService } from '../../../core/services/toast';
 
 const ROLE_SCOPE: Record<string, string> = {
   PLATFORM_ADMIN: 'PLATFORM',
@@ -26,6 +27,7 @@ export class CreateUserDialogComponent {
   private readonly usersService = inject(UsersService);
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
+  private readonly toast = inject(ToastService);
 
   readonly visible = model(false);
   readonly loading = signal(false);
@@ -160,6 +162,7 @@ export class CreateUserDialogComponent {
       await firstValueFrom(this.usersService.create(payload));
       this.visible.set(false);
       this.created.emit();
+      this.toast.success('Usuario creado exitosamente');
       this.resetForm();
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
