@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, model, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersService } from '../services/users';
-import { SchoolsService } from '../../../schools/services/schools';
-import { BranchesService } from '../../../schools/branches/services/branches';
+import { SchoolsService } from '../../schools/services/schools';
+import { BranchesService } from '../../schools/branches/services/branches';
 import { CreateUserPayload } from '../models/user-profile';
 import { AppDialog } from '../../../shared/ui';
 
