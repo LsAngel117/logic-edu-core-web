@@ -51,6 +51,30 @@ export class CreateUserDialogComponent {
 
   readonly schools = signal<{ id: string; name: string }[]>([]);
   readonly branches = signal<{ id: string; name: string }[]>([]);
+  readonly schoolSearch = signal('');
+  readonly branchSearch = signal('');
+
+  readonly filteredSchools = computed(() => {
+    const s = this.schoolSearch().toLowerCase().trim();
+    if (!s) return this.schools().slice(0, 20);
+    return this.schools().filter(sc => sc.name.toLowerCase().includes(s)).slice(0, 20);
+  });
+
+  readonly filteredBranches = computed(() => {
+    const s = this.branchSearch().toLowerCase().trim();
+    if (!s) return this.branches().slice(0, 20);
+    return this.branches().filter(b => b.name.toLowerCase().includes(s)).slice(0, 20);
+  });
+
+  readonly selectedSchoolLabel = computed(() => {
+    const s = this.schools().find(s => s.id === this.scopeRefId());
+    return s?.name ?? '';
+  });
+
+  readonly selectedBranchLabel = computed(() => {
+    const b = this.branches().find(b => b.id === this.scopeRefId());
+    return b?.name ?? '';
+  });
 
   constructor() {
     this.schoolsService.getAll().subscribe((list) => this.schools.set(list.map(s => ({ id: s.id, name: s.name }))));

@@ -165,25 +165,51 @@
       @if (roleScopeType(); as scope) {
         <p class="scope-hint">Alcance: <strong>{{ scope }}</strong>{{ scope === 'PLATFORM' ? ' (sin restricción)' : '' }}</p>
 
-        <!-- SCHOOL: select institution -->
+        <!-- SCHOOL: searchable institution selector -->
         @if (scope === 'SCHOOL') {
           <div class="dialog-field">
             <label class="dialog-label">Institución *</label>
-            <select class="dialog-select" [value]="scopeRefId()" (change)="updateSelectField('scopeRefId', $event)">
-              <option value="" disabled>Seleccionar institución</option>
-              @for (s of schools(); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
-            </select>
+            <div class="search-wrapper">
+              <input type="text" class="search-input" [value]="schoolSearch()" (input)="schoolSearch.set($any($event.target).value)"
+                placeholder="Buscar institución..." />
+            </div>
+            @if (scopeRefId()) {
+              <p class="scope-hint">Seleccionada: <strong>{{ selectedSchoolLabel() }}</strong></p>
+            }
+            <div class="user-list">
+              @for (s of filteredSchools(); track s.id) {
+                <button type="button" class="user-option" [class.active]="s.id === scopeRefId()" (click)="scopeRefId.set(s.id); schoolSearch.set(s.name)">
+                  <span class="user-option-name">{{ s.name }}</span>
+                </button>
+              }
+              @if (filteredSchools().length === 0 && schoolSearch()) {
+                <p class="scope-hint">No se encontraron instituciones</p>
+              }
+            </div>
           </div>
         }
 
-        <!-- BRANCH: select branch -->
+        <!-- BRANCH: searchable branch selector -->
         @if (scope === 'BRANCH') {
           <div class="dialog-field">
             <label class="dialog-label">Sede *</label>
-            <select class="dialog-select" [value]="scopeRefId()" (change)="updateSelectField('scopeRefId', $event)">
-              <option value="" disabled>Seleccionar sede</option>
-              @for (b of branches(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }
-            </select>
+            <div class="search-wrapper">
+              <input type="text" class="search-input" [value]="branchSearch()" (input)="branchSearch.set($any($event.target).value)"
+                placeholder="Buscar sede..." />
+            </div>
+            @if (scopeRefId()) {
+              <p class="scope-hint">Seleccionada: <strong>{{ selectedBranchLabel() }}</strong></p>
+            }
+            <div class="user-list">
+              @for (b of filteredBranches(); track b.id) {
+                <button type="button" class="user-option" [class.active]="b.id === scopeRefId()" (click)="scopeRefId.set(b.id); branchSearch.set(b.name)">
+                  <span class="user-option-name">{{ b.name }}</span>
+                </button>
+              }
+              @if (filteredBranches().length === 0 && branchSearch()) {
+                <p class="scope-hint">No se encontraron sedes</p>
+              }
+            </div>
           </div>
         }
 
