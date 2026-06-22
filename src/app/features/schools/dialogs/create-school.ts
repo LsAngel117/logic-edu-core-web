@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { SchoolsService } from '../services/schools';
 import { CreateSchoolPayload } from '../models/school';
 import { AppDialog } from '../../../shared/ui/app-dialog/app-dialog';
+import { ToastService } from '../../../core/services/toast';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
@@ -124,6 +125,7 @@ const CODE_PATTERN = /^[A-Z0-9-]+$/;
 export class CreateSchoolDialogComponent {
   private readonly schoolsService = inject(SchoolsService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   readonly visible = model(false);
   readonly created = output<any>();
@@ -169,6 +171,7 @@ export class CreateSchoolDialogComponent {
       const result = await firstValueFrom(this.schoolsService.create(payload));
       this.visible.set(false);
       this.created.emit(result);
+      this.toast.success('Institución creada exitosamente');
     } catch (err: unknown) {
       this.errorMessage.set((err as Error).message || 'Error al crear la institución');
     } finally {

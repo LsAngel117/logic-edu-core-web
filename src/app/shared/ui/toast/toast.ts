@@ -34,43 +34,44 @@ import { LucideCheckCircle, LucideXCircle, LucideAlertTriangle, LucideInfo, Luci
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       max-width: 380px;
     }
 
     .toast {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-radius: 12px;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
       background: #fff;
-      box-shadow: 0 8px 24px rgba(0,0,0,.12);
-      border: 1px solid #e5e7eb;
-      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+      animation: slideIn 0.25s ease;
       font-family: Roboto, sans-serif;
       font-size: 14px;
     }
 
-    .toast--success { border-left: 4px solid #10b981; }
-    .toast--success .toast__icon svg { color: #10b981; }
-    .toast--error { border-left: 4px solid #ef4444; }
-    .toast--error .toast__icon svg { color: #ef4444; }
-    .toast--warning { border-left: 4px solid #f59e0b; }
-    .toast--warning .toast__icon svg { color: #f59e0b; }
-    .toast--info { border-left: 4px solid #2563eb; }
-    .toast--info .toast__icon svg { color: #2563eb; }
+    .toast--success { background: #f0fdf4; }
+    .toast--error { background: #fef2f2; }
+    .toast--warning { background: #fffbeb; }
+    .toast--info { background: #eff6ff; }
 
     .toast__icon {
       display: flex;
       flex-shrink: 0;
+      padding-top: 1px;
       svg { width: 20px; height: 20px; }
     }
+    .toast--success .toast__icon svg { color: #16a34a; }
+    .toast--error .toast__icon svg { color: #dc2626; }
+    .toast--warning .toast__icon svg { color: #d97706; }
+    .toast--info .toast__icon svg { color: #2563eb; }
 
     .toast__message {
       flex: 1;
-      color: #111827;
-      font-weight: 500;
+      color: #1f2937;
+      font-weight: 400;
+      line-height: 1.5;
     }
 
     .toast__close {
@@ -82,11 +83,12 @@ import { LucideCheckCircle, LucideXCircle, LucideAlertTriangle, LucideInfo, Luci
       border: none;
       background: none;
       cursor: pointer;
-      border-radius: 6px;
+      border-radius: 4px;
       color: #9ca3af;
       flex-shrink: 0;
-      &:hover { background: #f3f4f6; color: #111827; }
-      svg { width: 14px; height: 14px; }
+      margin-top: -2px;
+      &:hover { background: rgba(0,0,0,.06); color: #4b5563; }
+      svg { width: 16px; height: 16px; }
     }
 
     @keyframes slideIn {

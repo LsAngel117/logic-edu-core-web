@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, model, out
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AppDialog } from '../../../../shared/ui';
+import { ToastService } from '../../../../core/services/toast';
 import { roleLabel as getRoleLabel } from '../../../../core/constants/role-labels';
 import { MembershipsService } from '../services/memberships';
 import { UsersService } from '../../services/users';
@@ -123,6 +124,7 @@ const ROLE_SCOPE: Record<string, string> = {
 })
 export class AddMembershipDialogComponent {
   private readonly membershipsService = inject(MembershipsService);
+  private readonly toast = inject(ToastService);
   private readonly usersService = inject(UsersService);
   private readonly schoolsService = inject(SchoolsService);
   private readonly branchesService = inject(BranchesService);
@@ -217,6 +219,7 @@ export class AddMembershipDialogComponent {
       await firstValueFrom(this.membershipsService.assign(payload));
       this.created.emit();
       this.visible.set(false);
+      this.toast.success('Membresía asignada exitosamente');
       this.form.reset();
     } catch (err: unknown) {
       const s = (err as { status?: number }).status;

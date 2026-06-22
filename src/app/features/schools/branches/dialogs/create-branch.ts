@@ -6,6 +6,7 @@ import { SchoolsService } from '../../services/schools';
 import { CreateBranchRequest } from '../models/branch';
 import { School } from '../../models/school';
 import { AppDialog } from '../../../../shared/ui/app-dialog/app-dialog';
+import { ToastService } from '../../../../core/services/toast';
 
 const CODE_PATTERN = /^[A-Z0-9-]+$/;
 
@@ -124,6 +125,7 @@ export class CreateBranchDialogComponent {
   private readonly branchesService = inject(BranchesService);
   private readonly schoolsService = inject(SchoolsService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   readonly visible = model(false);
   readonly schoolId = input<string>('');
@@ -181,6 +183,7 @@ export class CreateBranchDialogComponent {
       const result = await firstValueFrom(this.branchesService.create(raw.schoolId, payload));
       this.visible.set(false);
       this.created.emit(result);
+      this.toast.success('Sede creada exitosamente');
     } catch (err: unknown) {
       this.errorMessage.set((err as Error).message || 'Error al crear la sede');
     } finally {
