@@ -39,6 +39,10 @@ export const routes: Routes = [
         path: 'memberships',
         loadComponent: () => import('./features/users/memberships/memberships-page').then(m => m.MembershipsPageComponent),
       },
+      {
+        path: 'academic/structures',
+        loadComponent: () => import('./features/academic/structures/structures-page').then(m => m.StructuresPageComponent),
+      },
     ],
   },
 ];

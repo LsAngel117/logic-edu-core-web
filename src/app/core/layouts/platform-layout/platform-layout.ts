@@ -37,6 +37,10 @@ export class PlatformLayout {
           { label: 'Sedes', icon: 'git-branch', route: '/branches' },
           { label: 'Membresías', icon: 'key', route: '/memberships' },
         ];
+      case 'config':
+        return [
+          { label: 'Estructura Académica', icon: 'school', route: '/academic/structures' },
+        ];
       default:
         return [];
     }

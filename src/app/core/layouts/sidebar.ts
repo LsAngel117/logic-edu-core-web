@@ -10,6 +10,7 @@ import {
   LucideChevronRight,
   LucideChevronDown,
   LucideKey,
+  LucideSchool,
 } from '@lucide/angular';
 import { NavItem } from './nav-items';
 
@@ -27,6 +28,7 @@ type SidebarMode = 'expanded' | 'peek' | 'collapsed';
     LucideChevronRight,
     LucideChevronDown,
     LucideKey,
+    LucideSchool,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar.html',

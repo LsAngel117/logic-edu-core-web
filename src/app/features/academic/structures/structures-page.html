@@ -1,0 +1,387 @@
+<div class="structures-page">
+
+  <!-- ======= PAGE HEADER ======= -->
+  <app-page-header
+    title="Estructura Académica"
+    description="Configura la estructura académica de cada institución."
+    data-testid="page-header"
+  />
+
+  <!-- ======= SCHOOL SELECTOR ======= -->
+  <div class="school-selector-card">
+    <div class="school-selector-field">
+      <label class="school-selector-label">Institución</label>
+      <select
+        class="filter-select school-select"
+        data-testid="school-select"
+        [value]="selectedSchoolId() ?? ''"
+        (change)="selectSchool($any($event.target).value)"
+      >
+        <option value="" disabled>Seleccionar institución...</option>
+        @for (school of schools(); track school.id) {
+          <option [value]="school.id">{{ school.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- ======= ERROR STATE ======= -->
+  @if (selectedSchoolId() && error()) {
+  <div class="error-card" data-testid="structures-error">
+    <div class="error-card__icon">
+      <svg lucideShield></svg>
+    </div>
+    <h3>Error al cargar estructuras</h3>
+    <button class="btn-outline" data-testid="structures-retry" (click)="loadStructures()">
+      Reintentar
+    </button>
+  </div>
+  }
+
+  <!-- ======= LOADING STATE ======= -->
+  @if (selectedSchoolId() && !error() && loading()) {
+  <div class="structures-page__loading" data-testid="structures-loading">
+    <div class="loading-spinner"></div>
+    <span>Cargando estructuras académicas...</span>
+  </div>
+  }
+
+  <!-- ======= CONTENT (loaded) ======= -->
+  @if (selectedSchoolId() && !error() && !loading()) {
+
+  <!-- Summary Cards -->
+  <div class="stats-row">
+    <app-stat-card
+      icon="school"
+      label="Total Estructuras"
+      [value]="totalStructures()"
+      iconColor="#2563eb"
+      iconBg="rgba(37, 99, 235, 0.08)"
+    />
+    <app-stat-card
+      icon="check-circle"
+      label="Activas"
+      [value]="activeStructures()"
+      iconColor="#71dd37"
+      iconBg="rgba(113, 221, 55, 0.12)"
+    />
+    <app-stat-card
+      icon="x-circle"
+      label="Inactivas"
+      [value]="inactiveStructures()"
+      iconColor="#ff3e1d"
+      iconBg="rgba(255, 62, 29, 0.08)"
+    />
+  </div>
+
+  <!-- Structures Table Card -->
+  <div class="table-card">
+    <!-- Toolbar: filters row -->
+    <div class="table-card__toolbar">
+      <div class="toolbar-filters">
+        <span class="filters-title">Filtros de búsqueda</span>
+        <div class="filters-row">
+          <!-- Status Filter -->
+          <div class="filter-field">
+            <label class="filter-label">Estado</label>
+            <select
+              class="filter-select"
+              data-testid="status-filter"
+              [value]="statusFilter()"
+              (change)="setStatusFilter($any($event.target).value)"
+            >
+              <option value="Todos">Todos</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-field filter-field--search">
+            <label class="filter-label">Buscar</label>
+            <div class="search-wrapper">
+              <svg lucideSearch class="search-icon"></svg>
+              <input
+                #searchInput
+                class="search-input"
+                type="text"
+                data-testid="structures-search"
+                [value]="searchTerm()"
+                (input)="onSearchInput($event)"
+                autocomplete="off" name="search" placeholder="Buscar por tipo de estructura..."
+              />
+              @if (searchTerm()) {
+              <button class="search-clear" (click)="clearSearch(searchInput)" aria-label="Limpiar búsqueda">
+                &times;
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <div class="table-card__toolbar">
+      <div class="toolbar-actions">
+        <!-- Records per page -->
+        <div class="page-size-field">
+          <select
+            class="filter-select filter-select--compact"
+            data-testid="page-size-select"
+            [value]="pageSize()"
+            (change)="setPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="toolbar-actions-right">
+          <!-- Nueva Estructura button -->
+          <button class="btn-primary btn-primary--sm" data-testid="create-structure-btn-toolbar" (click)="createDialogVisible.set(true)">
+            <svg lucidePlus class="btn-icon btn-icon--sm"></svg>
+            Nueva Estructura
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="table-card__divider"></div>
+
+    <!-- Table (only when there are filtered results) -->
+    @if (filteredStructures().length > 0) {
+    <div class="table-card__table-wrapper">
+      <table class="structures-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('structureType')">
+              Tipo
+              @if (sortColumn() === 'structureType') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('levelsCount')">
+              Niveles
+              @if (sortColumn() === 'levelsCount') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('periodsPerLevel')">
+              Períodos/Nivel
+              @if (sortColumn() === 'periodsPerLevel') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('evaluationPeriodsPerPeriod')">
+              Cortes/Período
+              @if (sortColumn() === 'evaluationPeriodsPerPeriod') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('subjectsPerPeriod')">
+              Materias/Período
+              @if (sortColumn() === 'subjectsPerPeriod') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('hoursPerSubject')">
+              Horas/Materia
+              @if (sortColumn() === 'hoursPerSubject') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('active')">
+              Estado
+              @if (sortColumn() === 'active') {
+                @if (sortDirection() === 'asc') {
+                  <svg lucideArrowUp class="sort-icon"></svg>
+                } @else {
+                  <svg lucideArrowDown class="sort-icon"></svg>
+                }
+              }
+            </th>
+            <th class="structures-table__th--actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (structure of paginatedStructures(); track structure.id) {
+          <tr class="structure-row" data-testid="structure-row">
+            <!-- Type badge -->
+            <td>
+              <span
+                class="type-badge"
+                [style.background-color]="typeBg(structure.structureType)"
+                [style.color]="typeColor(structure.structureType)"
+              >
+                {{ structureTypeLabel(structure.structureType) }}
+              </span>
+            </td>
+
+            <!-- Levels -->
+            <td>
+              <span class="structure-number">{{ structure.levelsCount }}</span>
+            </td>
+
+            <!-- Periods per Level -->
+            <td>
+              <span class="structure-number">{{ structure.periodsPerLevel }}</span>
+            </td>
+
+            <!-- Evaluation Periods per Period -->
+            <td>
+              <span class="structure-number">{{ structure.evaluationPeriodsPerPeriod }}</span>
+            </td>
+
+            <!-- Subjects per Period -->
+            <td>
+              <span class="structure-number">{{ structure.subjectsPerPeriod }}</span>
+            </td>
+
+            <!-- Hours per Subject -->
+            <td>
+              <span class="structure-number">{{ structure.hoursPerSubject }}</span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+              <span
+                class="status-badge"
+                data-testid="status-badge"
+                [class]="'status-badge ' + statusClass(structure.active)"
+              >
+                {{ statusLabel(structure.active) }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="structures-table__td--actions">
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Editar estructura"
+                (click)="createDialogVisible.set(true)"
+              >
+                <svg lucidePencil></svg>
+              </button>
+              <button
+                class="action-btn"
+                data-testid="action-btn"
+                title="Cambiar estado"
+                (click)="openStatusDialog(structure)"
+              >
+                <svg lucidePower></svg>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="table-card__pagination" data-testid="pagination-controls">
+      <span class="pagination__info">
+        Mostrando {{ showingFrom() }}–{{ showingTo() }} de {{ filteredStructures().length }} registros
+      </span>
+
+      <div class="pagination__controls">
+        <button
+          class="pagination__btn"
+          data-testid="pagination-prev"
+          [disabled]="isFirstPage()"
+          (click)="prevPage()"
+          aria-label="Página anterior"
+        >
+          <svg lucideChevronLeft></svg>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button
+          class="pagination__btn pagination__btn--num"
+          [class.pagination__btn--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        }
+
+        <button
+          class="pagination__btn"
+          data-testid="pagination-next"
+          [disabled]="isLastPage()"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <svg lucideChevronRight></svg>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <!-- No results matching filters -->
+    <div class="table-card__empty" data-testid="structures-no-results">
+      <svg lucideSearch class="empty-icon"></svg>
+      <p class="empty-title">Sin resultados</p>
+      <p class="empty-desc">No se encontraron estructuras con los filtros actuales.</p>
+    </div>
+    }
+  </div>
+
+  }
+
+  <!-- ======= No school selected message ======= -->
+  @if (!selectedSchoolId()) {
+  <div class="table-card__empty" data-testid="structures-no-school">
+    <svg lucideSchool class="empty-icon"></svg>
+    <p class="empty-title">Selecciona una institución</p>
+    <p class="empty-desc">Elige una institución para ver y gestionar sus estructuras académicas.</p>
+  </div>
+  }
+
+  <!-- ======= CREATE STRUCTURE DIALOG ======= -->
+  @if (selectedSchoolId(); as schoolId) {
+  <app-create-structure
+    [schoolId]="schoolId"
+    [(visible)]="createDialogVisible"
+    (created)="onStructureCreated()"
+  />
+  }
+
+  <!-- ======= STATUS DIALOG ======= -->
+  <app-confirmation-dialog
+    [title]="statusDialogTitle()"
+    [message]="statusDialogMessage()"
+    [confirmLabel]="statusDialogConfirmLabel()"
+    [(visible)]="statusDialogVisible"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusDialog()"
+  />
+</div>
