@@ -32,9 +32,16 @@
       <svg lucideShield></svg>
     </div>
     <h3>Error al cargar estructuras</h3>
-    <button class="btn-outline" data-testid="structures-retry" (click)="loadStructures()">
-      Reintentar
-    </button>
+    <p class="error-card__desc">Es posible que esta institución no tenga estructuras configuradas.</p>
+    <div class="error-card__actions">
+      <button class="btn-outline" data-testid="structures-retry" (click)="loadStructures()">
+        Reintentar
+      </button>
+      <button class="btn-primary" (click)="createDialogVisible.set(true)">
+        <svg lucidePlus class="btn-icon"></svg>
+        Nueva Estructura
+      </button>
+    </div>
   </div>
   }
 
